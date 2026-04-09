@@ -1,0 +1,3 @@
+/Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles/space-invaders.dir
+/Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles/edit_cache.dir
+/Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles/rebuild_cache.dir

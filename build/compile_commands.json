@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build",
+  "command": "/usr/bin/c++  -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++2b -arch arm64 -o CMakeFiles/space-invaders.dir/src/main.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/src/main.cpp",
+  "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/src/main.cpp",
+  "output": "CMakeFiles/space-invaders.dir/src/main.cpp.o"
+}
+]
