@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include
+CXX_INCLUDES = -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include
 
 CXX_FLAGSarm64 = -std=gnu++2b -arch arm64
 
