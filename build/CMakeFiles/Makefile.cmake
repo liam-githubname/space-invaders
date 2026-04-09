@@ -10,6 +10,9 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/Users/liam/Programming/projects/proj_2026/space-invaders/CMakeLists.txt"
   "CMakeFiles/4.2.2/CMakeCXXCompiler.cmake"
   "CMakeFiles/4.2.2/CMakeSystem.cmake"
+  "/Users/liam/Programming/projects/proj_2026/space-invaders/lib/CMakeLists.txt"
+  "/Users/liam/Programming/projects/proj_2026/space-invaders/src/CMakeLists.txt"
+  "/Users/liam/Programming/projects/proj_2026/space-invaders/tests/CMakeLists.txt"
   "/opt/homebrew/opt/sdl3/lib/cmake/SDL3/SDL3Config.cmake"
   "/opt/homebrew/opt/sdl3/lib/cmake/SDL3/SDL3ConfigVersion.cmake"
   "/opt/homebrew/opt/sdl3/lib/cmake/SDL3/SDL3headersTargets.cmake"
@@ -122,9 +125,12 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/4.2.2/CMakeCXXCompiler.cmake"
   "CMakeFiles/4.2.2/CMakeCXXCompiler.cmake"
   "CMakeFiles/CMakeDirectoryInformation.cmake"
+  "lib/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "src/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "tests/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
-  "CMakeFiles/space-invaders.dir/DependInfo.cmake"
+  "src/CMakeFiles/space-invaders.dir/DependInfo.cmake"
   )

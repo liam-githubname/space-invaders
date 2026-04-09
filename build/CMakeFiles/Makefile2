@@ -63,52 +63,117 @@ CMAKE_BINARY_DIR = /Users/liam/Programming/projects/proj_2026/space-invaders/bui
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/space-invaders.dir/all
+all: lib/all
+all: src/all
+all: tests/all
 .PHONY : all
 
 # The main recursive "codegen" target.
-codegen: CMakeFiles/space-invaders.dir/codegen
+codegen: lib/codegen
+codegen: src/codegen
+codegen: tests/codegen
 .PHONY : codegen
 
 # The main recursive "preinstall" target.
-preinstall:
+preinstall: lib/preinstall
+preinstall: src/preinstall
+preinstall: tests/preinstall
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/space-invaders.dir/clean
+clean: lib/clean
+clean: src/clean
+clean: tests/clean
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/space-invaders.dir
+# Directory level rules for directory lib
+
+# Recursive "all" directory target.
+lib/all:
+.PHONY : lib/all
+
+# Recursive "codegen" directory target.
+lib/codegen:
+.PHONY : lib/codegen
+
+# Recursive "preinstall" directory target.
+lib/preinstall:
+.PHONY : lib/preinstall
+
+# Recursive "clean" directory target.
+lib/clean:
+.PHONY : lib/clean
+
+#=============================================================================
+# Directory level rules for directory src
+
+# Recursive "all" directory target.
+src/all: src/CMakeFiles/space-invaders.dir/all
+.PHONY : src/all
+
+# Recursive "codegen" directory target.
+src/codegen: src/CMakeFiles/space-invaders.dir/codegen
+.PHONY : src/codegen
+
+# Recursive "preinstall" directory target.
+src/preinstall:
+.PHONY : src/preinstall
+
+# Recursive "clean" directory target.
+src/clean: src/CMakeFiles/space-invaders.dir/clean
+.PHONY : src/clean
+
+#=============================================================================
+# Directory level rules for directory tests
+
+# Recursive "all" directory target.
+tests/all:
+.PHONY : tests/all
+
+# Recursive "codegen" directory target.
+tests/codegen:
+.PHONY : tests/codegen
+
+# Recursive "preinstall" directory target.
+tests/preinstall:
+.PHONY : tests/preinstall
+
+# Recursive "clean" directory target.
+tests/clean:
+.PHONY : tests/clean
+
+#=============================================================================
+# Target rules for target src/CMakeFiles/space-invaders.dir
 
 # All Build rule for target.
-CMakeFiles/space-invaders.dir/all:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/space-invaders.dir/build.make CMakeFiles/space-invaders.dir/depend
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/space-invaders.dir/build.make CMakeFiles/space-invaders.dir/build
+src/CMakeFiles/space-invaders.dir/all:
+	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/space-invaders.dir/build.make src/CMakeFiles/space-invaders.dir/depend
+	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/space-invaders.dir/build.make src/CMakeFiles/space-invaders.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles --progress-num=1,2 "Built target space-invaders"
-.PHONY : CMakeFiles/space-invaders.dir/all
+.PHONY : src/CMakeFiles/space-invaders.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/space-invaders.dir/rule: cmake_check_build_system
+src/CMakeFiles/space-invaders.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles 2
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/space-invaders.dir/all
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/space-invaders.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles 0
-.PHONY : CMakeFiles/space-invaders.dir/rule
+.PHONY : src/CMakeFiles/space-invaders.dir/rule
 
 # Convenience name for target.
-space-invaders: CMakeFiles/space-invaders.dir/rule
+space-invaders: src/CMakeFiles/space-invaders.dir/rule
 .PHONY : space-invaders
 
 # codegen rule for target.
-CMakeFiles/space-invaders.dir/codegen:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/space-invaders.dir/build.make CMakeFiles/space-invaders.dir/codegen
+src/CMakeFiles/space-invaders.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/space-invaders.dir/build.make src/CMakeFiles/space-invaders.dir/codegen
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles --progress-num=1,2 "Finished codegen for target space-invaders"
-.PHONY : CMakeFiles/space-invaders.dir/codegen
+.PHONY : src/CMakeFiles/space-invaders.dir/codegen
 
 # clean rule for target.
-CMakeFiles/space-invaders.dir/clean:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/space-invaders.dir/build.make CMakeFiles/space-invaders.dir/clean
-.PHONY : CMakeFiles/space-invaders.dir/clean
+src/CMakeFiles/space-invaders.dir/clean:
+	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/space-invaders.dir/build.make src/CMakeFiles/space-invaders.dir/clean
+.PHONY : src/CMakeFiles/space-invaders.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

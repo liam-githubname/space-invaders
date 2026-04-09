@@ -6,59 +6,11 @@
 #include <sdl3/SDL.h>
 #include <sdl3/SDL_main.h>
 
-// We are defining how to destroy SDL resources
-struct WindowDeleter {
-  void operator()(SDL_Window *window) const {
-    if (window)
-      SDL_DestroyWindow(window);
-  }
-};
-struct RendererDeleter {
-  void operator()(SDL_Renderer *renderer) const {
-    if (renderer)
-      SDL_DestroyRenderer(renderer);
-  }
-};
-struct SDLTextureDeleter {
-  void operator()(SDL_Texture *texture) const {
-    if (texture)
-      SDL_DestroyTexture(texture);
-  }
-};
-
-using TexturePtr = std::unique_ptr<SDL_Texture, SDLTextureDeleter>;
-using WindowPtr = std::unique_ptr<SDL_Window, WindowDeleter>;
-using RendererPtr = std::unique_ptr<SDL_Renderer, RendererDeleter>;
-
 // The SDL Subsystem RAII wrapper, SDL_Init must be called before anything else
 // and SDL_Quit must be called after the game closes
 // We will tie this to the lifecycle of a simple struct.
 // I really like this idea, you can tie necessary behaviors to a related
 // overarching type/object
-struct SDLContext {
-  // I'm assuming there is a default initializer or constructor of a struct and
-  // we can assign it like this.
-  SDLContext() = default;
-  ~SDLContext() { SDL_Quit(); }
-
-  // // Rule of Five: Delete copy and move operations to enforce exclusive
-  // // ownership This ensures SDL_Init/SDL_Quit are only called once and never
-  // // duplicated Without these, copying would cause double SDL_Quit() calls
-  // // (undefined behavior) Moving would leave one context calling SDL_Quit()
-  // // while another thinks SDL is active This is the standard C++ pattern for
-  // // non-copyable/non-movable RAII types
-  // SDLContext(const SDLContext &) = delete;
-  // SDLContext &operator=(const SDLContext &) = delete;
-  // SDLContext(SDLContext &&) = delete;
-  // SDLContext &operator=(SDLContext &&) = delete;
-};
-
-struct EngineCore {
-  SDLContext
-      context; // Ensures that SDL_Quit is called when EngineCore is destroyed.
-  WindowPtr window;
-  RendererPtr renderer;
-};
 
 // Is this a preprocessor command or some kind of runtime compilation?
 // [[nodiscard]] std::expected<EngineCore, std::string>
@@ -79,6 +31,7 @@ struct EngineCore {
 //   return EngineCore{SDLContext{}, std::move(window), std::move(renderer)};
 // }
 
+// ============= This might need be used again for a rendering module? =========
 const int CIRCLE_DRAW_SIDES = 32;
 const int CIRCLE_DRAW_SIDES_LEN = (CIRCLE_DRAW_SIDES + 1);
 

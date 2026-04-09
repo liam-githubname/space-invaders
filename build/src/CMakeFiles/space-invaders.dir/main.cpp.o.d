@@ -1,4 +1,4 @@
-CMakeFiles/space-invaders.dir/src/main.cpp.o: \
+src/CMakeFiles/space-invaders.dir/main.cpp.o: \
   /Users/liam/Programming/projects/proj_2026/space-invaders/src/main.cpp \
   /opt/homebrew/opt/sdl3_image/include/SDL3_image/SDL_image.h \
   /opt/homebrew/opt/sdl3/include/SDL3/SDL.h \

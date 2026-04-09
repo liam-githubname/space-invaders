@@ -1,3 +1,9 @@
-/Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles/space-invaders.dir
 /Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles/edit_cache.dir
 /Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles/rebuild_cache.dir
+/Users/liam/Programming/projects/proj_2026/space-invaders/build/lib/CMakeFiles/edit_cache.dir
+/Users/liam/Programming/projects/proj_2026/space-invaders/build/lib/CMakeFiles/rebuild_cache.dir
+/Users/liam/Programming/projects/proj_2026/space-invaders/build/src/CMakeFiles/space-invaders.dir
+/Users/liam/Programming/projects/proj_2026/space-invaders/build/src/CMakeFiles/edit_cache.dir
+/Users/liam/Programming/projects/proj_2026/space-invaders/build/src/CMakeFiles/rebuild_cache.dir
+/Users/liam/Programming/projects/proj_2026/space-invaders/build/tests/CMakeFiles/edit_cache.dir
+/Users/liam/Programming/projects/proj_2026/space-invaders/build/tests/CMakeFiles/rebuild_cache.dir

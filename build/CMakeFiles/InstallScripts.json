@@ -1,7 +1,10 @@
 {
 	"InstallScripts" : 
 	[
-		"/Users/liam/Programming/projects/proj_2026/space-invaders/build/cmake_install.cmake"
+		"/Users/liam/Programming/projects/proj_2026/space-invaders/build/cmake_install.cmake",
+		"/Users/liam/Programming/projects/proj_2026/space-invaders/build/lib/cmake_install.cmake",
+		"/Users/liam/Programming/projects/proj_2026/space-invaders/build/src/cmake_install.cmake",
+		"/Users/liam/Programming/projects/proj_2026/space-invaders/build/tests/cmake_install.cmake"
 	],
 	"Parallel" : false
 }
