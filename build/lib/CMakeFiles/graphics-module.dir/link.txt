@@ -1,2 +1,0 @@
-/usr/bin/ar qc libgraphics-module.a "CMakeFiles/graphics-module.dir/GraphicsModule.cpp.o"
-/usr/bin/ranlib libgraphics-module.a
