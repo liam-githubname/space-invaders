@@ -67,6 +67,6 @@ set(CMAKE_MAKEFILE_PRODUCTS
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "lib/CMakeFiles/graphics-module.dir/DependInfo.cmake"
-  "lib/CMakeFiles/game-mechanics.dir/DependInfo.cmake"
+  "lib/CMakeFiles/game-engine.dir/DependInfo.cmake"
   "src/CMakeFiles/space-invaders.dir/DependInfo.cmake"
   )

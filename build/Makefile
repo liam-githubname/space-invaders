@@ -130,17 +130,17 @@ graphics-module/fast:
 .PHONY : graphics-module/fast
 
 #=============================================================================
-# Target rules for targets named game-mechanics
+# Target rules for targets named game-engine
 
 # Build rule for target.
-game-mechanics: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 game-mechanics
-.PHONY : game-mechanics
+game-engine: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 game-engine
+.PHONY : game-engine
 
 # fast build rule for target.
-game-mechanics/fast:
-	$(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-mechanics.dir/build.make lib/CMakeFiles/game-mechanics.dir/build
-.PHONY : game-mechanics/fast
+game-engine/fast:
+	$(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-engine.dir/build.make lib/CMakeFiles/game-engine.dir/build
+.PHONY : game-engine/fast
 
 #=============================================================================
 # Target rules for targets named space-invaders
@@ -163,7 +163,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... game-mechanics"
+	@echo "... game-engine"
 	@echo "... graphics-module"
 	@echo "... space-invaders"
 .PHONY : help

@@ -7,9 +7,21 @@
 },
 {
   "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/lib",
-  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -std=gnu++2b -arch arm64 -o CMakeFiles/game-mechanics.dir/GameMechanics.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/lib/GameMechanics.cpp",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/opt/homebrew/opt/sdl3/include -std=gnu++2b -arch arm64 -o CMakeFiles/game-engine.dir/GameMechanics.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/lib/GameMechanics.cpp",
   "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/lib/GameMechanics.cpp",
-  "output": "lib/CMakeFiles/game-mechanics.dir/GameMechanics.cpp.o"
+  "output": "lib/CMakeFiles/game-engine.dir/GameMechanics.cpp.o"
+},
+{
+  "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/lib",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/opt/homebrew/opt/sdl3/include -std=gnu++2b -arch arm64 -o CMakeFiles/game-engine.dir/InputSystem.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/lib/InputSystem.cpp",
+  "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/lib/InputSystem.cpp",
+  "output": "lib/CMakeFiles/game-engine.dir/InputSystem.cpp.o"
+},
+{
+  "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/lib",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/opt/homebrew/opt/sdl3/include -std=gnu++2b -arch arm64 -o CMakeFiles/game-engine.dir/MovementSystem.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/lib/MovementSystem.cpp",
+  "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/lib/MovementSystem.cpp",
+  "output": "lib/CMakeFiles/game-engine.dir/MovementSystem.cpp.o"
 },
 {
   "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/src",

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libgame-engine.a "CMakeFiles/game-engine.dir/GameMechanics.cpp.o" "CMakeFiles/game-engine.dir/InputSystem.cpp.o" "CMakeFiles/game-engine.dir/MovementSystem.cpp.o"
+/usr/bin/ranlib libgame-engine.a

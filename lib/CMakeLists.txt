@@ -20,12 +20,27 @@ target_link_libraries(graphics-module PUBLIC SDL3::SDL3 SDL3_image::SDL3_image)
 # Using PUBLIC because the public API uses std::expected<GraphicsModule, std::string>
 target_compile_features(graphics-module PUBLIC cxx_std_23)
 
-# Define GameMechanics library - provides entity/component system for game state - 2026-04-15
-# This library must be a separate target so the linker can find GameState symbols
-# Without this, main.cpp would get "Undefined symbols" because the .cpp was never compiled
-add_library(game-mechanics GameMechanics.cpp)
-# Using PUBLIC so consumers (like src/main.cpp) can include "GameMechanics.hpp" without path prefixes - 2026-04-15
-# IMPORTANT: Fixed typo CMAKE_SURCE_DIR -> CMAKE_SOURCE_DIR (was causing include path resolution failure) - 2026-04-15
-target_include_directories(game-mechanics PUBLIC ${CMAKE_SOURCE_DIR}/lib)
-# C++23 required for std::optional and other modern features used in GameMechanics - 2026-04-15
-target_compile_features(game-mechanics PUBLIC cxx_std_23)
+# Consolidated game-engine library - merges former game-mechanics, input-system, and movement-system targets - 2026-04-15
+#
+# WHY: Previously these were 3 separate CMake targets (game-mechanics, input-system, movement-system), each with
+# identical include_directories, compile_features, and near-identical link_libraries declarations. This produced
+# significant boilerplate for targets that are tightly coupled by design - InputSystem and MovementSystem both
+# #include GameMechanics.hpp and operate on GameState. At this project's scale, separate targets offered no
+# real build isolation benefit (any change to GameMechanics.hpp forces recompilation of all 3 anyway), while
+# making the link line in src/CMakeLists.txt grow with every new system added.
+#
+# By consolidating into a single target, we:
+#   1. Eliminate repetitive boilerplate for include dirs, C++ standard, and transitive dependencies
+#   2. Simplify the consumer link line to just 'game-engine' instead of listing every subsystem
+#   3. Make adding new systems a one-line change (add AnotherSystem.cpp to the SOURCES list)
+#
+# If independent build isolation becomes necessary in the future (e.g. subsystems with conflicting
+# dependencies), targets can be split back out. Until then, a single target is the pragmatic choice.
+add_library(game-engine
+    GameMechanics.cpp
+    InputSystem.cpp
+    MovementSystem.cpp
+)
+target_include_directories(game-engine PUBLIC ${CMAKE_SOURCE_DIR}/lib)
+target_link_libraries(game-engine PUBLIC SDL3::SDL3)
+target_compile_features(game-engine PUBLIC cxx_std_23)

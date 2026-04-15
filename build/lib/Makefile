@@ -131,25 +131,25 @@ graphics-module/fast:
 .PHONY : graphics-module/fast
 
 # Convenience name for target.
-lib/CMakeFiles/game-mechanics.dir/rule:
-	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lib/CMakeFiles/game-mechanics.dir/rule
-.PHONY : lib/CMakeFiles/game-mechanics.dir/rule
+lib/CMakeFiles/game-engine.dir/rule:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lib/CMakeFiles/game-engine.dir/rule
+.PHONY : lib/CMakeFiles/game-engine.dir/rule
 
 # Convenience name for target.
-game-mechanics: lib/CMakeFiles/game-mechanics.dir/rule
-.PHONY : game-mechanics
+game-engine: lib/CMakeFiles/game-engine.dir/rule
+.PHONY : game-engine
 
 # fast build rule for target.
-game-mechanics/fast:
-	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-mechanics.dir/build.make lib/CMakeFiles/game-mechanics.dir/build
-.PHONY : game-mechanics/fast
+game-engine/fast:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-engine.dir/build.make lib/CMakeFiles/game-engine.dir/build
+.PHONY : game-engine/fast
 
 GameMechanics.o: GameMechanics.cpp.o
 .PHONY : GameMechanics.o
 
 # target to build an object file
 GameMechanics.cpp.o:
-	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-mechanics.dir/build.make lib/CMakeFiles/game-mechanics.dir/GameMechanics.cpp.o
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-engine.dir/build.make lib/CMakeFiles/game-engine.dir/GameMechanics.cpp.o
 .PHONY : GameMechanics.cpp.o
 
 GameMechanics.i: GameMechanics.cpp.i
@@ -157,7 +157,7 @@ GameMechanics.i: GameMechanics.cpp.i
 
 # target to preprocess a source file
 GameMechanics.cpp.i:
-	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-mechanics.dir/build.make lib/CMakeFiles/game-mechanics.dir/GameMechanics.cpp.i
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-engine.dir/build.make lib/CMakeFiles/game-engine.dir/GameMechanics.cpp.i
 .PHONY : GameMechanics.cpp.i
 
 GameMechanics.s: GameMechanics.cpp.s
@@ -165,7 +165,7 @@ GameMechanics.s: GameMechanics.cpp.s
 
 # target to generate assembly for a file
 GameMechanics.cpp.s:
-	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-mechanics.dir/build.make lib/CMakeFiles/game-mechanics.dir/GameMechanics.cpp.s
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-engine.dir/build.make lib/CMakeFiles/game-engine.dir/GameMechanics.cpp.s
 .PHONY : GameMechanics.cpp.s
 
 GraphicsModule.o: GraphicsModule.cpp.o
@@ -192,6 +192,54 @@ GraphicsModule.cpp.s:
 	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/graphics-module.dir/build.make lib/CMakeFiles/graphics-module.dir/GraphicsModule.cpp.s
 .PHONY : GraphicsModule.cpp.s
 
+InputSystem.o: InputSystem.cpp.o
+.PHONY : InputSystem.o
+
+# target to build an object file
+InputSystem.cpp.o:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-engine.dir/build.make lib/CMakeFiles/game-engine.dir/InputSystem.cpp.o
+.PHONY : InputSystem.cpp.o
+
+InputSystem.i: InputSystem.cpp.i
+.PHONY : InputSystem.i
+
+# target to preprocess a source file
+InputSystem.cpp.i:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-engine.dir/build.make lib/CMakeFiles/game-engine.dir/InputSystem.cpp.i
+.PHONY : InputSystem.cpp.i
+
+InputSystem.s: InputSystem.cpp.s
+.PHONY : InputSystem.s
+
+# target to generate assembly for a file
+InputSystem.cpp.s:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-engine.dir/build.make lib/CMakeFiles/game-engine.dir/InputSystem.cpp.s
+.PHONY : InputSystem.cpp.s
+
+MovementSystem.o: MovementSystem.cpp.o
+.PHONY : MovementSystem.o
+
+# target to build an object file
+MovementSystem.cpp.o:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-engine.dir/build.make lib/CMakeFiles/game-engine.dir/MovementSystem.cpp.o
+.PHONY : MovementSystem.cpp.o
+
+MovementSystem.i: MovementSystem.cpp.i
+.PHONY : MovementSystem.i
+
+# target to preprocess a source file
+MovementSystem.cpp.i:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-engine.dir/build.make lib/CMakeFiles/game-engine.dir/MovementSystem.cpp.i
+.PHONY : MovementSystem.cpp.i
+
+MovementSystem.s: MovementSystem.cpp.s
+.PHONY : MovementSystem.s
+
+# target to generate assembly for a file
+MovementSystem.cpp.s:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-engine.dir/build.make lib/CMakeFiles/game-engine.dir/MovementSystem.cpp.s
+.PHONY : MovementSystem.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -200,7 +248,7 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... game-mechanics"
+	@echo "... game-engine"
 	@echo "... graphics-module"
 	@echo "... GameMechanics.o"
 	@echo "... GameMechanics.i"
@@ -208,6 +256,12 @@ help:
 	@echo "... GraphicsModule.o"
 	@echo "... GraphicsModule.i"
 	@echo "... GraphicsModule.s"
+	@echo "... InputSystem.o"
+	@echo "... InputSystem.i"
+	@echo "... InputSystem.s"
+	@echo "... MovementSystem.o"
+	@echo "... MovementSystem.i"
+	@echo "... MovementSystem.s"
 .PHONY : help
 
 

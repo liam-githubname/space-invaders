@@ -1,11 +1,10 @@
 #include "GameMechanics.hpp"
 #include "GraphicsModule.hpp"
-#include <algorithm>
+#include "InputSystem.hpp"
+#include "MovementSystem.hpp"
 #include <cstdint>
-#include <cstdio>
 #include <iostream>
 #include <string>
-#include <vector>
 
 //-------------------------------------------------------------------------------
 struct timeStep {
@@ -48,14 +47,14 @@ struct timeStep {
 
 int main(int argc, char *argv[]) {
 
-  /* NOTE:==================== TODO LIST ==================================
-   * 1. [x] I want to add the player entity and see that the position exists
-   * 2. [~] I want the movement system implement and have the position component
-   * update
-   * 2.1 I need to build an input system that takes in user input and stores
-   * that as a component of player entities.
-   * 3. I want to render the player
-  ========================================================================*/
+  // NOTE:==================== TODO LIST ======================================
+  // 1. [x] I want to add the player entity and see that the position exists
+  // 2. [~] I want the movement system implement and have the position component
+  // update
+  // 2.1 I need to build an input system that takes in user input and stores
+  // that as a component of player entities.
+  // 3. I want to render the player
+  // ==========================================================================
 
   // This is resource Acquisition plus the GraphicsModule object is wrapped
   // in an expected type.
@@ -75,59 +74,49 @@ int main(int argc, char *argv[]) {
 
   // I was wondering how you remember which entities are which
   // You'll remember which entities are which because you should keep handlers
-  Entity player = state.CreateEntity();
+  Entity &player = state.CreateEntity();
   // This emplace doesn't create temporary values? That's pretty cool
+  player.is_active = true;
   player.velocity.emplace(0.0f, 0.0f);
-  std::cout << "x vel: " << player.velocity->dx
-            << "y vel: " << player.velocity->dy << std::endl;
-  player.transform.emplace(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+  player.transform.emplace(0.0f, 0.0f);
   // how to add an optional field to a struct
 
-  std::vector<Splash> splashes;
   bool isRunning = true;
   SDL_Event event;
   SDL_zero(event);
+  InputSystem input_system = InputSystem::create();
+  MovementSystem movement_system = MovementSystem();
+  timeStep time = timeStep();
+  constexpr float dt = 1.0f / 60.0f;
 
   while (isRunning) {
     // 1. ===================== BEGINNING_OF_INPUT_PROCESSING =================
     while (SDL_PollEvent(&event)) {
       if (event.type == SDL_EVENT_QUIT)
         isRunning = false;
-      if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_SPACE) {
-        splashes.push_back(createSplash());
-      }
-
-      if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_W) {
-        player.velocity.emplace(0.0f, 0.0f);
-        player.velocity->dx = 200.0f;
-        std::cout << "x vel: " << player.velocity->dx
-                  << "y vel: " << player.velocity->dy << std::endl;
-      } else {
-        player.velocity->dx = 0.0f;
-        std::cout << "x vel: " << player.velocity->dx
-                  << "y vel: " << player.velocity->dy << std::endl;
-      }
     }
     // 1. ==================== END_OF_INPUT_PROCESSING ========================
 
-    // 2. ==================== UPDATING_GAME_LOGIC ============================
+    time.Tick();
 
-    // 2. ===================== END_OF_GAME_LOGIC ==============================
+    while (time.consumeStep()) {
+      // 2. ==================== UPDATING_GAME_LOGIC =======================
+      std::cout << "-" << std::endl;
+      input_system.Update(state);
+      movement_system.Update(state, dt);
 
-    // 3. ===================== BEGINNING_OF_RENDER ============================
-    // This sets the draw color to white I want to see if there is a better way
-    // of doing this
+      // 2. ===================== END_OF_GAME_LOGIC ========================
+    }
+
+    // 3. ============BEGINNING_OF_RENDER ===============
+
+    // This sets the draw color to white I want to see if there is a better
+    // way of doing this
     SDL_SetRenderDrawColor(graphics.getRenderer(), 255, 255, 255, 255);
     // clears the render buffer and fills it with the draw color.
     SDL_RenderClear(graphics.getRenderer());
-
     // Sets the draw color to red
     SDL_SetRenderDrawColor(graphics.getRenderer(), 0, 0, 0, 255);
-
-    for (auto &splash : splashes) {
-      drawCircle(graphics.getRenderer(), splash.ripple.radius, 400, 300);
-    }
-
     SDL_RenderPresent(graphics.getRenderer());
 
     // 3. ==================== END_OF_RENDER =================================

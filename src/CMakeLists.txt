@@ -8,15 +8,10 @@ add_executable(space-invaders main.cpp)
 # This sets compile features per-target rather than globally - 2026-04-08
 target_compile_features(space-invaders PRIVATE cxx_std_23)
 
-# Link against GraphicsModule library - this provides window/renderer management - 2026-04-09
-# Using PRIVATE because main.cpp doesn't expose GraphicsModule in its public API (executable, not library)
-# IMPORTANT: SDL3 dependencies are automatically inherited from graphics-module via PUBLIC linkage
-# This is the power of modern CMake - we don't need to explicitly link SDL3 here
-# Transitive dependency chain: space-invaders -> graphics-module -> SDL3::SDL3
-# Added game-mechanics to link chain - the linker needs both libraries to resolve all symbols - 2026-04-15
-# Dependency chain: space-invaders -> graphics-module -> SDL3::SDL3
-#                   space-invaders -> game-mechanics
-target_link_libraries(space-invaders PRIVATE graphics-module game-mechanics)
+# Link against libraries - 2026-04-15
+# graphics-module: window/renderer management (transitively provides SDL3::SDL3 and SDL3_image)
+# game-engine: consolidated game logic, input, and movement systems (see lib/CMakeLists.txt for rationale)
+target_link_libraries(space-invaders PRIVATE graphics-module game-engine)
 
 # Copy assets directory to build directory during build
 # Assets path remains in project root following game development conventions - 2026-04-08
