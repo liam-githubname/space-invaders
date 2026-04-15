@@ -1,7 +1,13 @@
 [
 {
+  "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/lib",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++2b -arch arm64 -o CMakeFiles/graphics-module.dir/GraphicsModule.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/lib/GraphicsModule.cpp",
+  "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/lib/GraphicsModule.cpp",
+  "output": "lib/CMakeFiles/graphics-module.dir/GraphicsModule.cpp.o"
+},
+{
   "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/src",
-  "command": "/usr/bin/c++  -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++2b -arch arm64 -o CMakeFiles/space-invaders.dir/main.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/src/main.cpp",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++2b -arch arm64 -o CMakeFiles/space-invaders.dir/main.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/src/main.cpp",
   "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/src/main.cpp",
   "output": "src/CMakeFiles/space-invaders.dir/main.cpp.o"
 }

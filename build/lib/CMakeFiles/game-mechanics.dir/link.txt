@@ -1,0 +1,2 @@
+/usr/bin/ar qc libgame-mechanics.a "CMakeFiles/game-mechanics.dir/GameMechanics.cpp.o"
+/usr/bin/ranlib libgame-mechanics.a

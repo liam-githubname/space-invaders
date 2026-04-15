@@ -90,11 +90,13 @@ clean: tests/clean
 # Directory level rules for directory lib
 
 # Recursive "all" directory target.
-lib/all:
+lib/all: lib/CMakeFiles/graphics-module.dir/all
+lib/all: lib/CMakeFiles/game-mechanics.dir/all
 .PHONY : lib/all
 
 # Recursive "codegen" directory target.
-lib/codegen:
+lib/codegen: lib/CMakeFiles/graphics-module.dir/codegen
+lib/codegen: lib/CMakeFiles/game-mechanics.dir/codegen
 .PHONY : lib/codegen
 
 # Recursive "preinstall" directory target.
@@ -102,7 +104,8 @@ lib/preinstall:
 .PHONY : lib/preinstall
 
 # Recursive "clean" directory target.
-lib/clean:
+lib/clean: lib/CMakeFiles/graphics-module.dir/clean
+lib/clean: lib/CMakeFiles/game-mechanics.dir/clean
 .PHONY : lib/clean
 
 #=============================================================================
@@ -144,18 +147,83 @@ tests/clean:
 .PHONY : tests/clean
 
 #=============================================================================
+# Target rules for target lib/CMakeFiles/graphics-module.dir
+
+# All Build rule for target.
+lib/CMakeFiles/graphics-module.dir/all:
+	$(MAKE) $(MAKESILENT) -f lib/CMakeFiles/graphics-module.dir/build.make lib/CMakeFiles/graphics-module.dir/depend
+	$(MAKE) $(MAKESILENT) -f lib/CMakeFiles/graphics-module.dir/build.make lib/CMakeFiles/graphics-module.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles --progress-num=3,4 "Built target graphics-module"
+.PHONY : lib/CMakeFiles/graphics-module.dir/all
+
+# Build rule for subdir invocation for target.
+lib/CMakeFiles/graphics-module.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lib/CMakeFiles/graphics-module.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles 0
+.PHONY : lib/CMakeFiles/graphics-module.dir/rule
+
+# Convenience name for target.
+graphics-module: lib/CMakeFiles/graphics-module.dir/rule
+.PHONY : graphics-module
+
+# codegen rule for target.
+lib/CMakeFiles/graphics-module.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f lib/CMakeFiles/graphics-module.dir/build.make lib/CMakeFiles/graphics-module.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles --progress-num=3,4 "Finished codegen for target graphics-module"
+.PHONY : lib/CMakeFiles/graphics-module.dir/codegen
+
+# clean rule for target.
+lib/CMakeFiles/graphics-module.dir/clean:
+	$(MAKE) $(MAKESILENT) -f lib/CMakeFiles/graphics-module.dir/build.make lib/CMakeFiles/graphics-module.dir/clean
+.PHONY : lib/CMakeFiles/graphics-module.dir/clean
+
+#=============================================================================
+# Target rules for target lib/CMakeFiles/game-mechanics.dir
+
+# All Build rule for target.
+lib/CMakeFiles/game-mechanics.dir/all:
+	$(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-mechanics.dir/build.make lib/CMakeFiles/game-mechanics.dir/depend
+	$(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-mechanics.dir/build.make lib/CMakeFiles/game-mechanics.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles --progress-num=1,2 "Built target game-mechanics"
+.PHONY : lib/CMakeFiles/game-mechanics.dir/all
+
+# Build rule for subdir invocation for target.
+lib/CMakeFiles/game-mechanics.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lib/CMakeFiles/game-mechanics.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles 0
+.PHONY : lib/CMakeFiles/game-mechanics.dir/rule
+
+# Convenience name for target.
+game-mechanics: lib/CMakeFiles/game-mechanics.dir/rule
+.PHONY : game-mechanics
+
+# codegen rule for target.
+lib/CMakeFiles/game-mechanics.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-mechanics.dir/build.make lib/CMakeFiles/game-mechanics.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles --progress-num=1,2 "Finished codegen for target game-mechanics"
+.PHONY : lib/CMakeFiles/game-mechanics.dir/codegen
+
+# clean rule for target.
+lib/CMakeFiles/game-mechanics.dir/clean:
+	$(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-mechanics.dir/build.make lib/CMakeFiles/game-mechanics.dir/clean
+.PHONY : lib/CMakeFiles/game-mechanics.dir/clean
+
+#=============================================================================
 # Target rules for target src/CMakeFiles/space-invaders.dir
 
 # All Build rule for target.
-src/CMakeFiles/space-invaders.dir/all:
+src/CMakeFiles/space-invaders.dir/all: lib/CMakeFiles/graphics-module.dir/all
+src/CMakeFiles/space-invaders.dir/all: lib/CMakeFiles/game-mechanics.dir/all
 	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/space-invaders.dir/build.make src/CMakeFiles/space-invaders.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/space-invaders.dir/build.make src/CMakeFiles/space-invaders.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles --progress-num=1,2 "Built target space-invaders"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles --progress-num=5,6 "Built target space-invaders"
 .PHONY : src/CMakeFiles/space-invaders.dir/all
 
 # Build rule for subdir invocation for target.
 src/CMakeFiles/space-invaders.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles 6
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/space-invaders.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles 0
 .PHONY : src/CMakeFiles/space-invaders.dir/rule
@@ -167,7 +235,7 @@ space-invaders: src/CMakeFiles/space-invaders.dir/rule
 # codegen rule for target.
 src/CMakeFiles/space-invaders.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/space-invaders.dir/build.make src/CMakeFiles/space-invaders.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles --progress-num=1,2 "Finished codegen for target space-invaders"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/liam/Programming/projects/proj_2026/space-invaders/build/CMakeFiles --progress-num=5,6 "Finished codegen for target space-invaders"
 .PHONY : src/CMakeFiles/space-invaders.dir/codegen
 
 # clean rule for target.

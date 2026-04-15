@@ -1,12 +1,14 @@
+#pragma once
 
+#include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <cstddef>
+#include <expected>
 #include <memory>
-#include <print>
-#include <random>
-#include <sdl3/SDL.h>
-#include <sdl3/SDL_main.h>
+#include <string_view>
 
+// TODO: I need to add a fixed time step for game logic processing I don't know
+// where I need to implement that though.
 // We are defining how to destroy SDL resources
 struct WindowDeleter {
   void operator()(SDL_Window *window) const {
@@ -27,10 +29,54 @@ struct SDLTextureDeleter {
   }
 };
 
+// These need to become private methods of a graphics class
 using TexturePtr = std::unique_ptr<SDL_Texture, SDLTextureDeleter>;
 using WindowPtr = std::unique_ptr<SDL_Window, WindowDeleter>;
 using RendererPtr = std::unique_ptr<SDL_Renderer, RendererDeleter>;
 
+class GraphicsModule {
+public:
+  // Important facts about std::expected
+  // 1. It is based on Rust Result type.
+  // 2. Don't have to throw exceptions anymore.
+  static std::expected<GraphicsModule, std::string>
+  // std::string_view is a pointer and a length, it is essentially a reference
+  // to a string. It is much faster than a string because it is allocation free.
+  create(std::string_view title, int width, int height);
+
+  // Delete copy semantics
+  GraphicsModule(const GraphicsModule &) = delete;
+  GraphicsModule &operator=(const GraphicsModule &) = delete;
+
+  // 4. Allow Move Semantics (so we can return it from the factory)
+  GraphicsModule(GraphicsModule &&) = default;
+  GraphicsModule &operator=(GraphicsModule &&) = default;
+
+  ~GraphicsModule();
+
+  SDL_Window *getWindow() const { return m_window.get(); }
+  SDL_Renderer *getRenderer() const { return m_renderer.get(); }
+
+private:
+  GraphicsModule(SDL_Window *window, SDL_Renderer *renderer);
+
+  std::unique_ptr<SDL_Window, WindowDeleter> m_window;
+  std::unique_ptr<SDL_Renderer, RendererDeleter> m_renderer;
+};
+
+/*
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 // ======================= This was a first attempt ===========================
 struct SDLContext {
   // I'm assuming there is a default initializer or constructor of a struct and

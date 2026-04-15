@@ -96,6 +96,7 @@ space__invaders_EXTERNAL_OBJECTS =
 src/space-invaders: src/CMakeFiles/space-invaders.dir/main.cpp.o
 src/space-invaders: src/CMakeFiles/space-invaders.dir/build.make
 src/space-invaders: lib/libgraphics-module.a
+src/space-invaders: lib/libgame-mechanics.a
 src/space-invaders: /opt/homebrew/opt/sdl3_image/lib/libSDL3_image.0.4.2.dylib
 src/space-invaders: /opt/homebrew/opt/sdl3/lib/libSDL3.0.dylib
 src/space-invaders: src/CMakeFiles/space-invaders.dir/link.txt

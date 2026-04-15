@@ -1,126 +1,191 @@
-#include <SDL3_image/SDL_image.h>
-#include <cstddef>
-#include <memory>
-#include <print>
-#include <random>
-#include <sdl3/SDL.h>
-#include <sdl3/SDL_main.h>
+#include "GameMechanics.hpp"
+#include "GraphicsModule.hpp"
+#include <algorithm>
+#include <cstdint>
+#include <cstdio>
+#include <iostream>
+#include <string>
+#include <vector>
 
-// The SDL Subsystem RAII wrapper, SDL_Init must be called before anything else
-// and SDL_Quit must be called after the game closes
-// We will tie this to the lifecycle of a simple struct.
-// I really like this idea, you can tie necessary behaviors to a related
-// overarching type/object
-
-// Is this a preprocessor command or some kind of runtime compilation?
-// [[nodiscard]] std::expected<EngineCore, std::string>
-// initialize_engine(const char *title, int width, int height) {
-//   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-//     return std::unexpected(std::string("SDL_Init Error") + SDL_GetError());
-//   }
-//
-//   // Initialize the window and then assign it to our smart pointer.
-//   WindowPtr window{SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED,
-//                                     SDL_WINDOWPOS_CENTERED, width, height,
-//                                     SDL_WINDOW_SHOWN)};
-//
-//   RendererPtr renderer{SDL_CreateRenderer(
-//       window.get(), -1, SDL_RENDERER_ACCELERATED |
-//       SDL_RENDERER_PRESENTVSYNC)};
-//
-//   return EngineCore{SDLContext{}, std::move(window), std::move(renderer)};
-// }
-
-// ============= This might need be used again for a rendering module? =========
-const int CIRCLE_DRAW_SIDES = 32;
-const int CIRCLE_DRAW_SIDES_LEN = (CIRCLE_DRAW_SIDES + 1);
-
-static void drawCircle(SDL_Renderer *renderer, float r, float x, float y) {
-  float ang;
-  SDL_FPoint points[CIRCLE_DRAW_SIDES_LEN];
-  int i;
-  for (i = 0; i < CIRCLE_DRAW_SIDES_LEN; i++) {
-    ang = 2.0f * SDL_PI_F * (float)i / (float)CIRCLE_DRAW_SIDES;
-    points[i].x = x + r * SDL_cosf(ang);
-    points[i].y = y + r * SDL_sinf(ang);
+//-------------------------------------------------------------------------------
+struct timeStep {
+  // TODO: I would like to consider using the chrono library instead, but that
+  // is a later problem
+  // TODO: Write up how this works
+  // target_deltatime_nanoseconds represents approximately 1/60th of second.
+  static constexpr uint64_t target_deltatime_nanoseconds = 1000000000ULL / 60;
+  // accumulator is used to keep the process from spiraling.
+  uint64_t accumulator = 0;
+  // this is a cursor or time stamp of the previous call to tick()
+  uint64_t last_time = 0;
+  // Updates the accumulator and last time based on the elapsed time from the
+  // start of the program.
+  void Tick() {
+    uint64_t current_time = SDL_GetTicksNS();
+    // this is the time between tick() calls
+    uint64_t frame_time = current_time - last_time;
+    // NOTE: This is supposed to prevent the spiral of death.
+    // If the time since the last tick is greater than
+    if (frame_time > 250000000ULL) {
+      frame_time = 250000000ULL;
+    }
+    last_time = current_time;
+    accumulator += frame_time;
   }
-  SDL_RenderLines(renderer, (const SDL_FPoint *)&points, CIRCLE_DRAW_SIDES_LEN);
-}
-
-struct Circle {
-  SDL_FPoint center;
-  float radius;
-  SDL_Texture *texture = NULL; // The reason we use a raw pointer is that Circle
-                               // shouldn't care what happens to the texture
-                               // It only needs to know where the texture it
-                               // must display is located.
-  // We would call this simple observation or something else
+  // Consumes a step when the tick function has ticked past a the target time
+  bool consumeStep() {
+    if (accumulator >= target_deltatime_nanoseconds) {
+      accumulator -= target_deltatime_nanoseconds;
+      return true;
+    }
+    return false;
+  }
+  float GetAlpha() {
+    return (float)accumulator / (float)target_deltatime_nanoseconds;
+  }
 };
-
-Circle createCircle(float x, float y, float r, SDL_Texture *texture) {
-  return Circle{.center = {x, y}, .radius = r, .texture = texture};
-}
+//---------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
-  SDL_Window *window;
-  SDL_Renderer *renderer;
-  std::random_device rand;
-  std::mt19937 gen(rand());
-  std::uniform_real_distribution<float> radius_dis(10.0f, 100.0f);
-  std::uniform_real_distribution<float> pos_x_dis(100.0f, 540.0f);
-  std::uniform_real_distribution<float> pos_y_dis(100.0f, 380.0f);
-  std::uniform_real_distribution<float> color_dis(0.0f, 1.0f);
-  std::vector<Circle> circles;
-  if (!SDL_CreateWindowAndRenderer("examples/demo/woodeneye-008", 640, 480,
-                                   SDL_WINDOW_RESIZABLE, &window, &renderer)) {
-    std::println("Failed");
-    return SDL_APP_FAILURE;
-  }
 
-  TexturePtr bjorkTexture(IMG_LoadTexture(renderer, "assets/bjork.jpeg"));
-  if (!bjorkTexture) {
-    std::println(stderr, "Failed to load the big bjork");
-  }
+  /* NOTE:==================== TODO LIST ==================================
+   * 1. [x] I want to add the player entity and see that the position exists
+   * 2. [~] I want the movement system implement and have the position component
+   * update
+   * 2.1 I need to build an input system that takes in user input and stores
+   * that as a component of player entities.
+   * 3. I want to render the player
+  ========================================================================*/
 
-  std::println("Main has started actually");
+  // This is resource Acquisition plus the GraphicsModule object is wrapped
+  // in an expected type.
+  auto title = std::string("Test Title");
+  auto engineResult = GraphicsModule::create(title, 680, 420);
+  if (!engineResult.has_value()) {
+    SDL_Log("Engine failed to start: %s", engineResult.error().c_str());
+    return 1;
+  }
+  // This unwraps the Graphics Module
+  // The program needs to take ownership of the module
+  // We have to use std::move because we removed the copy constructor.
+  // This is the initialization.
+  GraphicsModule graphics = std::move(engineResult.value());
+
+  auto state = GameState();
+
+  // I was wondering how you remember which entities are which
+  // You'll remember which entities are which because you should keep handlers
+  Entity player = state.CreateEntity();
+  // This emplace doesn't create temporary values? That's pretty cool
+  player.velocity.emplace(0.0f, 0.0f);
+  std::cout << "x vel: " << player.velocity->dx
+            << "y vel: " << player.velocity->dy << std::endl;
+  player.transform.emplace(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+  // how to add an optional field to a struct
+
+  std::vector<Splash> splashes;
+  bool isRunning = true;
   SDL_Event event;
-  bool run = true;
+  SDL_zero(event);
 
-  while (run) {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_RenderClear(renderer);
-
+  while (isRunning) {
+    // 1. ===================== BEGINNING_OF_INPUT_PROCESSING =================
     while (SDL_PollEvent(&event)) {
-      if (event.type == SDL_EVENT_KEY_DOWN) {
-        if (event.key.key == SDLK_ESCAPE) {
-          run = false;
-        }
-
-        if (event.key.key == SDLK_SPACE) {
-          circles.push_back(createCircle(pos_x_dis(gen), pos_y_dis(gen),
-                                         radius_dis(gen), bjorkTexture.get()));
-        }
+      if (event.type == SDL_EVENT_QUIT)
+        isRunning = false;
+      if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_SPACE) {
+        splashes.push_back(createSplash());
       }
 
-      if (event.type == SDL_EVENT_QUIT) {
-        run = false;
+      if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_W) {
+        player.velocity.emplace(0.0f, 0.0f);
+        player.velocity->dx = 200.0f;
+        std::cout << "x vel: " << player.velocity->dx
+                  << "y vel: " << player.velocity->dy << std::endl;
+      } else {
+        player.velocity->dx = 0.0f;
+        std::cout << "x vel: " << player.velocity->dx
+                  << "y vel: " << player.velocity->dy << std::endl;
       }
     }
+    // 1. ==================== END_OF_INPUT_PROCESSING ========================
 
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    for (const auto &circle : circles) {
-      SDL_FRect destination = {circle.center.x - circle.radius,
-                               circle.center.y - circle.radius,
-                               circle.radius * 2, circle.radius * 2};
+    // 2. ==================== UPDATING_GAME_LOGIC ============================
 
-      SDL_RenderTexture(renderer, circle.texture, NULL, &destination);
+    // 2. ===================== END_OF_GAME_LOGIC ==============================
 
-      drawCircle(renderer, circle.radius, circle.center.x, circle.center.y);
+    // 3. ===================== BEGINNING_OF_RENDER ============================
+    // This sets the draw color to white I want to see if there is a better way
+    // of doing this
+    SDL_SetRenderDrawColor(graphics.getRenderer(), 255, 255, 255, 255);
+    // clears the render buffer and fills it with the draw color.
+    SDL_RenderClear(graphics.getRenderer());
+
+    // Sets the draw color to red
+    SDL_SetRenderDrawColor(graphics.getRenderer(), 0, 0, 0, 255);
+
+    for (auto &splash : splashes) {
+      drawCircle(graphics.getRenderer(), splash.ripple.radius, 400, 300);
     }
 
-    SDL_RenderPresent(renderer);
+    SDL_RenderPresent(graphics.getRenderer());
+
+    // 3. ==================== END_OF_RENDER =================================
+
+    // 4. ================= Manual frame watching MAYBE ====================
+    // 4. ================= END_OF_MANUAL_FRAME ====================
   }
-
-  SDL_Quit();
   return 0;
 }
+// const int CIRCLE_DRAW_SIDES = 32;
+// const int CIRCLE_DRAW_SIDES_LEN = (CIRCLE_DRAW_SIDES + 1);
+// //
+// static void drawCircle(SDL_Renderer *renderer, float r, float x, float y) {
+//   float ang;
+//   SDL_FPoint points[CIRCLE_DRAW_SIDES_LEN];
+//   int i;
+//   for (i = 0; i < CIRCLE_DRAW_SIDES_LEN; i++) {
+//     ang = 2.0f * SDL_PI_F * (float)i / (float)CIRCLE_DRAW_SIDES;
+//     points[i].x = x + r * SDL_cosf(ang);
+//     points[i].y = y + r * SDL_sinf(ang);
+//   }
+//   SDL_RenderLines(renderer, (const SDL_FPoint *)&points,
+//   CIRCLE_DRAW_SIDES_LEN);
+// }
+// //
+// struct Circle {
+//   SDL_FPoint center;
+//   float radius;
+//   SDL_Texture *texture = NULL; // The reason we use a raw pointer is that
+//   // shouldn't care what happens to the texture
+//   // It only needs to know where the texture it
+//   // must display is located.
+//   // We would call this simple observation or something else
+// };
+//
+// Circle createCircle(float x, float y, float r, SDL_Texture *texture) {
+//   return Circle{.center = {x, y}, .radius = r, .texture = texture};
+// }
+//
+// struct Splash {
+//   Circle ripple;
+//   void expandRipple() { ripple.radius += 2.0f; };
+// };
+//
+// Splash createSplash() {
+//   return Splash{
+//       createCircle(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 0.0f,
+//       NULL)};
+// }
+
+//-------------------------------------------
+// if (!splashes.empty()) {
+//   if (splashes[0].ripple.radius > 500.0f) {
+//     splashes.pop_back();
+//   } else {
+//     for (auto &splash : splashes) {
+//       splash.ripple.radius += 2.5f;
+//     }
+//   }
+// }
+//--------------------------------------------

@@ -116,6 +116,82 @@ depend:
 	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(CMAKE_COMMAND) -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
+# Convenience name for target.
+lib/CMakeFiles/graphics-module.dir/rule:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lib/CMakeFiles/graphics-module.dir/rule
+.PHONY : lib/CMakeFiles/graphics-module.dir/rule
+
+# Convenience name for target.
+graphics-module: lib/CMakeFiles/graphics-module.dir/rule
+.PHONY : graphics-module
+
+# fast build rule for target.
+graphics-module/fast:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/graphics-module.dir/build.make lib/CMakeFiles/graphics-module.dir/build
+.PHONY : graphics-module/fast
+
+# Convenience name for target.
+lib/CMakeFiles/game-mechanics.dir/rule:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 lib/CMakeFiles/game-mechanics.dir/rule
+.PHONY : lib/CMakeFiles/game-mechanics.dir/rule
+
+# Convenience name for target.
+game-mechanics: lib/CMakeFiles/game-mechanics.dir/rule
+.PHONY : game-mechanics
+
+# fast build rule for target.
+game-mechanics/fast:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-mechanics.dir/build.make lib/CMakeFiles/game-mechanics.dir/build
+.PHONY : game-mechanics/fast
+
+GameMechanics.o: GameMechanics.cpp.o
+.PHONY : GameMechanics.o
+
+# target to build an object file
+GameMechanics.cpp.o:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-mechanics.dir/build.make lib/CMakeFiles/game-mechanics.dir/GameMechanics.cpp.o
+.PHONY : GameMechanics.cpp.o
+
+GameMechanics.i: GameMechanics.cpp.i
+.PHONY : GameMechanics.i
+
+# target to preprocess a source file
+GameMechanics.cpp.i:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-mechanics.dir/build.make lib/CMakeFiles/game-mechanics.dir/GameMechanics.cpp.i
+.PHONY : GameMechanics.cpp.i
+
+GameMechanics.s: GameMechanics.cpp.s
+.PHONY : GameMechanics.s
+
+# target to generate assembly for a file
+GameMechanics.cpp.s:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/game-mechanics.dir/build.make lib/CMakeFiles/game-mechanics.dir/GameMechanics.cpp.s
+.PHONY : GameMechanics.cpp.s
+
+GraphicsModule.o: GraphicsModule.cpp.o
+.PHONY : GraphicsModule.o
+
+# target to build an object file
+GraphicsModule.cpp.o:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/graphics-module.dir/build.make lib/CMakeFiles/graphics-module.dir/GraphicsModule.cpp.o
+.PHONY : GraphicsModule.cpp.o
+
+GraphicsModule.i: GraphicsModule.cpp.i
+.PHONY : GraphicsModule.i
+
+# target to preprocess a source file
+GraphicsModule.cpp.i:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/graphics-module.dir/build.make lib/CMakeFiles/graphics-module.dir/GraphicsModule.cpp.i
+.PHONY : GraphicsModule.cpp.i
+
+GraphicsModule.s: GraphicsModule.cpp.s
+.PHONY : GraphicsModule.s
+
+# target to generate assembly for a file
+GraphicsModule.cpp.s:
+	cd /Users/liam/Programming/projects/proj_2026/space-invaders/build && $(MAKE) $(MAKESILENT) -f lib/CMakeFiles/graphics-module.dir/build.make lib/CMakeFiles/graphics-module.dir/GraphicsModule.cpp.s
+.PHONY : GraphicsModule.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -124,6 +200,14 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... game-mechanics"
+	@echo "... graphics-module"
+	@echo "... GameMechanics.o"
+	@echo "... GameMechanics.i"
+	@echo "... GameMechanics.s"
+	@echo "... GraphicsModule.o"
+	@echo "... GraphicsModule.i"
+	@echo "... GraphicsModule.s"
 .PHONY : help
 
 
