@@ -2,11 +2,34 @@
 #include "GraphicsModule.hpp"
 #include "InputSystem.hpp"
 #include "MovementSystem.hpp"
+#include "RenderModule.hpp"
+#include <SDL3_image/SDL_image.h>
 #include <cstdint>
 #include <iostream>
+#include <memory>
 #include <string>
 
-//-------------------------------------------------------------------------------
+// FIXME: This should probably exist in the game mechanics source file
+// but not in the class. That way they can see eachother, but aren't entirely
+// coupled.
+//-----------------------------------------------------------------------------
+using wrappedTexture = std::unique_ptr<SDL_Texture, SDLTextureDeleter>;
+// struct AssetManager {
+//   // TODO: INSTANTIATE after graphics module and pass the renderer to it
+//   std::unordered_map<std::string, wrappedTexture> textures;
+//   SDL_Renderer *renderer;
+//
+//   void loadTexture(std::string path) {
+//     SDL_Texture *raw_texture = IMG_LoadTexture(renderer, path.c_str());
+//     textures[path] = wrappedTexture(raw_texture);
+//   }
+// };
+//-----------------------------------------------------------------------------
+
+// NOTE: I feel like this is probably the best way to do this for now.
+// I don't need to have a class dedicated to this. Plus it's only ever going to
+// used here.
+//--------------TIMESTEP_STRUCT_FOR_DETERMINISTIC_BEHAVIOR---------------------
 struct timeStep {
   // TODO: I would like to consider using the chrono library instead, but that
   // is a later problem
@@ -43,43 +66,66 @@ struct timeStep {
     return (float)accumulator / (float)target_deltatime_nanoseconds;
   }
 };
-//---------------------------------------------------------------------------
+//=============TIMESTEP_STRUCT_FOR_DETERMINISTIC_BEHAVIOR======================
 
 int main(int argc, char *argv[]) {
 
   // NOTE:==================== TODO LIST ======================================
   // 1. [x] I want to add the player entity and see that the position exists
-  // 2. [~] I want the movement system implement and have the position component
+  // 2. [X] I want the movement system implement and have the position component
   // update
-  // 2.1 I need to build an input system that takes in user input and stores
+  // 2.1 [X] I need to build an input system that takes in user input and stores
   // that as a component of player entities.
-  // 3. I want to render the player
+  // 3. [~] I want to render the player. WE WILL GET BACK TO THIS!
+  //   3.1 render a texture for the player.
+  //   AND
+  //   3.1 [X] draw a shape to represent the player.
+  // 4. I need to add bounding and AABB collision detection features.
+  //  - AABB will not be enough. But good for now.
+  // 5. I need to figure how to rotate a texture.
   // ==========================================================================
 
   // This is resource Acquisition plus the GraphicsModule object is wrapped
   // in an expected type.
   auto title = std::string("Test Title");
+
   auto engineResult = GraphicsModule::create(title, 680, 420);
   if (!engineResult.has_value()) {
     SDL_Log("Engine failed to start: %s", engineResult.error().c_str());
     return 1;
   }
+
   // This unwraps the Graphics Module
   // The program needs to take ownership of the module
   // We have to use std::move because we removed the copy constructor.
   // This is the initialization.
   GraphicsModule graphics = std::move(engineResult.value());
 
+  // auto asset_manager = AssetManager();
+  // asset_manager.renderer = graphics.getRenderer();
+  // asset_manager.loadTexture(bg_texture_key);
+
   auto state = GameState();
 
+  int window_width, window_height;
+  SDL_GetWindowSize(graphics.getWindow(), &window_width, &window_height);
   // I was wondering how you remember which entities are which
   // You'll remember which entities are which because you should keep handlers
   Entity &player = state.CreateEntity();
+  player.isPlayer.emplace();
   // This emplace doesn't create temporary values? That's pretty cool
   player.is_active = true;
   player.velocity.emplace(0.0f, 0.0f);
-  player.transform.emplace(0.0f, 0.0f);
+  player.transform.emplace(window_width / 2, window_height / 2);
   // how to add an optional field to a struct
+  Entity &background = state.CreateEntity();
+  // background.sprite.emplace(
+  //     Sprite{bg_texture_key,
+  //     (float)asset_manager.textures[bg_texture_key]->w,
+  //            (float)asset_manager.textures[bg_texture_key]->h});
+  // std::cout << "background.sprite.has_value()" <<
+  // background.sprite.has_value()
+  //           << std::endl;
 
   bool isRunning = true;
   SDL_Event event;
@@ -88,93 +134,34 @@ int main(int argc, char *argv[]) {
   MovementSystem movement_system = MovementSystem();
   timeStep time = timeStep();
   constexpr float dt = 1.0f / 60.0f;
+  RenderSystem render_system = RenderSystem();
+
+  // # NOTE: This is the basic idea for textures.
+  // auto bg_texture_key =
+  //     SDL_GetBasePath() + std::string("assets/blue-preview.png");
+  // SDL_Texture *bg_text =
+  //     IMG_LoadTexture(graphics.getRenderer(), bg_texture_key.c_str());
 
   while (isRunning) {
-    // 1. ===================== BEGINNING_OF_INPUT_PROCESSING =================
+    // TODO: Find out if this should be somewhere else maybe
+    // It is important to realize that the input_system actually relies on this
+    // call to SDL_PollEvent to update the keyboard state array
     while (SDL_PollEvent(&event)) {
       if (event.type == SDL_EVENT_QUIT)
         isRunning = false;
     }
-    // 1. ==================== END_OF_INPUT_PROCESSING ========================
-
     time.Tick();
 
     while (time.consumeStep()) {
-      // 2. ==================== UPDATING_GAME_LOGIC =======================
-      std::cout << "-" << std::endl;
+      //========================== Input & Logic ==============================
       input_system.Update(state);
+      //========================== Movement ===================================
       movement_system.Update(state, dt);
-
-      // 2. ===================== END_OF_GAME_LOGIC ========================
+      //========================== Collision ==================================
+      // TODO: Add the collision system's update.
     }
-
-    // 3. ============BEGINNING_OF_RENDER ===============
-
-    // This sets the draw color to white I want to see if there is a better
-    // way of doing this
-    SDL_SetRenderDrawColor(graphics.getRenderer(), 255, 255, 255, 255);
-    // clears the render buffer and fills it with the draw color.
-    SDL_RenderClear(graphics.getRenderer());
-    // Sets the draw color to red
-    SDL_SetRenderDrawColor(graphics.getRenderer(), 0, 0, 0, 255);
-    SDL_RenderPresent(graphics.getRenderer());
-
-    // 3. ==================== END_OF_RENDER =================================
-
-    // 4. ================= Manual frame watching MAYBE ====================
-    // 4. ================= END_OF_MANUAL_FRAME ====================
+    //============================ Render =====================================
+    render_system.Update(state, graphics.getRenderer());
   }
   return 0;
 }
-// const int CIRCLE_DRAW_SIDES = 32;
-// const int CIRCLE_DRAW_SIDES_LEN = (CIRCLE_DRAW_SIDES + 1);
-// //
-// static void drawCircle(SDL_Renderer *renderer, float r, float x, float y) {
-//   float ang;
-//   SDL_FPoint points[CIRCLE_DRAW_SIDES_LEN];
-//   int i;
-//   for (i = 0; i < CIRCLE_DRAW_SIDES_LEN; i++) {
-//     ang = 2.0f * SDL_PI_F * (float)i / (float)CIRCLE_DRAW_SIDES;
-//     points[i].x = x + r * SDL_cosf(ang);
-//     points[i].y = y + r * SDL_sinf(ang);
-//   }
-//   SDL_RenderLines(renderer, (const SDL_FPoint *)&points,
-//   CIRCLE_DRAW_SIDES_LEN);
-// }
-// //
-// struct Circle {
-//   SDL_FPoint center;
-//   float radius;
-//   SDL_Texture *texture = NULL; // The reason we use a raw pointer is that
-//   // shouldn't care what happens to the texture
-//   // It only needs to know where the texture it
-//   // must display is located.
-//   // We would call this simple observation or something else
-// };
-//
-// Circle createCircle(float x, float y, float r, SDL_Texture *texture) {
-//   return Circle{.center = {x, y}, .radius = r, .texture = texture};
-// }
-//
-// struct Splash {
-//   Circle ripple;
-//   void expandRipple() { ripple.radius += 2.0f; };
-// };
-//
-// Splash createSplash() {
-//   return Splash{
-//       createCircle(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 0.0f,
-//       NULL)};
-// }
-
-//-------------------------------------------
-// if (!splashes.empty()) {
-//   if (splashes[0].ripple.radius > 500.0f) {
-//     splashes.pop_back();
-//   } else {
-//     for (auto &splash : splashes) {
-//       splash.ripple.radius += 2.5f;
-//     }
-//   }
-// }
-//--------------------------------------------

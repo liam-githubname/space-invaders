@@ -1,5 +1,7 @@
 #include "GameMechanics.hpp"
 #include <cstdint>
+#include <memory>
+#include <unordered_map>
 
 class GameState;
 
@@ -24,3 +26,8 @@ void GameState::DestroyEntity(uint32_t target_id) {
     }
   };
 }
+class SDL_Texture;
+class SDL_TextureDeleter;
+class SDL_Renderer;
+//-----------------------------------------------------------------------------
+using wrappedTexture = std::unique_ptr<SDL_Texture, SDL_TextureDeleter>;

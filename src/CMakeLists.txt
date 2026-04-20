@@ -17,5 +17,5 @@ target_link_libraries(space-invaders PRIVATE graphics-module game-engine)
 # Assets path remains in project root following game development conventions - 2026-04-08
 add_custom_command(TARGET space-invaders POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets
+    ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/src/assets
 )

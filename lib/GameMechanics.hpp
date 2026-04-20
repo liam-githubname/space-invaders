@@ -4,6 +4,36 @@
 #include <optional>
 #include <vector>
 
+struct SDL_Texture;
+
+// NOTE: I read that this is the most efficient way of attaching an attribute
+// that may be needed by some other system. In this case I want the render
+// system to know that the entity with this component is the player.
+// Leaving it as an optional struct also lets us modify things later.
+struct isPlayer {};
+
+// We can use an enum to define the possible shapes we can use and have
+// deterministic outcomes on operating methods.
+enum class ColliderShape { Rectangle, Circle };
+
+// attach this component to the entity
+struct Collider {
+  ColliderShape shape;
+  float offset_x, offset_y;
+
+  // This is called an ANONYMOUS Union, only one of the structs can be valid at
+  // the same time
+  union {
+    struct {
+      float width, height;
+    } rect;
+
+    struct {
+      float radius;
+    } circle;
+  };
+};
+
 struct Velocity {
 
   float dx;
@@ -15,8 +45,13 @@ struct Transform {
   float y;
 };
 
+// NOTE: I assume I'll need this later.
+struct Direction {
+  float angle;
+};
+
 struct Sprite {
-  void *texture;
+  std::string texture_key;
   float width, height;
 };
 
@@ -26,6 +61,9 @@ struct Entity {
   std::optional<Velocity> velocity;
   std::optional<Transform> transform;
   std::optional<Sprite> sprite;
+  std::optional<isPlayer> isPlayer;
+  std::optional<Direction> direction;
+  std::optional<Collider> collider;
 };
 
 class GameState {
