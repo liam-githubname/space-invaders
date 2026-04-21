@@ -1,3 +1,4 @@
+#include "CollisionSystem.hpp"
 #include "GameState.hpp"
 #include "GraphicsModule.hpp"
 #include "InputSystem.hpp"
@@ -117,6 +118,8 @@ int main(int argc, char *argv[]) {
   player.is_active = true;
   player.velocity.emplace(0.0f, 0.0f);
   player.transform.emplace(window_width / 2, window_height / 2);
+  player.collider.emplace(
+      Collider{ColliderShape::Rectangle, 0, 0, .rect{100.0, 100.0}});
   // how to add an optional field to a struct
   Entity &background = state.CreateEntity();
   // background.sprite.emplace(
@@ -127,6 +130,14 @@ int main(int argc, char *argv[]) {
   // background.sprite.has_value()
   //           << std::endl;
 
+  Entity &player2 = state.CreateEntity();
+  player2.is_player.emplace();
+  // This emplace doesn't create temporary values? That's pretty cool
+  player2.is_active = true;
+  player2.transform.emplace(window_width + 100 / 2, window_height + 100 / 2);
+  player2.collider.emplace(
+      Collider{ColliderShape::Rectangle, 0, 0, .rect{100.0, 100.0}});
+
   bool is_running = true;
   SDL_Event event;
   SDL_zero(event);
@@ -135,13 +146,13 @@ int main(int argc, char *argv[]) {
   TimeStep time_step = TimeStep();
   constexpr float dt = 1.0f / 60.0f;
   RenderSystem render_system = RenderSystem();
+  CollisionSystem collision_system = CollisionSystem();
 
   // # NOTE: This is the basic idea for textures.
   // auto bg_texture_key =
-  //     // WARN: Apparently ...GetBasePath... will allocate a buffer that get's
-  //     dropped when it get's concatenated? So might be a memory leak if it's
-  //     not taken responsibility for?
-  //     SDL_GetBasePath() +
+  //     // WARN: Apparently ...GetBasePath... will allocate a buffer that
+  //     get's dropped when it get's concatenated? So might be a memory leak
+  //     if it's not taken responsibility for? SDL_GetBasePath() +
   //     std::string("assets/blue-preview.png");
   // SDL_Texture *bg_text =
   //     IMG_LoadTexture(graphics.getRenderer(), bg_texture_key.c_str());
@@ -163,6 +174,7 @@ int main(int argc, char *argv[]) {
       movement_system.Update(state, dt);
       //========================== Collision ==================================
       // TODO: Add the collision system's update.
+      collision_system.Update(state);
     }
     //============================ Render =====================================
     render_system.Update(state, graphics.getRenderer());

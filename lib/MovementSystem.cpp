@@ -11,7 +11,8 @@ void MovementSystem::Update(GameState &game_state, float delta_time) {
     //
 
     // I recognize that this is almost certainly a waste of resources
-    if (entity.is_active && entity.transform.has_value()) {
+    if (entity.is_active && entity.transform.has_value() &&
+        entity.velocity.has_value()) {
       entity.transform->x += entity.velocity->dx * delta_time;
       entity.transform->y += entity.velocity->dy * delta_time;
     }

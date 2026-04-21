@@ -12,8 +12,12 @@ void RenderSystem::drawPlayer(SDL_Renderer *renderer, Entity player_entity) {
   // This was the first time I used this syntax instinctually
   SDL_FRect player_rect{player_entity.transform->x, player_entity.transform->y,
                         100.0, 100.0};
+  SDL_FRect player_center{player_entity.transform->x,
+                          player_entity.transform->y, 10.0, 10.0};
   SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
   SDL_RenderRect(renderer, &player_rect);
+  SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+  SDL_RenderFillRect(renderer, &player_center);
 }
 
 //-----------------------------------------------------------------------------
