@@ -1,4 +1,4 @@
-#include "GameMechanics.hpp"
+#include "GameState.hpp"
 #include "GraphicsModule.hpp"
 
 class GameState;
@@ -8,11 +8,11 @@ class SDL_Renderer;
 //
 class RenderSystem {
 public:
-  void Update(GameState &state, SDL_Renderer *renderer);
+  void Update(GameState &game_state, SDL_Renderer *renderer);
 
 private:
   void drawCircle(SDL_Renderer renderer, Entity entity);
-  void drawPlayer(SDL_Renderer *renderer, Entity player_entitiy);
+  void drawPlayer(SDL_Renderer *renderer, Entity player_entity);
   void drawTriangle(SDL_Renderer renderer, Entity entity);
   void drawAsteroid(SDL_Renderer renderer, Entity entity);
   void drawScore(SDL_Renderer renderer, Entity entity);

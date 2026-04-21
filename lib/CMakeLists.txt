@@ -25,8 +25,8 @@ target_compile_features(graphics-module PUBLIC cxx_std_23)
 # WHY: Previously these were 3 separate CMake targets (game-mechanics, input-system, movement-system), each with
 # identical include_directories, compile_features, and near-identical link_libraries declarations. This produced
 # significant boilerplate for targets that are tightly coupled by design - InputSystem and MovementSystem both
-# #include GameMechanics.hpp and operate on GameState. At this project's scale, separate targets offered no
-# real build isolation benefit (any change to GameMechanics.hpp forces recompilation of all 3 anyway), while
+# #include GameState.hpp and operate on GameState. At this project's scale, separate targets offered no
+# real build isolation benefit (any change to GameState.hpp forces recompilation of all 3 anyway), while
 # making the link line in src/CMakeLists.txt grow with every new system added.
 #
 # By consolidating into a single target, we:
@@ -37,10 +37,10 @@ target_compile_features(graphics-module PUBLIC cxx_std_23)
 # If independent build isolation becomes necessary in the future (e.g. subsystems with conflicting
 # dependencies), targets can be split back out. Until then, a single target is the pragmatic choice.
 add_library(game-engine
-    GameMechanics.cpp
+    GameState.cpp
     InputSystem.cpp
     MovementSystem.cpp
-    RenderModule.cpp
+    RenderSystem.cpp
 )
 target_include_directories(game-engine PUBLIC ${CMAKE_SOURCE_DIR}/lib)
 target_link_libraries(game-engine PUBLIC SDL3::SDL3 SDL3_image::SDL3_image)

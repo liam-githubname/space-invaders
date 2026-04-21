@@ -1,5 +1,5 @@
-#include "RenderModule.hpp"
-#include "GameMechanics.hpp"
+#include "RenderSystem.hpp"
+#include "GameState.hpp"
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 
@@ -17,7 +17,7 @@ void RenderSystem::drawPlayer(SDL_Renderer *renderer, Entity player_entity) {
 }
 
 //-----------------------------------------------------------------------------
-void RenderSystem::Update(GameState &state, SDL_Renderer *renderer) {
+void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
   // TODO: Add updates the game rendering as I have new features come online
 
   // This sets the draw color to white I want to see if there is a better
@@ -29,9 +29,9 @@ void RenderSystem::Update(GameState &state, SDL_Renderer *renderer) {
 
   // NOTE: I am not making entity a reference because it doesn't need to affect
   // it.
-  for (auto entity : state.entities) {
+  for (auto entity : game_state.entities) {
 
-    if (entity.isPlayer.has_value()) {
+    if (entity.is_player.has_value()) {
       drawPlayer(renderer, entity);
     }
   }

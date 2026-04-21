@@ -4,7 +4,7 @@ class GameState;
 
 class CollisionSystem {
 public:
-  void Update(GameState &gamestate);
+  void Update(GameState &game_state);
 
 private:
 };

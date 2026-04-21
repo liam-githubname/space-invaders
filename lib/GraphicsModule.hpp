@@ -54,14 +54,14 @@ public:
 
   ~GraphicsModule();
 
-  SDL_Window *getWindow() const { return m_window.get(); }
-  SDL_Renderer *getRenderer() const { return m_renderer.get(); }
+  SDL_Window *getWindow() const { return window_.get(); }
+  SDL_Renderer *getRenderer() const { return renderer_.get(); }
 
 private:
   GraphicsModule(SDL_Window *window, SDL_Renderer *renderer);
 
-  std::unique_ptr<SDL_Window, WindowDeleter> m_window;
-  std::unique_ptr<SDL_Renderer, RendererDeleter> m_renderer;
+  std::unique_ptr<SDL_Window, WindowDeleter> window_;
+  std::unique_ptr<SDL_Renderer, RendererDeleter> renderer_;
 };
 
 /*

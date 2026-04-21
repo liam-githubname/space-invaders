@@ -1,11 +1,11 @@
 #pragma once
 
-#include "GameMechanics.hpp"
+#include "GameState.hpp"
 #include <cstdint>
 
 class GameState;
 
 class MovementSystem {
 public:
-  void Update(GameState &state, float deltatime);
+  void Update(GameState &game_state, float delta_time);
 };

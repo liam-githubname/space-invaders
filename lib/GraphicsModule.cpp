@@ -11,34 +11,34 @@ GraphicsModule::create(std::string_view title, int width, int height) {
         SDL_GetError());
   }
 
-  SDL_Window *rawWindow = nullptr;
-  SDL_Renderer *rawRenderer = nullptr;
+  SDL_Window *raw_window = nullptr;
+  SDL_Renderer *raw_renderer = nullptr;
 
   if (!SDL_CreateWindowAndRenderer(title.data(), width, height,
-                                   SDL_WINDOW_RESIZABLE, &rawWindow,
-                                   &rawRenderer)) {
+                                    SDL_WINDOW_RESIZABLE, &raw_window,
+                                    &raw_renderer)) {
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
     return std::unexpected<std::string>(
         std::string("Failed to create window and renderer: ") + SDL_GetError());
   }
 
   // Turns on VSYNC 1: Enabled (Synchronizes to your monitor's refresh rate)
-  SDL_SetRenderVSync(rawRenderer, 1);
+  SDL_SetRenderVSync(raw_renderer, 1);
 
-  return GraphicsModule(rawWindow, rawRenderer);
+  return GraphicsModule(raw_window, raw_renderer);
 };
 
 // This is the private constructor. In the initializer above you see that the
 // window and renderer are being assigned to the vaults of the unique pointers.
 // This is called the Member Initializer List
 GraphicsModule::GraphicsModule(SDL_Window *window, SDL_Renderer *renderer)
-    : m_window(window), m_renderer(renderer) //<-- This is the Initializer List
+    : window_(window), renderer_(renderer) //<-- This is the Initializer List
 {
   // This is the constructor body
   // Why do this? because if you were to assign within the constructors body,
-  // the compiler must create space for empty m_window and m_renderer
-  // With the " : m_window(window), and m_renderer(renderer)"
-  // The compiler knows to build with m_window, m_renderer already pointing to
+  // the compiler must create space for empty window_ and renderer_
+  // With the " : window_(window), and renderer_(renderer)"
+  // The compiler knows to build with window_, renderer_ already pointing to
   // the pointers passed to it.
 }
 
@@ -52,7 +52,7 @@ GraphicsModule::GraphicsModule(SDL_Window *window, SDL_Renderer *renderer)
 //
 // In C++, when an object is moved (using the default move constructor
 // `GraphicsModule(GraphicsModule &&) = default;`), its smart pointers (like
-// `std::unique_ptr` for m_window and m_renderer) are transferred to the new
+// `std::unique_ptr` for window_ and renderer_) are transferred to the new
 // object, and the temporary object's pointers are set to `nullptr`.
 //
 // If we unconditionally call `SDL_QuitSubSystem` in the destructor, the
@@ -62,12 +62,12 @@ GraphicsModule::GraphicsModule(SDL_Window *window, SDL_Renderer *renderer)
 // already been destroyed by the subsystem shutdown. The program then hangs in
 // the event loop with no window.
 //
-// To fix this, we check if `m_window` is not null. Because a moved-from
-// GraphicsModule will have a null `m_window`, this check ensures that we only
+// To fix this, we check if `window_` is not null. Because a moved-from
+// GraphicsModule will have a null `window_`, this check ensures that we only
 // quit the SDL subsystem when the "true" owner (the instance that still
 // actually holds the window) is finally destroyed.
 GraphicsModule::~GraphicsModule() {
-  if (m_window) {
+  if (window_) {
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
   }
 }

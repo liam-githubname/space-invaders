@@ -1,8 +1,8 @@
-#include "GameMechanics.hpp"
+#include "GameState.hpp"
 #include "GraphicsModule.hpp"
 #include "InputSystem.hpp"
 #include "MovementSystem.hpp"
-#include "RenderModule.hpp"
+#include "RenderSystem.hpp"
 #include <SDL3_image/SDL_image.h>
 #include <cstdint>
 #include <iostream>
@@ -13,7 +13,7 @@
 // but not in the class. That way they can see eachother, but aren't entirely
 // coupled.
 //-----------------------------------------------------------------------------
-using wrappedTexture = std::unique_ptr<SDL_Texture, SDLTextureDeleter>;
+// using wrappedTexture = std::unique_ptr<SDL_Texture, SDLTextureDeleter>;
 // struct AssetManager {
 //   // TODO: INSTANTIATE after graphics module and pass the renderer to it
 //   std::unordered_map<std::string, wrappedTexture> textures;
@@ -30,7 +30,7 @@ using wrappedTexture = std::unique_ptr<SDL_Texture, SDLTextureDeleter>;
 // I don't need to have a class dedicated to this. Plus it's only ever going to
 // used here.
 //--------------TIMESTEP_STRUCT_FOR_DETERMINISTIC_BEHAVIOR---------------------
-struct timeStep {
+struct TimeStep {
   // TODO: I would like to consider using the chrono library instead, but that
   // is a later problem
   // TODO: Write up how this works
@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
   // I was wondering how you remember which entities are which
   // You'll remember which entities are which because you should keep handlers
   Entity &player = state.CreateEntity();
-  player.isPlayer.emplace();
+  player.is_player.emplace();
   // This emplace doesn't create temporary values? That's pretty cool
   player.is_active = true;
   player.velocity.emplace(0.0f, 0.0f);
@@ -127,32 +127,36 @@ int main(int argc, char *argv[]) {
   // background.sprite.has_value()
   //           << std::endl;
 
-  bool isRunning = true;
+  bool is_running = true;
   SDL_Event event;
   SDL_zero(event);
   InputSystem input_system = InputSystem::create();
   MovementSystem movement_system = MovementSystem();
-  timeStep time = timeStep();
+  TimeStep time_step = TimeStep();
   constexpr float dt = 1.0f / 60.0f;
   RenderSystem render_system = RenderSystem();
 
   // # NOTE: This is the basic idea for textures.
   // auto bg_texture_key =
-  //     SDL_GetBasePath() + std::string("assets/blue-preview.png");
+  //     // WARN: Apparently ...GetBasePath... will allocate a buffer that get's
+  //     dropped when it get's concatenated? So might be a memory leak if it's
+  //     not taken responsibility for?
+  //     SDL_GetBasePath() +
+  //     std::string("assets/blue-preview.png");
   // SDL_Texture *bg_text =
   //     IMG_LoadTexture(graphics.getRenderer(), bg_texture_key.c_str());
 
-  while (isRunning) {
+  while (is_running) {
     // TODO: Find out if this should be somewhere else maybe
     // It is important to realize that the input_system actually relies on this
     // call to SDL_PollEvent to update the keyboard state array
     while (SDL_PollEvent(&event)) {
       if (event.type == SDL_EVENT_QUIT)
-        isRunning = false;
+        is_running = false;
     }
-    time.Tick();
+    time_step.Tick();
 
-    while (time.consumeStep()) {
+    while (time_step.consumeStep()) {
       //========================== Input & Logic ==============================
       input_system.Update(state);
       //========================== Movement ===================================

@@ -1,5 +1,5 @@
 #include "InputSystem.hpp"
-#include "GameMechanics.hpp"
+#include "GameState.hpp"
 #include <SDL3/SDL.h>
 #include <iostream>
 
@@ -17,7 +17,7 @@ InputSystem InputSystem::create() {
 InputSystem::InputSystem(const bool *keyboard_state)
     : keyboard_state(keyboard_state) {}
 
-void InputSystem::Update(GameState &gamestate) {
+void InputSystem::Update(GameState &game_state) {
   auto velocity_adder = 0.0f;
 
   // NOTE:===================================================================
@@ -31,7 +31,7 @@ void InputSystem::Update(GameState &gamestate) {
     velocity_adder = 200.0f;
   }
 
-  for (auto &entity : gamestate.entities) {
+  for (auto &entity : game_state.entities) {
     if (entity.is_active && entity.transform.has_value()) {
       entity.velocity->dy = velocity_adder;
       entity.velocity->dx = velocity_adder;

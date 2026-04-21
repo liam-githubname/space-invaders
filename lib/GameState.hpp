@@ -10,7 +10,7 @@ struct SDL_Texture;
 // that may be needed by some other system. In this case I want the render
 // system to know that the entity with this component is the player.
 // Leaving it as an optional struct also lets us modify things later.
-struct isPlayer {};
+struct IsPlayer {};
 
 // We can use an enum to define the possible shapes we can use and have
 // deterministic outcomes on operating methods.
@@ -61,7 +61,7 @@ struct Entity {
   std::optional<Velocity> velocity;
   std::optional<Transform> transform;
   std::optional<Sprite> sprite;
-  std::optional<isPlayer> isPlayer;
+  std::optional<IsPlayer> is_player;
   std::optional<Direction> direction;
   std::optional<Collider> collider;
 };
