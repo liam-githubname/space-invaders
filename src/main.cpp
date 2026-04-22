@@ -9,6 +9,8 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <type_traits>
+#include <variant>
 
 // FIXME: This should probably exist in the game mechanics source file
 // but not in the class. That way they can see eachother, but aren't entirely
@@ -173,9 +175,34 @@ int main(int argc, char *argv[]) {
       //========================== Movement ===================================
       movement_system.Update(state, dt);
       //========================== Collision ==================================
-      // TODO: Add the collision system's update.
       collision_system.Update(state);
     }
+    //========================== Consume Events ===============================
+    // TODO: The event consumer can go here after the detection system runs
+    // TODO: How the hell does this work, I'll have to figure it out and
+    // abstract it to it's own system.
+    for (auto &event : state.events) {
+      // std::visit combined with std::variant gives you polymorphism without
+      // pointers, exhaustiveness checking, and zero overhead.
+      std::visit(
+          [&](auto &&payload) {
+            using T = std::decay_t<decltype(payload)>;
+
+            if constexpr (std::is_same_v<T, CollisionPayload>) {
+              SDL_Log("Consumed Collision event");
+            }
+
+            else if constexpr (std::is_same_v<T, DeathPayload>) {
+              SDL_Log("Consumed Death Payload from Event queue");
+            }
+
+            else if constexpr (std::is_same_v<T, ScorePayload>) {
+              SDL_Log("consumed Score Payload from Event queue");
+            }
+          },
+          event);
+    }
+    state.events.clear();
     //============================ Render =====================================
     render_system.Update(state, graphics.getRenderer());
   }

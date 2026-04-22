@@ -3,6 +3,9 @@
 #include <SDL3/SDL.h>
 #include <algorithm>
 
+// TODO: Implement collision detection for circle -> circle
+// TODO: Implement collision detection for rectangle -> circle
+
 struct SDL_FRect;
 class CollisionSystem;
 
@@ -39,8 +42,13 @@ void CollisionSystem::Update(GameState &game_state) {
         if (a_right <= b_left || a_bottom <= b_top || a_left >= b_right ||
             a_top >= b_bottom) {
           is_colliding = false;
-          SDL_Log("not colliding");
+          continue;
         }
+
+        // NOTE: This designated initialization syntax is incredible. It is so
+        // readable.
+        game_state.events.push_back(CollisionPayload{
+            .entity_a_id = entity_a.id, .entity_b_id = entity_b.id});
       }
 
       // Circle -> Circle
