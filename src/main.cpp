@@ -1,4 +1,5 @@
 #include "CollisionSystem.hpp"
+#include "EventSystem.hpp"
 #include "GameState.hpp"
 #include "GraphicsModule.hpp"
 #include "InputSystem.hpp"
@@ -29,14 +30,10 @@
 // };
 //-----------------------------------------------------------------------------
 
-// NOTE: I feel like this is probably the best way to do this for now.
-// I don't need to have a class dedicated to this. Plus it's only ever going to
-// used here.
 //--------------TIMESTEP_STRUCT_FOR_DETERMINISTIC_BEHAVIOR---------------------
 struct TimeStep {
   // TODO: I would like to consider using the chrono library instead, but that
   // is a later problem
-  // TODO: Write up how this works
   // target_deltatime_nanoseconds represents approximately 1/60th of second.
   static constexpr uint64_t target_deltatime_nanoseconds = 1000000000ULL / 60;
   // accumulator is used to keep the process from spiraling.
@@ -47,17 +44,16 @@ struct TimeStep {
   // start of the program.
   void Tick() {
     uint64_t current_time = SDL_GetTicksNS();
-    // this is the time between tick() calls
     uint64_t frame_time = current_time - last_time;
-    // NOTE: This is supposed to prevent the spiral of death.
-    // If the time since the last tick is greater than
     if (frame_time > 250000000ULL) {
       frame_time = 250000000ULL;
     }
     last_time = current_time;
     accumulator += frame_time;
   }
-  // Consumes a step when the tick function has ticked past a the target time
+  // INFO: consumeStep is what allows for "substeps" These are steps that occur
+  // within one frame. It is unlikely to ever have more than one substep, but it
+  // is a safety precaution.
   bool consumeStep() {
     if (accumulator >= target_deltatime_nanoseconds) {
       accumulator -= target_deltatime_nanoseconds;
@@ -83,9 +79,13 @@ int main(int argc, char *argv[]) {
   //   3.1 render a texture for the player.
   //   AND
   //   3.1 [X] draw a shape to represent the player.
-  // 4. I need to add bounding and AABB collision detection features.
+  // 4. [X] I need to add bounding and AABB collision detection features.
   //  - AABB will not be enough. But good for now.
   // 5. I need to figure how to rotate a texture.
+  // 6. Graphics module needs to be overhauled to support full screen
+  // 7. Event queue system needs implementation in EventSystem.*pp
+  // 8. Collision detection needs updates in CollisionSystem.*pp
+  // 9. Update the CmakeLists.txt to include the event system after I make it
   // ==========================================================================
 
   // This is resource Acquisition plus the GraphicsModule object is wrapped
@@ -108,13 +108,13 @@ int main(int argc, char *argv[]) {
   // asset_manager.renderer = graphics.getRenderer();
   // asset_manager.loadTexture(bg_texture_key);
 
-  auto state = GameState();
+  auto game_state = GameState();
 
   int window_width, window_height;
   SDL_GetWindowSize(graphics.getWindow(), &window_width, &window_height);
   // I was wondering how you remember which entities are which
   // You'll remember which entities are which because you should keep handlers
-  Entity &player = state.CreateEntity();
+  Entity &player = game_state.CreateEntity();
   player.is_player.emplace();
   // This emplace doesn't create temporary values? That's pretty cool
   player.is_active = true;
@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
   player.collider.emplace(
       Collider{ColliderShape::Rectangle, 0, 0, .rect{100.0, 100.0}});
   // how to add an optional field to a struct
-  Entity &background = state.CreateEntity();
+  Entity &background = game_state.CreateEntity();
   // background.sprite.emplace(
   //     Sprite{bg_texture_key,
   //     (float)asset_manager.textures[bg_texture_key]->w,
@@ -132,7 +132,7 @@ int main(int argc, char *argv[]) {
   // background.sprite.has_value()
   //           << std::endl;
 
-  Entity &player2 = state.CreateEntity();
+  Entity &player2 = game_state.CreateEntity();
   player2.is_player.emplace();
   // This emplace doesn't create temporary values? That's pretty cool
   player2.is_active = true;
@@ -149,18 +149,9 @@ int main(int argc, char *argv[]) {
   constexpr float dt = 1.0f / 60.0f;
   RenderSystem render_system = RenderSystem();
   CollisionSystem collision_system = CollisionSystem();
-
-  // # NOTE: This is the basic idea for textures.
-  // auto bg_texture_key =
-  //     // WARN: Apparently ...GetBasePath... will allocate a buffer that
-  //     get's dropped when it get's concatenated? So might be a memory leak
-  //     if it's not taken responsibility for? SDL_GetBasePath() +
-  //     std::string("assets/blue-preview.png");
-  // SDL_Texture *bg_text =
-  //     IMG_LoadTexture(graphics.getRenderer(), bg_texture_key.c_str());
+  EventSystem event_system = EventSystem();
 
   while (is_running) {
-    // TODO: Find out if this should be somewhere else maybe
     // It is important to realize that the input_system actually relies on this
     // call to SDL_PollEvent to update the keyboard state array
     while (SDL_PollEvent(&event)) {
@@ -171,40 +162,16 @@ int main(int argc, char *argv[]) {
 
     while (time_step.consumeStep()) {
       //========================== Input & Logic ==============================
-      input_system.Update(state);
+      input_system.Update(game_state);
       //========================== Movement ===================================
-      movement_system.Update(state, dt);
+      movement_system.Update(game_state, dt);
       //========================== Collision ==================================
-      collision_system.Update(state);
+      collision_system.Update(game_state);
     }
     //========================== Consume Events ===============================
-    // TODO: The event consumer can go here after the detection system runs
-    // TODO: How the hell does this work, I'll have to figure it out and
-    // abstract it to it's own system.
-    for (auto &event : state.events) {
-      // std::visit combined with std::variant gives you polymorphism without
-      // pointers, exhaustiveness checking, and zero overhead.
-      std::visit(
-          [&](auto &&payload) {
-            using T = std::decay_t<decltype(payload)>;
-
-            if constexpr (std::is_same_v<T, CollisionPayload>) {
-              SDL_Log("Consumed Collision event");
-            }
-
-            else if constexpr (std::is_same_v<T, DeathPayload>) {
-              SDL_Log("Consumed Death Payload from Event queue");
-            }
-
-            else if constexpr (std::is_same_v<T, ScorePayload>) {
-              SDL_Log("consumed Score Payload from Event queue");
-            }
-          },
-          event);
-    }
-    state.events.clear();
+    event_system.ProcessEvents(game_state);
     //============================ Render =====================================
-    render_system.Update(state, graphics.getRenderer());
+    render_system.Update(game_state, graphics.getRenderer());
   }
   return 0;
 }

@@ -1,14 +1,15 @@
+/* GameState.hpp
+ * Authored by Liam Harvell
+ * This holds the state of the game defines the entities and their components.
+ */
+
 #pragma once
 
+#include <EventQueue.hpp>
 #include <cstdint>
 #include <optional>
-#include <queue>
 #include <sys/types.h>
-#include <variant>
 #include <vector>
-
-struct SDL_Texture;
-// TODO: Format this file - split it up if need be
 
 // NOTE: I read that this is the most efficient way of attaching an attribute
 // that may be needed by some other system. In this case I want the render
@@ -71,37 +72,13 @@ struct Entity {
   std::optional<Collider> collider;
 };
 
-// TODO: define a style for these payloads
-// The "payloads", this is where events are defined. Events are
-struct CollisionPayload {
-  uint32_t entity_a_id;
-  uint32_t entity_b_id;
-};
-
-struct DeathPayload {
-  uint32_t entity_id;
-};
-
-struct ScorePayload {
-  int points;
-};
-
-// TODO: Write doc for clangd to tell me how to add Event variants when I
-// inevitably forget.
-// NOTE: std::variant is a typesafe union. I was considering
-// using optional fields like how entities work, but after looking into it these
-// seem to be a good option. This type alias Event causes every event to be size
-// of the largest payload. I think there might be a more memory efficient way of
-// doing this with anonymous unions?
-using Event = std::variant<CollisionPayload, DeathPayload, ScorePayload>;
-
 class GameState {
 private:
   uint32_t next_id = 0;
 
 public:
   std::vector<Entity> entities;
-  std::vector<Event> events;
+  EventQueue event_queue;
 
   // This had to be here because the copy constructor below that
   // is deleted suppreses the compilers creation of any

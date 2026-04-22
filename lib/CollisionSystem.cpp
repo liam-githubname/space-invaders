@@ -47,7 +47,7 @@ void CollisionSystem::Update(GameState &game_state) {
 
         // NOTE: This designated initialization syntax is incredible. It is so
         // readable.
-        game_state.events.push_back(CollisionPayload{
+        game_state.event_queue.PushEvent(CollisionPayload{
             .entity_a_id = entity_a.id, .entity_b_id = entity_b.id});
       }
 
