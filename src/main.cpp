@@ -139,8 +139,12 @@ int main(int argc, char *argv[]) {
     y_wall.is_wall.emplace();
     // TODO: I would like to use "designated initialization syntax"
     // It was throwing errors though
-    x_wall.transform.emplace(window_width / 2, window_height / 2);
+    x_wall.transform.emplace(0 + i * window_width, 0);
+    y_wall.transform.emplace(0, 0 + i * window_height);
+    SDL_Log("x_wall coords: %f, %f", x_wall.transform->x, x_wall.transform->y);
+    SDL_Log("y_wall coords: %f, %f", y_wall.transform->x, y_wall.transform->y);
     walls.push_back(x_wall);
+    walls.push_back(y_wall);
   }
   // INFO: Guide for how logic should flow
   // -> Mutate state -> Detect facts

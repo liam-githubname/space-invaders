@@ -77,7 +77,8 @@ void CollisionSystem::Update(GameState &game_state) {
   }
 }
 
-bool IsPlayerAndWall(const Entity &entity_a, const Entity &entity_b) {
+bool CollisionSystem::IsPlayerAndWall(const Entity &entity_a,
+                                      const Entity &entity_b) {
   if (entity_a.is_player.has_value() && entity_b.is_wall.has_value()) {
     return true;
   }
