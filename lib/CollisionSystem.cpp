@@ -1,13 +1,13 @@
 #include "CollisionSystem.hpp"
+#include "Events.hpp"
 #include "GameState.hpp"
 #include <SDL3/SDL.h>
-#include <algorithm>
 
 // TODO: Implement collision detection for circle -> circle
 // TODO: Implement collision detection for rectangle -> circle
 
 struct SDL_FRect;
-class CollisionSystem;
+class GameState;
 
 void CollisionSystem::Update(GameState &game_state) {
 
@@ -45,8 +45,16 @@ void CollisionSystem::Update(GameState &game_state) {
           continue;
         }
 
-        // NOTE: This designated initialization syntax is incredible. It is so
-        // readable.
+        // We know there is a collision by here. Time to figure out what kind
+        if (IsPlayerAndWall(entity_a, entity_b)) {
+          game_state.event_queue.PushEvent(
+              CollisionPayload{.entity_a_id = entity_a.id,
+                               .entity_b_id = entity_b.id,
+                               .collision_type = CollisionType::PlayerAndWall});
+        }
+
+        // NOTE: This designated initialization syntax is incredible. It is
+        // so readable.
         game_state.event_queue.PushEvent(CollisionPayload{
             .entity_a_id = entity_a.id, .entity_b_id = entity_b.id});
       }
@@ -61,10 +69,20 @@ void CollisionSystem::Update(GameState &game_state) {
           entity_b.collider->shape == ColliderShape::Circle) {
         // A = Rectangle & B = Circle logic
       }
-      if (entity_b.collider->shape == ColliderShape::Rectangle &&
-          entity_a.collider->shape == ColliderShape::Circle) {
+      if (entity_a.collider->shape == ColliderShape::Circle &&
+          entity_b.collider->shape == ColliderShape::Rectangle) {
         // B = Rectangle & A = Circle logic
       }
     }
   }
+}
+
+bool IsPlayerAndWall(const Entity &entity_a, const Entity &entity_b) {
+  if (entity_a.is_player.has_value() && entity_b.is_wall.has_value()) {
+    return true;
+  }
+  if (entity_a.is_wall.has_value() && entity_b.is_player.has_value()) {
+    return true;
+  }
+  return false;
 }

@@ -9,11 +9,17 @@
 
 // TODO: define a style for these payloads
 // The "payloads", this is where events are defined. Events are
+#pragma once
+
 #include <cstdint>
 #include <variant>
+
+enum class CollisionType { PlayerAndWall, PlayerAndEnemy };
+
 struct CollisionPayload {
   uint32_t entity_a_id;
   uint32_t entity_b_id;
+  CollisionType collision_type;
 };
 
 struct DeathPayload {

@@ -26,24 +26,20 @@ class EventSystem;
 
 // This is pulled directly from
 // https://en.cppreference.com/cpp/utility/variant/visit2 @ 2026-04-22 14:45
-// helper type for the visitor #4
-// INFO: this is still confusing
-// but C++ templates are a compile-time code generation mechanism
 // A *Variadic template*. The ... is called a parameter pack.
 // "This template accepts any number of type arguments by the name Ts"
 // struct overloaded : Ts... "multiple inheritance" via pack expansion.
 // "the struct [overloaded] ihnherits from every type in Ts simultaneously"
-// template <class... Ts> struct overloaded : Ts... {
-//   using Ts::operator()...;
-// };
-// // explicit deduction guide (not needed as of C++20)
-// template <class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+// but C++ templates are a compile-time code generation mechanism
 
+// This idiom exists because C++ doesn't have a built-in way to create an
+// overload set from multiple lambdas.
 template <typename... Ts> struct Overload : Ts... {
   using Ts::operator()...;
 };
 template <typename... Ts> Overload(Ts...) -> Overload<Ts...>;
 
+// This is the main use of this class here.
 void EventSystem::ProcessEvents(GameState &game_state) {
   for (auto &event : game_state.event_queue.GetEvents()) {
     // WARN: This auto &&payload syntax can accept
@@ -63,3 +59,6 @@ void EventSystem::ProcessEvents(GameState &game_state) {
   }
   game_state.event_queue.ClearEventQueue();
 }
+
+// Check the kind of components
+void HandleCollisionPayload(const CollisionPayload &payload) {}

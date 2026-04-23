@@ -15,5 +15,6 @@ public:
   void ProcessEvents(GameState &game_state);
 
 private:
-  void DispatchEvent(Event &event);
+  void DispatchEvent(const Event &event);
+  void HandleCollisionPayload(const Event &event);
 };

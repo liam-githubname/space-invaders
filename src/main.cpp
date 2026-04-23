@@ -12,6 +12,7 @@
 #include <string>
 #include <type_traits>
 #include <variant>
+#include <vector>
 
 // FIXME: This should probably exist in the game mechanics source file
 // but not in the class. That way they can see eachother, but aren't entirely
@@ -70,11 +71,6 @@ struct TimeStep {
 int main(int argc, char *argv[]) {
 
   // NOTE:==================== TODO LIST ======================================
-  // 1. [x] I want to add the player entity and see that the position exists
-  // 2. [X] I want the movement system implement and have the position component
-  // update
-  // 2.1 [X] I need to build an input system that takes in user input and stores
-  // that as a component of player entities.
   // 3. [~] I want to render the player. WE WILL GET BACK TO THIS!
   //   3.1 render a texture for the player.
   //   AND
@@ -83,73 +79,73 @@ int main(int argc, char *argv[]) {
   //  - AABB will not be enough. But good for now.
   // 5. I need to figure how to rotate a texture.
   // 6. Graphics module needs to be overhauled to support full screen
-  // 7. Event queue system needs implementation in EventSystem.*pp
-  // 8. Collision detection needs updates in CollisionSystem.*pp
-  // 9. Update the CmakeLists.txt to include the event system after I make it
+  // 7. [X] Event queue system needs implementation in EventSystem.*pp
+  // 8. [X] Collision detection needs updates in CollisionSystem.*pp
+  // 9. [X] Update the CmakeLists.txt to include the event system after I make
+  // it
+  // 10. Add the collision Decider function
   // ==========================================================================
 
   // This is resource Acquisition plus the GraphicsModule object is wrapped
   // in an expected type.
   auto title = std::string("Test Title");
-
   auto engineResult = GraphicsModule::create(title, 680, 420);
   if (!engineResult.has_value()) {
     SDL_Log("Engine failed to start: %s", engineResult.error().c_str());
     return 1;
   }
-
   // This unwraps the Graphics Module
   // The program needs to take ownership of the module
   // We have to use std::move because we removed the copy constructor.
-  // This is the initialization.
+
+  // ==================== Initialization of Systems ===========================
+  TimeStep time_step = TimeStep();
+  // TODO: Figure out if the other systems should remove some of their default
+  // constructors. Like GraphicsModule.
   GraphicsModule graphics = std::move(engineResult.value());
-
-  // auto asset_manager = AssetManager();
-  // asset_manager.renderer = graphics.getRenderer();
-  // asset_manager.loadTexture(bg_texture_key);
-
-  auto game_state = GameState();
-
-  int window_width, window_height;
-  SDL_GetWindowSize(graphics.getWindow(), &window_width, &window_height);
-  // I was wondering how you remember which entities are which
-  // You'll remember which entities are which because you should keep handlers
-  Entity &player = game_state.CreateEntity();
-  player.is_player.emplace();
-  // This emplace doesn't create temporary values? That's pretty cool
-  player.is_active = true;
-  player.velocity.emplace(0.0f, 0.0f);
-  player.transform.emplace(window_width / 2, window_height / 2);
-  player.collider.emplace(
-      Collider{ColliderShape::Rectangle, 0, 0, .rect{100.0, 100.0}});
-  // how to add an optional field to a struct
-  Entity &background = game_state.CreateEntity();
-  // background.sprite.emplace(
-  //     Sprite{bg_texture_key,
-  //     (float)asset_manager.textures[bg_texture_key]->w,
-  //            (float)asset_manager.textures[bg_texture_key]->h});
-  // std::cout << "background.sprite.has_value()" <<
-  // background.sprite.has_value()
-  //           << std::endl;
-
-  Entity &player2 = game_state.CreateEntity();
-  player2.is_player.emplace();
-  // This emplace doesn't create temporary values? That's pretty cool
-  player2.is_active = true;
-  player2.transform.emplace(window_width + 100 / 2, window_height + 100 / 2);
-  player2.collider.emplace(
-      Collider{ColliderShape::Rectangle, 0, 0, .rect{100.0, 100.0}});
-
-  bool is_running = true;
+  GameState game_state = GameState();
   SDL_Event event;
   SDL_zero(event);
   InputSystem input_system = InputSystem::create();
   MovementSystem movement_system = MovementSystem();
-  TimeStep time_step = TimeStep();
-  constexpr float dt = 1.0f / 60.0f;
-  RenderSystem render_system = RenderSystem();
   CollisionSystem collision_system = CollisionSystem();
   EventSystem event_system = EventSystem();
+  RenderSystem render_system = RenderSystem();
+
+  // miscellaneous
+  constexpr float dt = 1.0f / 60.0f;
+  int window_width, window_height;
+  SDL_GetWindowSize(graphics.getWindow(), &window_width, &window_height);
+  bool is_running = true;
+
+  // ==================== Initialization of entities ==========================
+  // TODO: Look at making CreateEntity a factory pattern?
+  Entity &player = game_state.CreateEntity();
+  player.is_player.emplace();
+  player.is_active = true;
+  player.velocity.emplace(0.0f, 0.0f);
+  player.transform.emplace(window_width / 2, window_height / 2);
+  player.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
+                                   .offset_x = 0,
+                                   .offset_y = 0,
+                                   .rect{100.0, 100.0}});
+  std::vector<Entity> walls;
+
+  for (int i = 0; i < 2; i++) {
+    auto x_wall = game_state.CreateEntity();
+    auto y_wall = game_state.CreateEntity();
+
+    x_wall.is_wall.emplace();
+    y_wall.is_wall.emplace();
+    // TODO: I would like to use "designated initialization syntax"
+    // It was throwing errors though
+    x_wall.transform.emplace(window_width / 2, window_height / 2);
+    walls.push_back(x_wall);
+  }
+  // INFO: Guide for how logic should flow
+  // -> Mutate state -> Detect facts
+  // -> Queue facts -> Interpret facts and mutate state again
+  // -> Render
 
   while (is_running) {
     // It is important to realize that the input_system actually relies on this

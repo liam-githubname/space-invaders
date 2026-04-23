@@ -16,16 +16,15 @@
 // system to know that the entity with this component is the player.
 // Leaving it as an optional struct also lets us modify things later.
 struct IsPlayer {};
+struct IsWall {};
 
 // We can use an enum to define the possible shapes we can use and have
 // deterministic outcomes on operating methods.
 enum class ColliderShape { Rectangle, Circle };
-
 // attach this component to the entity
 struct Collider {
   ColliderShape shape;
   float offset_x, offset_y;
-
   // This is called an ANONYMOUS Union, only one of the structs can be valid at
   // the same time
   union {
@@ -70,6 +69,7 @@ struct Entity {
   std::optional<IsPlayer> is_player;
   std::optional<Direction> direction;
   std::optional<Collider> collider;
+  std::optional<IsWall> is_wall;
 };
 
 class GameState {
