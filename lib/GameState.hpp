@@ -2,6 +2,15 @@
  * Authored by Liam Harvell
  * This holds the state of the game defines the entities and their components.
  */
+// NOTE:========================================================================
+// 1. An entity needs to have is_active must be true for CollisionSystem to see
+// it as of 2026-04-24 23:37.
+// TODO:========================================================================
+// 1. Move Entities to their own dedicated header file.
+// 2. Create a wrapper class around the entity vector in the class. Like
+// EventQueue.
+// 3. I need the entities origin to be in the logical center.
+// =============================================================================
 
 #pragma once
 
@@ -38,6 +47,12 @@ struct Collider {
   };
 };
 
+struct PlayerInput {
+  float move_x, move_y; // If we "normalize" this to -1.0:1.0 we can do fun
+                        // stuff with speed later I bet.
+  bool is_firing;
+};
+
 // These are the C (Component) in an ECS
 struct Velocity {
   float dx;
@@ -63,6 +78,7 @@ struct Sprite {
 struct Entity {
   uint32_t id;
   bool is_active;
+  std::optional<PlayerInput> player_input;
   std::optional<Velocity> velocity;
   std::optional<Transform> transform;
   std::optional<Sprite> sprite;

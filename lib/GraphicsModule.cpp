@@ -15,8 +15,8 @@ GraphicsModule::create(std::string_view title, int width, int height) {
   SDL_Renderer *raw_renderer = nullptr;
 
   if (!SDL_CreateWindowAndRenderer(title.data(), width, height,
-                                    SDL_WINDOW_RESIZABLE, &raw_window,
-                                    &raw_renderer)) {
+                                   SDL_WINDOW_RESIZABLE, &raw_window,
+                                   &raw_renderer)) {
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
     return std::unexpected<std::string>(
         std::string("Failed to create window and renderer: ") + SDL_GetError());
@@ -24,6 +24,8 @@ GraphicsModule::create(std::string_view title, int width, int height) {
 
   // Turns on VSYNC 1: Enabled (Synchronizes to your monitor's refresh rate)
   SDL_SetRenderVSync(raw_renderer, 1);
+  SDL_SetRenderLogicalPresentation(raw_renderer, 1920, 1080,
+                                   SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
   return GraphicsModule(raw_window, raw_renderer);
 };

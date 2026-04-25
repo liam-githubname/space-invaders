@@ -1,7 +1,18 @@
+// NOTE:===================================================================
+// 1. Grab the keyboard state.
+// 2. Alter/update the intent components e.g. the PlayerInput struct.
+// 3. Apply these intent variables to components of constituient entities.
+// 4. The InputSystem explicitly requires the Caller to also call
+// SDL_PollEvent(&event), otherwise the keyboard_state will never update.
+// TODO:===================================================================
+// 1. The input system applies velocity to all entities.
+// 4. Make it update input state components on player character.
+// 5. Input checking for space bar
+// 6. Input checking for mouse events?
+// ========================================================================
 #include "InputSystem.hpp"
 #include "GameState.hpp"
 #include <SDL3/SDL.h>
-#include <iostream>
 
 class InputSystem;
 
@@ -18,23 +29,32 @@ InputSystem::InputSystem(const bool *keyboard_state)
     : keyboard_state(keyboard_state) {}
 
 void InputSystem::Update(GameState &game_state) {
-  auto velocity_adder = 0.0f;
+  auto move_y = 0.0f;
+  auto move_x = 0.0f;
+  auto is_firing = false;
 
-  // NOTE:===================================================================
-  // 1. Grab the keyboard state
-  // 2. Alter/update the intent variables
-  // 3. Apply these intent variables to components of constituient entities.
-  // ========================================================================
-
-  // What is the right way to reset this value?
   if (keyboard_state[SDL_SCANCODE_W]) {
-    velocity_adder = 200.0f;
+    move_y = -1.0f;
+  }
+  if (keyboard_state[SDL_SCANCODE_A]) {
+    move_x = -1.0f;
+  }
+  if (keyboard_state[SDL_SCANCODE_S]) {
+    move_y = 1.0f;
+  }
+  if (keyboard_state[SDL_SCANCODE_D]) {
+    move_x = 1.0f;
+  }
+  if (keyboard_state[SDL_SCANCODE_SPACE]) {
+    is_firing = true;
   }
 
+  // PlayerInput component is updating.
   for (auto &entity : game_state.entities) {
-    if (entity.is_active && entity.transform.has_value()) {
-      entity.velocity->dy = velocity_adder;
-      entity.velocity->dx = velocity_adder;
+    if (entity.is_player.has_value() && entity.player_input.has_value()) {
+      entity.player_input->move_y = move_y;
+      entity.player_input->move_x = move_x;
+      entity.player_input->is_firing = is_firing;
     }
   }
 }

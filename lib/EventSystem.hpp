@@ -1,6 +1,5 @@
 #pragma once
-
-#include "EventQueue.hpp"
+#include "Events.hpp"
 
 class GameState;
 
@@ -16,5 +15,6 @@ public:
 
 private:
   void DispatchEvent(const Event &event);
-  void HandleCollisionPayload(const Event &event);
+  void HandleCollisionPayload(const CollisionPayload &payload,
+                              GameState &game_state);
 };

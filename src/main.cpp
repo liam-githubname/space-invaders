@@ -1,3 +1,12 @@
+/* main.cpp Entry point for game.
+ * Authored by Liam Harvell
+ */
+// NOTE:=======================================================================
+// 1. Guide for how logic should flow: -> Mutate state -> Detect facts
+// -> Queue facts -> Interpret facts and mutate state again -> Render
+// TODO:=======================================================================
+// 1. Fix the walls transforms location.
+// ============================================================================
 #include "CollisionSystem.hpp"
 #include "EventSystem.hpp"
 #include "GameState.hpp"
@@ -8,11 +17,7 @@
 #include <SDL3_image/SDL_image.h>
 #include <cstdint>
 #include <iostream>
-#include <memory>
 #include <string>
-#include <type_traits>
-#include <variant>
-#include <vector>
 
 // FIXME: This should probably exist in the game mechanics source file
 // but not in the class. That way they can see eachother, but aren't entirely
@@ -89,7 +94,7 @@ int main(int argc, char *argv[]) {
   // This is resource Acquisition plus the GraphicsModule object is wrapped
   // in an expected type.
   auto title = std::string("Test Title");
-  auto engineResult = GraphicsModule::create(title, 680, 420);
+  auto engineResult = GraphicsModule::create(title, 1920, 1080);
   if (!engineResult.has_value()) {
     SDL_Log("Engine failed to start: %s", engineResult.error().c_str());
     return 1;
@@ -114,8 +119,10 @@ int main(int argc, char *argv[]) {
 
   // miscellaneous
   constexpr float dt = 1.0f / 60.0f;
-  int window_width, window_height;
-  SDL_GetWindowSize(graphics.getWindow(), &window_width, &window_height);
+  float window_width = 1920;
+  float window_height = 1080;
+
+  std::cout << window_width << window_height << std::endl;
   bool is_running = true;
 
   // ==================== Initialization of entities ==========================
@@ -125,31 +132,44 @@ int main(int argc, char *argv[]) {
   player.is_active = true;
   player.velocity.emplace(0.0f, 0.0f);
   player.transform.emplace(window_width / 2, window_height / 2);
-  player.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
-                                   .offset_x = 0,
-                                   .offset_y = 0,
-                                   .rect{100.0, 100.0}});
-  std::vector<Entity> walls;
+  player.collider.emplace(
+      Collider{.shape = ColliderShape::Rectangle, .rect{100.0, 100.0}});
+  player.player_input.emplace(
+      PlayerInput{.move_x = 0.0, .move_y = 0.0, .is_firing = false});
 
-  for (int i = 0; i < 2; i++) {
-    auto x_wall = game_state.CreateEntity();
-    auto y_wall = game_state.CreateEntity();
-
-    x_wall.is_wall.emplace();
-    y_wall.is_wall.emplace();
-    // TODO: I would like to use "designated initialization syntax"
-    // It was throwing errors though
-    x_wall.transform.emplace(0 + i * window_width, 0);
-    y_wall.transform.emplace(0, 0 + i * window_height);
-    SDL_Log("x_wall coords: %f, %f", x_wall.transform->x, x_wall.transform->y);
-    SDL_Log("y_wall coords: %f, %f", y_wall.transform->x, y_wall.transform->y);
-    walls.push_back(x_wall);
-    walls.push_back(y_wall);
-  }
-  // INFO: Guide for how logic should flow
-  // -> Mutate state -> Detect facts
-  // -> Queue facts -> Interpret facts and mutate state again
-  // -> Render
+  // FIXME: The collision system now expects transforms to be in the logical
+  // center of entity Top wall. Wall transforms need to be updated.
+  auto &top_wall = game_state.CreateEntity();
+  top_wall.is_wall.emplace();
+  top_wall.is_active = true;
+  top_wall.transform.emplace(0, 0);
+  top_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
+                                     .offset_y = 5.0f,
+                                     .rect{(float)window_width, 10.0f}});
+  // Bottom wall
+  auto &bottom_wall = game_state.CreateEntity();
+  bottom_wall.is_wall.emplace();
+  bottom_wall.is_active = true;
+  bottom_wall.transform.emplace(0, (float)window_height);
+  bottom_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
+                                        .offset_y = 5.0,
+                                        .rect{(float)window_width, 10.0f}});
+  // Left wall
+  auto &left_wall = game_state.CreateEntity();
+  left_wall.is_wall.emplace();
+  left_wall.is_active = true;
+  left_wall.transform.emplace(0, 0);
+  left_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
+                                      .offset_x = 5.0f,
+                                      .rect{10.0f, (float)window_height}});
+  // Right wall
+  auto &right_wall = game_state.CreateEntity();
+  right_wall.is_wall.emplace();
+  right_wall.is_active = true;
+  right_wall.transform.emplace((float)window_width, 0);
+  right_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
+                                       .offset_x = -5.0f,
+                                       .rect{10.0f, (float)window_height}});
 
   while (is_running) {
     // It is important to realize that the input_system actually relies on this
