@@ -6,6 +6,7 @@
 // -> Queue facts -> Interpret facts and mutate state again -> Render
 // TODO:=======================================================================
 // 1. Fix the walls transforms location.
+// 2. Move the AssetManager struct to it's own header file.
 // ============================================================================
 #include "CollisionSystem.hpp"
 #include "EventSystem.hpp"
