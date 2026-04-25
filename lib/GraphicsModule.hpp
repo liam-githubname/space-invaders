@@ -7,9 +7,10 @@
 #include <memory>
 #include <string_view>
 
-// TODO: I need to add a fixed time step for game logic processing I don't know
-// where I need to implement that though.
-// We are defining how to destroy SDL resources
+// INFO: This is overloading the function call operator. This creates something
+// known as a functor. A fancy term for a callable object. The object becomes a
+// function. This is critical for callbacks. See operators-in-c-cheatsheet.md in
+// Obsidian vault for more information.
 struct WindowDeleter {
   void operator()(SDL_Window *window) const {
     if (window)

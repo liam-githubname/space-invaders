@@ -11,4 +11,6 @@ private:
   bool check_rectangle_to_rectangle(const Entity entity_a,
                                     const Entity entity_b);
   bool IsPlayerAndWall(const Entity &entity_a, const Entity &entity_b);
+
+  bool IsRectToRectColliding(const Entity &entity_a, const Entity &entity_b);
 };

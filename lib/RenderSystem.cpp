@@ -10,8 +10,10 @@ class RenderSystem;
 // 1. I need to figure out how to render directions as well.
 void RenderSystem::drawPlayer(SDL_Renderer *renderer, Entity player_entity) {
   // This was the first time I used this syntax instinctually
-  SDL_FRect player_rect{player_entity.transform->x, player_entity.transform->y,
-                        100.0, 100.0};
+  SDL_FRect player_rect{
+      player_entity.transform->x - player_entity.collider->rect.width / 2,
+      player_entity.transform->y - player_entity.collider->rect.height / 2,
+      100.0, 100.0};
   SDL_FRect player_center{player_entity.transform->x,
                           player_entity.transform->y, 10.0, 10.0};
   SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
@@ -21,9 +23,12 @@ void RenderSystem::drawPlayer(SDL_Renderer *renderer, Entity player_entity) {
 }
 
 void RenderSystem::drawWall(SDL_Renderer *renderer, Entity wall) {
-  SDL_FRect wall_rect{wall.transform->x, wall.transform->y,
+  SDL_FRect wall_rect{wall.transform->x - wall.collider->rect.width / 2,
+                      wall.transform->y - wall.collider->rect.height / 2,
                       wall.collider->rect.width, wall.collider->rect.height};
-  SDL_FRect wall_center{wall.transform->x, wall.transform->y, 2.0, 2.0};
+  SDL_FRect wall_center{wall.transform->x - wall.collider->rect.width / 2,
+                        wall.transform->y - wall.collider->rect.height / 2, 2.0,
+                        2.0};
   SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
   SDL_RenderFillRect(renderer, &wall_rect);
   SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);

@@ -8,6 +8,7 @@
 // 1. Fix the walls transforms location.
 // 2. Move the AssetManager struct to it's own header file.
 // ============================================================================
+
 #include "CollisionSystem.hpp"
 #include "EventSystem.hpp"
 #include "GameState.hpp"
@@ -143,7 +144,7 @@ int main(int argc, char *argv[]) {
   auto &top_wall = game_state.CreateEntity();
   top_wall.is_wall.emplace();
   top_wall.is_active = true;
-  top_wall.transform.emplace(0, 0);
+  top_wall.transform.emplace(window_width / 2, 0);
   top_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
                                      .offset_y = 5.0f,
                                      .rect{(float)window_width, 10.0f}});
@@ -151,7 +152,7 @@ int main(int argc, char *argv[]) {
   auto &bottom_wall = game_state.CreateEntity();
   bottom_wall.is_wall.emplace();
   bottom_wall.is_active = true;
-  bottom_wall.transform.emplace(0, (float)window_height);
+  bottom_wall.transform.emplace(window_width / 2, (float)window_height);
   bottom_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
                                         .offset_y = 5.0,
                                         .rect{(float)window_width, 10.0f}});
@@ -159,7 +160,7 @@ int main(int argc, char *argv[]) {
   auto &left_wall = game_state.CreateEntity();
   left_wall.is_wall.emplace();
   left_wall.is_active = true;
-  left_wall.transform.emplace(0, 0);
+  left_wall.transform.emplace(0, window_height / 2);
   left_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
                                       .offset_x = 5.0f,
                                       .rect{10.0f, (float)window_height}});
@@ -167,7 +168,7 @@ int main(int argc, char *argv[]) {
   auto &right_wall = game_state.CreateEntity();
   right_wall.is_wall.emplace();
   right_wall.is_active = true;
-  right_wall.transform.emplace((float)window_width, 0);
+  right_wall.transform.emplace((float)window_width, window_height / 2);
   right_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
                                        .offset_x = -5.0f,
                                        .rect{10.0f, (float)window_height}});

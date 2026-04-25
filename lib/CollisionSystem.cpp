@@ -35,38 +35,18 @@ void CollisionSystem::Update(GameState &game_state) {
         continue;
       }
 
-      bool is_colliding = true;
-      // The Colliders count from the top right of the entity they are attached
-      // to. Rectangle -> Rectangle
-      if (entity_a.collider->shape == ColliderShape::Rectangle &&
-          entity_b.collider->shape == ColliderShape::Rectangle) {
-        auto a_left = entity_a.transform->x - entity_a.collider->rect.width / 2;
-        auto a_right =
-            entity_a.transform->x + entity_a.collider->rect.width / 2;
-        auto a_top = entity_a.transform->y - entity_a.collider->rect.height / 2;
-        auto a_bottom =
-            entity_a.transform->y + entity_a.collider->rect.height / 2;
-        auto b_left = entity_b.transform->x - entity_b.collider->rect.width / 2;
-        auto b_right =
-            entity_b.transform->x + entity_b.collider->rect.width / 2;
-        auto b_top = entity_b.transform->y - entity_b.collider->rect.height / 2;
-        auto b_bottom =
-            entity_b.transform->y + entity_b.collider->rect.height / 2;
+      // Rectangle -> Rectangle
+      if (!IsRectToRectColliding(entity_a, entity_b)) {
+        continue;
+      }
 
-        if (a_right <= b_left || a_bottom <= b_top || a_left >= b_right ||
-            a_top >= b_bottom) {
-          is_colliding = false;
-          continue;
-        }
-
-        // We know there is a collision by here. Time to figure out what kind
-        if (IsPlayerAndWall(entity_a, entity_b)) {
-          // Designated Initializer syntax is fantastic
-          game_state.event_queue.PushEvent(
-              CollisionPayload{.entity_a_id = entity_a.id,
-                               .entity_b_id = entity_b.id,
-                               .collision_type = CollisionType::PlayerAndWall});
-        }
+      // We know there is a collision by here. Time to figure out what kind
+      if (IsPlayerAndWall(entity_a, entity_b)) {
+        // Designated Initializer syntax is fantastic
+        game_state.event_queue.PushEvent(
+            CollisionPayload{.entity_a_id = entity_a.id,
+                             .entity_b_id = entity_b.id,
+                             .collision_type = CollisionType::PlayerAndWall});
       }
 
       // Circle -> Circle
@@ -98,4 +78,23 @@ bool CollisionSystem::IsPlayerAndWall(const Entity &entity_a,
   // FIXME: remove
   SDL_Log("returning false from IsPlayerAndWall");
   return false;
+}
+
+bool CollisionSystem::IsRectToRectColliding(const Entity &entity_a,
+                                            const Entity &entity_b) {
+
+  auto a_left = entity_a.transform->x - entity_a.collider->rect.width / 2;
+  auto a_right = entity_a.transform->x + entity_a.collider->rect.width / 2;
+  auto a_top = entity_a.transform->y - entity_a.collider->rect.height / 2;
+  auto a_bottom = entity_a.transform->y + entity_a.collider->rect.height / 2;
+  auto b_left = entity_b.transform->x - entity_b.collider->rect.width / 2;
+  auto b_right = entity_b.transform->x + entity_b.collider->rect.width / 2;
+  auto b_top = entity_b.transform->y - entity_b.collider->rect.height / 2;
+  auto b_bottom = entity_b.transform->y + entity_b.collider->rect.height / 2;
+
+  if (a_right <= b_left || a_bottom <= b_top || a_left >= b_right ||
+      a_top >= b_bottom) {
+    return false;
+  }
+  return true;
 }
