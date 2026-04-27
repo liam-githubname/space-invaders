@@ -10,6 +10,7 @@
 // 2. Create a wrapper class around the entity vector in the class. Like
 // EventQueue.
 // 3. I need the entities origin to be in the logical center.
+// 4. Tie the direction component to input or something.
 // =============================================================================
 
 #pragma once
@@ -53,6 +54,10 @@ struct PlayerInput {
   bool is_firing;
 };
 
+struct Gun {
+  float distance;
+};
+
 // These are the C (Component) in an ECS
 struct Velocity {
   float dx;
@@ -86,6 +91,7 @@ struct Entity {
   std::optional<Direction> direction;
   std::optional<Collider> collider;
   std::optional<IsWall> is_wall;
+  std::optional<Gun> gun;
 };
 
 class GameState {

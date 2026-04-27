@@ -76,7 +76,7 @@ void EventSystem::HandleCollisionPayload(const CollisionPayload &payload,
           entity.id == payload.entity_b_id) {
         if (entity.is_player.has_value()) {
           entity.velocity->dy = -entity.velocity->dy;
-          entity.velocity->dx = -entity.velocity->dy;
+          entity.velocity->dx = -entity.velocity->dx;
           player = &entity;
         } else {
           // FIXME: I feel like having to remember to add the transform and it's

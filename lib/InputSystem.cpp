@@ -24,7 +24,7 @@ InputSystem InputSystem::create() {
   return InputSystem(state);
 };
 
-// Private constructor
+// Private Constructor
 InputSystem::InputSystem(const bool *keyboard_state)
     : keyboard_state(keyboard_state) {}
 
@@ -33,16 +33,16 @@ void InputSystem::Update(GameState &game_state) {
   auto move_x = 0.0f;
   auto is_firing = false;
 
-  if (keyboard_state[SDL_SCANCODE_W]) {
+  if (keyboard_state[SDL_SCANCODE_W] || keyboard_state[SDL_SCANCODE_UP]) {
     move_y = -1.0f;
   }
-  if (keyboard_state[SDL_SCANCODE_A]) {
+  if (keyboard_state[SDL_SCANCODE_A] || keyboard_state[SDL_SCANCODE_LEFT]) {
     move_x = -1.0f;
   }
-  if (keyboard_state[SDL_SCANCODE_S]) {
+  if (keyboard_state[SDL_SCANCODE_S] || keyboard_state[SDL_SCANCODE_DOWN]) {
     move_y = 1.0f;
   }
-  if (keyboard_state[SDL_SCANCODE_D]) {
+  if (keyboard_state[SDL_SCANCODE_D] || keyboard_state[SDL_SCANCODE_RIGHT]) {
     move_x = 1.0f;
   }
   if (keyboard_state[SDL_SCANCODE_SPACE]) {
