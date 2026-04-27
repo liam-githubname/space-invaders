@@ -4,8 +4,11 @@
 // NOTE:=======================================================================
 // 1. Colliders origin is in the top left of their bounding box.
 // TODO:=======================================================================
-// 2. Implement collision detection for circle -> circle.
-// 3. Implement collision detection for rectangle -> circle.
+// #2 Implement collision detection for circle -> circle.
+// #3 Implement collision detection for rectangle -> circle.
+// #4 Move IsPlayerAndWall to a util file? I will do this if I end up needing it
+//    somewhere else.
+// #5 Move IsRectToRectColliding to a util file? It's just pure math.
 // ============================================================================
 #include "CollisionSystem.hpp"
 #include "Events.hpp"
@@ -80,6 +83,7 @@ bool CollisionSystem::IsPlayerAndWall(const Entity &entity_a,
   return false;
 }
 
+// TODO: #5
 bool CollisionSystem::IsRectToRectColliding(const Entity &entity_a,
                                             const Entity &entity_b) {
 

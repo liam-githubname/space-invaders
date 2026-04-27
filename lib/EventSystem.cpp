@@ -47,16 +47,21 @@ void EventSystem::ProcessEvents(GameState &game_state) {
   for (auto &event : game_state.event_queue.GetEvents()) {
     // WARN: This auto &&payload syntax can accept
     // anything, this is probably why clangd can't help out here.
-    std::visit(Overload{[&](const CollisionPayload payload) {
-                          HandleCollisionPayload(payload, game_state);
-                        },
-                        [&](const DeathPayload payload) {
-                          SDL_Log("Consumed DeathPayload");
-                        },
-                        [&](const ScorePayload payload) {
-                          SDL_Log("Consumed ScorePayload");
-                        }},
-               event);
+    std::visit(
+        Overload{
+            [&](const CollisionPayload payload) {
+              HandleCollisionPayload(payload, game_state);
+            },
+            [&](const DeathPayload payload) {
+              SDL_Log("Consumed DeathPayload");
+            },
+            [&](const ScorePayload payload) {
+              SDL_Log("Consumed ScorePayload");
+            },
+            [&](const HitPayload payload) { SDL_Log("HitPayload event"); },
+            //====================Add new payloads here===================
+        },
+        event);
   }
   game_state.event_queue.ClearEventQueue();
 }
@@ -64,7 +69,7 @@ void EventSystem::ProcessEvents(GameState &game_state) {
 // Check the kind of components
 void EventSystem::HandleCollisionPayload(const CollisionPayload &payload,
                                          GameState &game_state) {
-  // FIXME: Make sure that this get filled with references.
+  // FIXME: Make sure that this get filled with references and not copies.
   SDL_Log("In HandleCollisionPayload with %d and %d", payload.entity_a_id,
           payload.entity_b_id);
   float wall_x, wall_y;

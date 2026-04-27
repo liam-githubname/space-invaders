@@ -7,7 +7,12 @@
 // TODO:=======================================================================
 // 1. Fix the walls transforms location.
 // 2. Move the AssetManager struct to it's own header file.
-// ============================================================================
+// 3. Write a utility that pulls the corners of the rectangle colliders.
+// 4. Trace the actual worstcase runtime for the program.
+// FIX:========================================================================
+// 1. The wall entities need to be fixed somehow, it is an absolute nightmare
+//    the way it works now. It also causes magic numbers in the collision code.
+//=============================================================================
 
 #include "CollisionSystem.hpp"
 #include "EventSystem.hpp"
@@ -16,6 +21,7 @@
 #include "InputSystem.hpp"
 #include "MovementSystem.hpp"
 #include "RenderSystem.hpp"
+#include "ShootingSystem.hpp"
 #include <SDL3_image/SDL_image.h>
 #include <cstdint>
 #include <iostream>
@@ -118,6 +124,7 @@ int main(int argc, char *argv[]) {
   CollisionSystem collision_system = CollisionSystem();
   EventSystem event_system = EventSystem();
   RenderSystem render_system = RenderSystem();
+  ShootingSystem shooting_system = ShootingSystem();
 
   // miscellaneous
   constexpr float dt = 1.0f / 60.0f;
@@ -138,9 +145,10 @@ int main(int argc, char *argv[]) {
       Collider{.shape = ColliderShape::Rectangle, .rect{100.0, 100.0}});
   player.player_input.emplace(
       PlayerInput{.move_x = 0.0, .move_y = 0.0, .is_firing = false});
+  player.gun.emplace(100.0f);
 
-  // FIXME: The collision system now expects transforms to be in the logical
-  // center of entity Top wall. Wall transforms need to be updated.
+  // FIX: #1 The wall instantiation logic is a real problem that needs to be
+  // solved
   auto &top_wall = game_state.CreateEntity();
   top_wall.is_wall.emplace();
   top_wall.is_active = true;
@@ -173,6 +181,15 @@ int main(int argc, char *argv[]) {
                                        .offset_x = -5.0f,
                                        .rect{10.0f, (float)window_height}});
 
+  auto &enemy = game_state.CreateEntity();
+  enemy.is_enemy.emplace();
+  // NOTE: This is only here so the renderer will draw it. REMOVE
+  enemy.is_player.emplace();
+  enemy.transform.emplace(window_width / 2, window_height / 4);
+  enemy.collider.emplace(
+      Collider{.shape = ColliderShape::Rectangle, .rect{100.0, 100.0}});
+  enemy.is_active = true;
+
   while (is_running) {
     // It is important to realize that the input_system actually relies on this
     // call to SDL_PollEvent to update the keyboard state array
@@ -185,6 +202,8 @@ int main(int argc, char *argv[]) {
     while (time_step.consumeStep()) {
       //========================== Input & Logic ==============================
       input_system.Update(game_state);
+      //========================== Shooting ===================================
+      shooting_system.Update(game_state);
       //========================== Movement ===================================
       movement_system.Update(game_state, dt);
       //========================== Collision ==================================

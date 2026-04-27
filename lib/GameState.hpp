@@ -6,11 +6,16 @@
 // 1. An entity needs to have is_active must be true for CollisionSystem to see
 // it as of 2026-04-24 23:37.
 // TODO:========================================================================
-// 1. Move Entities to their own dedicated header file.
-// 2. Create a wrapper class around the entity vector in the class. Like
+// #1 Move Entities to their own dedicated header file.
+// #2 Create a wrapper class around the entity vector in the class. Like
 // EventQueue.
-// 3. I need the entities origin to be in the logical center.
-// 4. Tie the direction component to input or something.
+// #3 I need the entities origin to be in the logical center.
+// #4 Tie the direction component to input or something.
+// #5 Every component of this type nature adds a ton of states that I should
+// account for in my other systems. Specifically in CollisionSystem and
+// ShootingSystem. There are 2^n combinations, n = # of type structs. Either I
+// need to disallow this behavior or I need to figure out a way to handle these
+// combinations.
 // =============================================================================
 
 #pragma once
@@ -25,8 +30,10 @@
 // that may be needed by some other system. In this case I want the render
 // system to know that the entity with this component is the player.
 // Leaving it as an optional struct also lets us modify things later.
+// TODO: #5
 struct IsPlayer {};
 struct IsWall {};
+struct IsEnemy {};
 
 // We can use an enum to define the possible shapes we can use and have
 // deterministic outcomes on operating methods.
@@ -92,6 +99,7 @@ struct Entity {
   std::optional<Collider> collider;
   std::optional<IsWall> is_wall;
   std::optional<Gun> gun;
+  std::optional<IsEnemy> is_enemy;
 };
 
 class GameState {

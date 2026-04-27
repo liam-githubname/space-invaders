@@ -47,6 +47,7 @@ void InputSystem::Update(GameState &game_state) {
   }
   if (keyboard_state[SDL_SCANCODE_SPACE]) {
     is_firing = true;
+    SDL_Log("is_firing: %d", is_firing);
   }
 
   // PlayerInput component is updating.

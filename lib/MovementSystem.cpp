@@ -17,10 +17,10 @@ void MovementSystem::Update(GameState &game_state, float delta_time) {
     // I need to check if the entity is the player.
     if (entity.is_player.has_value()) {
       // FIXME: Then I need to check if the player has an input state, if not
-      // I'll log it. REMOVE later.
+      // I'll log it. REMOVE later.This should be a requirement
       if (!entity.player_input.has_value()) {
-        SDL_Log("Player doesn't have player_input component");
-        return;
+        // SDL_Log("Player doesn't have player_input component");
+        continue;
       }
 
       entity.velocity->dy =
