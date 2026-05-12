@@ -2,6 +2,7 @@
  * Authored by Liam Harvell
  * This holds the state of the game defines the entities and their components.
  */
+
 // NOTE:========================================================================
 // 1. An entity needs to have is_active must be true for CollisionSystem to see
 // it as of 2026-04-24 23:37.
@@ -16,6 +17,7 @@
 // ShootingSystem. There are 2^n combinations, n = # of type structs. Either I
 // need to disallow this behavior or I need to figure out a way to handle these
 // combinations.
+// #6 I need to make a factory for entities.
 // =============================================================================
 
 #pragma once

@@ -1,6 +1,7 @@
 /* main.cpp Entry point for game.
  * Authored by Liam Harvell
  */
+
 // NOTE:=======================================================================
 // 1. Guide for how logic should flow: -> Mutate state -> Detect facts
 // -> Queue facts -> Interpret facts and mutate state again -> Render
@@ -12,7 +13,7 @@
 // FIX:========================================================================
 // 1. The wall entities need to be fixed somehow, it is an absolute nightmare
 //    the way it works now. It also causes magic numbers in the collision code.
-//=============================================================================
+// ============================================================================
 
 #include "CollisionSystem.hpp"
 #include "EventSystem.hpp"
@@ -33,10 +34,6 @@
 //-----------------------------------------------------------------------------
 // using wrappedTexture = std::unique_ptr<SDL_Texture, SDLTextureDeleter>;
 // struct AssetManager {
-//   // TODO: INSTANTIATE after graphics module and pass the renderer to it
-//   std::unordered_map<std::string, wrappedTexture> textures;
-//   SDL_Renderer *renderer;
-//
 //   void loadTexture(std::string path) {
 //     SDL_Texture *raw_texture = IMG_LoadTexture(renderer, path.c_str());
 //     textures[path] = wrappedTexture(raw_texture);
@@ -83,22 +80,6 @@ struct TimeStep {
 
 int main(int argc, char *argv[]) {
 
-  // NOTE:==================== TODO LIST ======================================
-  // 3. [~] I want to render the player. WE WILL GET BACK TO THIS!
-  //   3.1 render a texture for the player.
-  //   AND
-  //   3.1 [X] draw a shape to represent the player.
-  // 4. [X] I need to add bounding and AABB collision detection features.
-  //  - AABB will not be enough. But good for now.
-  // 5. I need to figure how to rotate a texture.
-  // 6. Graphics module needs to be overhauled to support full screen
-  // 7. [X] Event queue system needs implementation in EventSystem.*pp
-  // 8. [X] Collision detection needs updates in CollisionSystem.*pp
-  // 9. [X] Update the CmakeLists.txt to include the event system after I make
-  // it
-  // 10. Add the collision Decider function
-  // ==========================================================================
-
   // This is resource Acquisition plus the GraphicsModule object is wrapped
   // in an expected type.
   auto title = std::string("Test Title");
@@ -130,7 +111,6 @@ int main(int argc, char *argv[]) {
   constexpr float dt = 1.0f / 60.0f;
   float window_width = 1920;
   float window_height = 1080;
-
   std::cout << window_width << window_height << std::endl;
   bool is_running = true;
 

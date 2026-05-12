@@ -8,16 +8,20 @@
  */
 
 // INFO:=======================================================================
-// 1.
+// 1. I made the mistake of coupling game logic in with the Collision system.
+//    By forcing the Collision system tell the EventSystem what kind
+//    CollisionType had taken place, I forced CollisionSystem to have to be
+//    updated for every new type. This violated SRP - 2026-04-27.
+//      - It's funny how I could feel something wrong growing in this file, but
+//      I couldn't quite figure out how to fix it yet.
 // TODO:=======================================================================
 // #1 The collision and hit types feel like they are redundent to each other.
-// Although I think they should stay separate, as they might diverge a little.
-// More importantly though I'm thinking that they are specific types that
-// entities can be. When/If I get around to creating a union around the IsType
-// components on entities I may need to change the way that these work.
+//    Although I think they should stay separate, as they might diverge a
+//    little. More importantly though I'm thinking that they are specific types
+//    that entities can be. When/If I get around to creating a union around the
+//    IsType components on entities I may need to change the way that these
+//    work.
 // ============================================================================
-// define a style for these payloads
-// The "payloads", this is where events are defined. Events are
 #pragma once
 
 #include <cstdint>
@@ -32,7 +36,6 @@ enum class HitType { PlayerAndEnemy };
 struct CollisionPayload {
   uint32_t entity_a_id;
   uint32_t entity_b_id;
-  CollisionType collision_type;
 };
 
 struct DeathPayload {

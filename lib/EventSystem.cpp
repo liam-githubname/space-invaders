@@ -16,6 +16,12 @@
 // discarded at compile time
 // TODO:=======================================================================
 // 1. Remove the magic numbers in the wall collision handler.
+// 2. I need to remove the payload types, I will replace them with a bit mask
+// layer system.
+// FIXME:======================================================================
+// 1. Remove the old collision event handler that was improperly coupled with
+// game logic. It should be a system that runs through the collisions and
+// determines their types.
 // ============================================================================
 
 #include "EventSystem.hpp"
@@ -69,45 +75,65 @@ void EventSystem::ProcessEvents(GameState &game_state) {
 // Check the kind of components
 void EventSystem::HandleCollisionPayload(const CollisionPayload &payload,
                                          GameState &game_state) {
-  // FIXME: Make sure that this get filled with references and not copies.
   SDL_Log("In HandleCollisionPayload with %d and %d", payload.entity_a_id,
           payload.entity_b_id);
   float wall_x, wall_y;
+
+  // FIXME: #1
   Entity *player = nullptr;
-  switch (payload.collision_type) {
-  case CollisionType::PlayerAndWall:
-    for (auto &entity : game_state.entities) {
-      if (entity.id == payload.entity_a_id ||
-          entity.id == payload.entity_b_id) {
-        if (entity.is_player.has_value()) {
-          entity.velocity->dy = -entity.velocity->dy;
-          entity.velocity->dx = -entity.velocity->dx;
-          player = &entity;
-        } else {
-          // FIXME: I feel like having to remember to add the transform and it's
-          // colliders offset must be bad code.
-          wall_x = entity.transform->x + entity.collider->offset_x;
-          wall_y = entity.transform->y + entity.collider->offset_y;
-        }
+  Entity *wall = nullptr;
+
+  for (auto &entity : game_state.entities) {
+    if (entity.id == payload.entity_a_id || entity.id == payload.entity_b_id) {
+
+      // FIXME: #1
+      if (entity.is_player.has_value()) {
+        entity.velocity->dy = -entity.velocity->dy;
+        entity.velocity->dx = -entity.velocity->dx;
+        player = &entity;
+      } else {
+        // FIXME: I feel like having to remember to add the transform and it's
+        // colliders offset must be bad code.
+        wall_x = entity.transform->x + entity.collider->offset_x;
+        wall_y = entity.transform->y + entity.collider->offset_y;
+        wall = &entity;
       }
     }
-    // FIXME: Remove magic numbers, figure out how to remove later.
-    // FIXME: create more robust system than having to add collider width /2.
-    if (payload.entity_b_id == 1) {
-      player->transform->y = wall_y + player->collider->rect.width / 2;
-    }
-    if (payload.entity_b_id == 2) {
-      player->transform->y = wall_y - player->collider->rect.width / 2;
-    }
-    if (payload.entity_b_id == 3) {
-      player->transform->x = wall_x + player->collider->rect.height / 2;
-    }
-    if (payload.entity_b_id == 4) {
-      player->transform->x = wall_x - player->collider->rect.height / 2;
-    }
-    break;
-
-  case CollisionType::PlayerAndEnemy:
-    SDL_Log("Woah that's crazy I haven't made an enemy yet");
   }
+  // FIXME: Remove magic numbers, figure out how to remove later.
+  // FIXME: create more robust system than having to add collider width /2.
+  if (payload.entity_b_id == 1) {
+    player->transform->y = wall_y + player->collider->rect.width / 2;
+  }
+  if (payload.entity_b_id == 2) {
+    player->transform->y = wall_y - player->collider->rect.width / 2;
+  }
+  if (payload.entity_b_id == 3) {
+    player->transform->x = wall_x + player->collider->rect.height / 2;
+  }
+  if (payload.entity_b_id == 4) {
+    player->transform->x = wall_x - player->collider->rect.height / 2;
+  }
+}
+
+bool EventSystem::IsPlayerAndWall(const Entity &entity_a,
+                                  const Entity &entity_b) {
+  if (entity_a.is_player.has_value() && entity_b.is_wall.has_value()) {
+    return true;
+  }
+  if (entity_a.is_wall.has_value() && entity_b.is_player.has_value()) {
+    return true;
+  }
+  return false;
+}
+
+bool EventSystem::IsPlayerAndEnemy(const Entity &entity_a,
+                                   const Entity &entity_b) {
+  if (entity_a.is_player.has_value() && entity_b.is_enemy.has_value()) {
+    return true;
+  }
+  if (entity_a.is_enemy.has_value() && entity_b.is_player.has_value()) {
+    return true;
+  }
+  return false;
 }

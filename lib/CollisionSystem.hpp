@@ -10,7 +10,12 @@ public:
 private:
   bool check_rectangle_to_rectangle(const Entity entity_a,
                                     const Entity entity_b);
-  bool IsPlayerAndWall(const Entity &entity_a, const Entity &entity_b);
 
   bool IsRectToRectColliding(const Entity &entity_a, const Entity &entity_b);
+
+  bool IsRectToCircleColliding(const Entity &rectangle_entity,
+                               const Entity &circle_entity);
+
+  bool IsCircleToCircleColliding(const Entity &entity_a,
+                                 const Entity &entity_b);
 };

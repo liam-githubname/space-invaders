@@ -4,12 +4,9 @@
 // NOTE:=======================================================================
 // 1. I have spent so long deciding to implement Slab method raycasting.
 // It also took a look time to figure out.
-// 2. I have to implement raycast for circle colliders as well.
 // TODO:=======================================================================
 // 4. I want to update the names to reflect the fact that they return the
 // distance of the hit. But I can't think of any names right now.
-// 5. I NEED TO HAVE NORMALIZED DIRECTION.
-// 6. Check to see if math bugs have been fixed.
 // ============================================================================
 #pragma once
 
@@ -24,6 +21,7 @@ struct Ray {
   float direction_x, direction_y;
 };
 
+// 4. I want to update the names to reflect their return value.
 inline std::optional<float> RayAgainstAABB(Ray ray, float entity_min_x,
                                            float entity_min_y,
                                            float entity_max_x,
