@@ -15,13 +15,8 @@
 // matching branch is compiled for each event type. The others will be
 // discarded at compile time
 // TODO:=======================================================================
-// 1. Remove the magic numbers in the wall collision handler.
-// 2. I need to remove the payload types, I will replace them with a bit mask
-// layer system.
+// 3. I need to figure out if GameState.hpp should be included or not.
 // FIXME:======================================================================
-// 1. Remove the old collision event handler that was improperly coupled with
-// game logic. It should be a system that runs through the collisions and
-// determines their types.
 // ============================================================================
 
 #include "EventSystem.hpp"
@@ -78,45 +73,21 @@ void EventSystem::HandleCollisionPayload(const CollisionPayload &payload,
                                          GameState &game_state) {
   SDL_Log("In HandleCollisionPayload with %d and %d", payload.entity_a_id,
           payload.entity_b_id);
+
+  // Handle Wall Collisions ====================================================
   float wall_x, wall_y;
-
-  // FIXME: #1
+  WallSide wallside;
+  // WARN: Keeping a reference to a player seems like a slow down?
   Entity *player = nullptr;
-  Entity *wall = nullptr;
-
   for (auto &entity : game_state.entities) {
-    if (entity.id == payload.entity_a_id || entity.id == payload.entity_b_id) {
 
-      // FIXME: #1
-      if (entity.bitmask->layer == GameLayer::Player) {
-        entity.velocity->dy = -entity.velocity->dy;
-        entity.velocity->dx = -entity.velocity->dx;
-        player = &entity;
-      } else {
-        // FIXME: I feel like having to remember to add the transform and it's
-        // colliders offset must be bad code.
-        wall_x = entity.transform->x + entity.collider->offset_x;
-        wall_y = entity.transform->y + entity.collider->offset_y;
-        wall = &entity;
-      }
+    if (entity.id == payload.entity_a_id || entity.id == payload.entity_b_id) {
     }
   }
-  // FIXME: Remove magic numbers, figure out how to remove later.
-  // FIXME: create more robust system than having to add collider width /2.
-  if (payload.entity_b_id == 1) {
-    player->transform->y = wall_y + player->collider->rect.width / 2;
-  }
-  if (payload.entity_b_id == 2) {
-    player->transform->y = wall_y - player->collider->rect.width / 2;
-  }
-  if (payload.entity_b_id == 3) {
-    player->transform->x = wall_x + player->collider->rect.height / 2;
-  }
-  if (payload.entity_b_id == 4) {
-    player->transform->x = wall_x - player->collider->rect.height / 2;
-  }
+  // ==========================================================================
 }
 
+// Helper Functions ===========================================================
 bool EventSystem::IsPlayerAndWall(const Entity &entity_a,
                                   const Entity &entity_b) {
   if (entity_a.bitmask->layer == GameLayer::Player &&
@@ -141,4 +112,49 @@ bool EventSystem::IsPlayerAndEnemy(const Entity &entity_a,
     return true;
   }
   return false;
+}
+
+void EventSystem::WallCollision(Entity &entity_a, Entity &entity_b) {
+  bool a_velocity = entity_a.velocity.has_value();
+  bool b_velocity = entity_b.velocity.has_value();
+  bool a_wall = entity_a.wall_info.has_value();
+  bool b_wall = entity_b.wall_info.has_value();
+  if (!(a_velocity && b_wall) && !(b_velocity && a_wall))
+    return;
+
+  // This is the easiest way to assign the player.
+  auto player = (a_velocity) ? entity_a : entity_b;
+  // This is redundant but a more elegant solution isn't coming to mind rn
+  auto wall = (a_wall) ? entity_a : entity_b;
+
+  float wall_x, wall_y;
+  WallSide wallside;
+
+  player.velocity->dy = -player.velocity->dy;
+  player.velocity->dx = -player.velocity->dx;
+  // FIXME: I feel like having to remember to add the transform and it's
+  // colliders offset must be bad code.
+  wall_x = wall.transform->x + wall.collider->offset_x;
+  wall_y = wall.transform->y + wall.collider->offset_y;
+  wallside = wall.wall_info->side;
+
+  // WARN: The Eventsystem has to know what a wallside is, but I've made peace
+  // with EventSystem being coupled with game logic.
+  switch (wallside) {
+  case WallSide::Top:
+    player.transform->y = wall_y + player.collider->rect.height / 2;
+    break;
+  case WallSide::Bottom:
+    player.transform->y = wall_y - player.collider->rect.height / 2;
+    break;
+  case WallSide::Left:
+    player.transform->x = wall_x + player.collider->rect.width / 2;
+    break;
+  case WallSide::Right:
+    player.transform->x = wall_x - player.collider->rect.width / 2;
+    break;
+  default:
+    SDL_Log("in default switch case in EventSystem.cpp");
+    break;
+  }
 }

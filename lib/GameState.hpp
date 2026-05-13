@@ -12,11 +12,6 @@
 // EventQueue.
 // #3 I need the entities origin to be in the logical center.
 // #4 Tie the direction component to input or something.
-// #5 Every component of this type nature adds a ton of states that I should
-// account for in my other systems. Specifically in CollisionSystem and
-// ShootingSystem. There are 2^n combinations, n = # of type structs. Either I
-// need to disallow this behavior or I need to figure out a way to handle these
-// combinations.
 // #6 I need to make a factory for entities.
 // =============================================================================
 
@@ -29,20 +24,10 @@
 #include <sys/types.h>
 #include <vector>
 
-// NOTE: I read that this is the most efficient way of attaching an attribute
-// that may be needed by some other system. In this case I want the render
-// system to know that the entity with this component is the player.
-// Leaving it as an optional struct also lets us modify things later.
-// TODO: #5
-struct IsPlayer {};
-struct IsWall {};
-struct IsEnemy {};
-
 struct Bitmask {
   GameLayer layer;
   GameLayer mask;
 };
-
 // We can use an enum to define the possible shapes we can use and have
 // deterministic outcomes on operating methods.
 enum class ColliderShape { Rectangle, Circle };
@@ -71,6 +56,7 @@ struct PlayerInput {
 
 struct Gun {
   float distance;
+  bool fire_flag;
 };
 
 // These are the C (Component) in an ECS
@@ -82,16 +68,18 @@ struct Velocity {
 struct Transform {
   float x;
   float y;
-};
-
-// NOTE: I assume I'll need this later.
-struct Direction {
-  float angle;
+  float direction_x;
+  float direction_y;
 };
 
 struct Sprite {
   std::string texture_key;
   float width, height;
+};
+
+enum class WallSide { Top, Bottom, Left, Right };
+struct WallInfo {
+  WallSide side;
 };
 
 // This is the E (Entity) in the ECS
@@ -103,9 +91,9 @@ struct Entity {
   std::optional<Velocity> velocity;
   std::optional<Transform> transform;
   std::optional<Sprite> sprite;
-  std::optional<Direction> direction;
   std::optional<Collider> collider;
   std::optional<Gun> gun;
+  std::optional<WallInfo> wall_info;
 };
 
 class GameState {

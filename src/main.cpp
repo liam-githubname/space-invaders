@@ -24,9 +24,8 @@
 #include "MovementSystem.hpp"
 #include "RenderSystem.hpp"
 #include "ShootingSystem.hpp"
+#include "Timestep.hpp"
 #include <SDL3_image/SDL_image.h>
-#include <cstdint>
-#include <iostream>
 #include <string>
 
 // FIXME: This should probably exist in the game mechanics source file
@@ -41,43 +40,6 @@
 //   }
 // };
 //-----------------------------------------------------------------------------
-
-//--------------TIMESTEP_STRUCT_FOR_DETERMINISTIC_BEHAVIOR---------------------
-struct TimeStep {
-  // TODO: I would like to consider using the chrono library instead, but that
-  // is a later problem
-  // target_deltatime_nanoseconds represents approximately 1/60th of second.
-  static constexpr uint64_t target_deltatime_nanoseconds = 1000000000ULL / 60;
-  // accumulator is used to keep the process from spiraling.
-  uint64_t accumulator = 0;
-  // this is a cursor or time stamp of the previous call to tick()
-  uint64_t last_time = 0;
-  // Updates the accumulator and last time based on the elapsed time from the
-  // start of the program.
-  void Tick() {
-    uint64_t current_time = SDL_GetTicksNS();
-    uint64_t frame_time = current_time - last_time;
-    if (frame_time > 250000000ULL) {
-      frame_time = 250000000ULL;
-    }
-    last_time = current_time;
-    accumulator += frame_time;
-  }
-  // INFO: consumeStep is what allows for "substeps" These are steps that occur
-  // within one frame. It is unlikely to ever have more than one substep, but it
-  // is a safety precaution.
-  bool consumeStep() {
-    if (accumulator >= target_deltatime_nanoseconds) {
-      accumulator -= target_deltatime_nanoseconds;
-      return true;
-    }
-    return false;
-  }
-  float GetAlpha() {
-    return (float)accumulator / (float)target_deltatime_nanoseconds;
-  }
-};
-//=============TIMESTEP_STRUCT_FOR_DETERMINISTIC_BEHAVIOR======================
 
 int main(int argc, char *argv[]) {
 
@@ -112,7 +74,6 @@ int main(int argc, char *argv[]) {
   constexpr float dt = 1.0f / 60.0f;
   float window_width = 1920;
   float window_height = 1080;
-  std::cout << window_width << window_height << std::endl;
   bool is_running = true;
 
   // ==================== Initialization of entities ==========================
@@ -122,7 +83,10 @@ int main(int argc, char *argv[]) {
                                  .mask = GameLayer::Wall | GameLayer::Enemy});
   player.is_active = true;
   player.velocity.emplace(0.0f, 0.0f);
-  player.transform.emplace(window_width / 2, window_height / 2);
+  player.transform.emplace(Transform{.x = window_width / 2,
+                                     .y = window_height / 2,
+                                     .direction_x = 0.0f,
+                                     .direction_y = 1.0f});
   player.collider.emplace(
       Collider{.shape = ColliderShape::Rectangle, .rect{100.0, 100.0}});
   player.player_input.emplace(
@@ -134,6 +98,7 @@ int main(int argc, char *argv[]) {
   auto &top_wall = game_state.CreateEntity();
   top_wall.bitmask.emplace(
       Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player});
+  top_wall.wall_info.emplace(WallSide::Top);
   top_wall.transform.emplace(window_width / 2, 0);
   top_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
                                      .offset_y = 5.0f,
@@ -142,6 +107,7 @@ int main(int argc, char *argv[]) {
   auto &bottom_wall = game_state.CreateEntity();
   bottom_wall.bitmask.emplace(
       Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player});
+  bottom_wall.wall_info.emplace(WallSide::Bottom);
   bottom_wall.is_active = true;
   bottom_wall.transform.emplace(window_width / 2, (float)window_height);
   bottom_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
@@ -151,6 +117,7 @@ int main(int argc, char *argv[]) {
   auto &left_wall = game_state.CreateEntity();
   left_wall.bitmask.emplace(
       Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player});
+  left_wall.wall_info.emplace(WallSide::Left);
   left_wall.is_active = true;
   left_wall.transform.emplace(0, window_height / 2);
   left_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
@@ -160,6 +127,7 @@ int main(int argc, char *argv[]) {
   auto &right_wall = game_state.CreateEntity();
   right_wall.bitmask.emplace(
       Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player});
+  right_wall.wall_info.emplace(WallSide::Right);
   right_wall.is_active = true;
   right_wall.transform.emplace((float)window_width, window_height / 2);
   right_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
@@ -167,8 +135,8 @@ int main(int argc, char *argv[]) {
                                        .rect{10.0f, (float)window_height}});
 
   auto &enemy = game_state.CreateEntity();
-  enemy.bitmask.emplace(
-      Bitmask{.layer = GameLayer::Enemy, .mask = GameLayer::Player});
+  enemy.bitmask.emplace(Bitmask{.layer = GameLayer::Enemy,
+                                .mask = GameLayer::Player | GameLayer::Wall});
   enemy.transform.emplace(window_width / 2, window_height / 4);
   enemy.collider.emplace(
       Collider{.shape = ColliderShape::Rectangle, .rect{100.0, 100.0}});

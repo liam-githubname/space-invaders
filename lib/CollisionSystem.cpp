@@ -2,7 +2,9 @@
  * Authored by Liam Harvell
  */
 // NOTE:=======================================================================
-// 1. Colliders origin is in the top left of their bounding box naturally.
+// 2. Colliders bounding box has to be accounted for around the origin of the
+// entity. In other words you need to expand the collider to the half the height
+// and width of the entity in both directions.
 // TODO:=======================================================================
 // #4 Move IsPlayerAndWall to a util file? I will do this if I end up needing it
 //    somewhere else.
@@ -11,6 +13,7 @@
 // types. I have tried to reduce the nesting and specific conditions required to
 // understand the state of the collision system by the time there is a detected
 // collision.
+// #7
 // FIX:========================================================================
 // ============================================================================
 
@@ -42,15 +45,24 @@ void CollisionSystem::Update(GameState &game_state) {
       if (!entity_b.collider.has_value() || !entity_b.is_active) {
         continue;
       }
-      if (entity_a.bitmask->layer == GameLayer::Wall &&
-          entity_b.bitmask->layer == GameLayer::Wall) {
+      // TODO: #7 This isn't very readable, turn into constexpr?
+      // NOTE: This is not game logic, this is only checking if there is a
+      // matching layer between the two entities and if there is check if the
+      // two entities are colliding. I was having an issue seeing how this was
+      // any different from holding gameplay logic. But it is the opposite this
+      // is program logic, then game logic needs to work around CollisionSystems
+      // rules. For example, when the player dies their mask should be set to
+      // None, because they shouldn't be able to collide by anything anymore.
+      if ((entity_a.bitmask->layer & entity_b.bitmask->mask) ==
+              GameLayer::None &&
+          (entity_b.bitmask->layer & entity_a.bitmask->mask) ==
+              GameLayer::None) {
         continue;
       }
 
       // Rectangle -> Rectangle
       if (entity_a.collider->shape == ColliderShape::Rectangle &&
           entity_b.collider->shape == ColliderShape::Rectangle) {
-
         is_colliding = IsRectToRectColliding(entity_a, entity_b);
       }
 
@@ -74,10 +86,6 @@ void CollisionSystem::Update(GameState &game_state) {
         continue;
       }
 
-      // We know there is a collision by here. Time to figure out what kind
-      // Wrong we don't need to know what kind, That BREAKS SRP bruh
-      //
-      // TODO: #6 This seems like a non-exclusive type components problem.
       // Designated Initializer syntax is fantastic
       game_state.event_queue.PushEvent(CollisionPayload{
           .entity_a_id = entity_a.id,
@@ -87,28 +95,6 @@ void CollisionSystem::Update(GameState &game_state) {
   }
 }
 
-// bool CollisionSystem::IsPlayerAndWall(const Entity &entity_a,
-//                                       const Entity &entity_b) {
-//   if (entity_a.is_player.has_value() && entity_b.is_wall.has_value()) {
-//     return true;
-//   }
-//   if (entity_a.is_wall.has_value() && entity_b.is_player.has_value()) {
-//     return true;
-//   }
-//   return false;
-// }
-//
-// bool CollisionSystem::IsPlayerAndEnemy(const Entity &entity_a,
-//                                        const Entity &entity_b) {
-//   if (entity_a.is_player.has_value() && entity_b.is_enemy.has_value()) {
-//     return true;
-//   }
-//   if (entity_a.is_enemy.has_value() && entity_b.is_player.has_value()) {
-//     return true;
-//   }
-//   return false;
-// }
-//
 // TODO: #5
 bool CollisionSystem::IsRectToRectColliding(const Entity &entity_a,
                                             const Entity &entity_b) {

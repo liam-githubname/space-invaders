@@ -39,77 +39,76 @@ void ShootingSystem::Update(GameState &game_state) {
   Entity_type return_entity_type;
 
   for (auto &entity : game_state.entities) {
-    if (!entity.gun.has_value())
+    // Make sure the entity has a transform
+    if (!entity.transform)
+      continue;
+    // Check if the entity has a gun and if it's firing
+    if (!entity.gun || !entity.gun->fire_flag)
       continue;
 
     // 1. check players shooting
-    if (entity.bitmask->layer == GameLayer::Player) {
-      if (entity.player_input.has_value() && entity.player_input->is_firing &&
-          !entity.direction.has_value()) {
-        Raycast::Ray ray{.origin_x = entity.transform->x,
-                         .origin_y = entity.transform->y,
-                         .direction_x = 0.0f,
-                         .direction_y = 1.0f};
+    Raycast::Ray ray{.origin_x = entity.transform->x,
+                     .origin_y = entity.transform->y,
+                     .direction_x = entity.transform->direction_x,
+                     .direction_y = entity.transform->direction_y};
 
-        for (auto &other_entity : game_state.entities) {
-          if (entity.id == other_entity.id ||
-              !other_entity.collider.has_value()) {
-            continue;
-          }
-          if (other_entity.collider->shape == ColliderShape::Rectangle) {
-            float min_x = other_entity.transform->x -
-                          other_entity.collider->rect.width / 2;
-            float max_x = other_entity.transform->x +
-                          other_entity.collider->rect.width / 2;
-            float min_y = other_entity.transform->y -
-                          other_entity.collider->rect.height / 2;
-            float max_y = other_entity.transform->y +
-                          other_entity.collider->rect.height / 2;
+    for (auto &other_entity : game_state.entities) {
+      if (entity.id == other_entity.id || !other_entity.collider.has_value()) {
+        continue;
+      }
+      if (other_entity.collider->shape == ColliderShape::Rectangle) {
+        float min_x =
+            other_entity.transform->x - other_entity.collider->rect.width / 2;
+        float max_x =
+            other_entity.transform->x + other_entity.collider->rect.width / 2;
+        float min_y =
+            other_entity.transform->y - other_entity.collider->rect.height / 2;
+        float max_y =
+            other_entity.transform->y + other_entity.collider->rect.height / 2;
 
-            // NOTE: This is the first time I'm returning an optional like this.
-            std::optional<float> distance =
-                Raycast::RayAgainstAABB(ray, min_x, min_y, max_x, max_y);
+        // NOTE: This is the first time I'm returning an optional like this.
+        std::optional<float> distance =
+            Raycast::RayAgainstAABB(ray, min_x, min_y, max_x, max_y);
 
-            // I just learned that you don't need .has_value()
-            // the optional has a built-in operator bool().
-            // Which is a cool feature, but damn 2026-04-27.
-            if (!distance.has_value() || *distance >= entity.gun->distance) {
-              continue;
-            }
-
-            // After further research, I could remove the .value() here as well.
-            // With the addition of optionals pointer semantics was kept in
-            // mind. so *distance is the same as distance.value();
-            if (*distance < shortest_distance) {
-              shortest_distance = distance.value();
-              hit_entity_id = other_entity.id;
-
-              if (other_entity.bitmask->layer == GameLayer::Enemy) {
-                return_entity_type = Entity_type::player_enemy;
-              }
-
-              if (other_entity.bitmask->layer == GameLayer::Wall) {
-                return_entity_type = Entity_type::player_wall;
-              }
-            }
-          }
-          // TODO: #3 Check Circle colliders.
+        // I just learned that you don't need .has_value()
+        // the optional has a built-in operator bool().
+        // Which is a cool feature, but damn 2026-04-27.
+        if (!distance.has_value() || *distance >= entity.gun->distance) {
+          continue;
         }
 
-        if (return_entity_type == Entity_type::player_enemy) {
-          game_state.event_queue.PushEvent(
-              HitPayload{.entity_a_id = entity.id,
-                         .entity_b_id = hit_entity_id,
-                         .hit_type = HitType::PlayerAndEnemy});
-        } else {
-          // TODO: #4 replace with real logic.
-          game_state.event_queue.PushEvent(
-              HitPayload{.entity_a_id = entity.id,
-                         .entity_b_id = hit_entity_id,
-                         .hit_type = HitType::PlayerAndEnemy});
+        // After further research, I could remove the .value() here as well.
+        // With the addition of optionals pointer semantics was kept in
+        // mind. so *distance is the same as distance.value();
+        if (*distance < shortest_distance) {
+          shortest_distance = distance.value();
+          hit_entity_id = other_entity.id;
+
+          if (other_entity.bitmask->layer == GameLayer::Enemy) {
+            return_entity_type = Entity_type::player_enemy;
+          }
+
+          if (other_entity.bitmask->layer == GameLayer::Wall) {
+            return_entity_type = Entity_type::player_wall;
+          }
         }
       }
+      // TODO: #3 Check Circle colliders.
     }
-    // 2. Check non player shooting.
+
+    // WARN: These might be moving away from SRP, I'll have to rethink this
+    if (return_entity_type == Entity_type::player_enemy) {
+      game_state.event_queue.PushEvent(
+          HitPayload{.entity_a_id = entity.id,
+                     .entity_b_id = hit_entity_id,
+                     .hit_type = HitType::PlayerAndEnemy});
+    } else {
+      // TODO: #4 replace with real logic.
+      game_state.event_queue.PushEvent(
+          HitPayload{.entity_a_id = entity.id,
+                     .entity_b_id = hit_entity_id,
+                     .hit_type = HitType::PlayerAndEnemy});
+    }
   }
 }
+// 2. Check non player shooting.
