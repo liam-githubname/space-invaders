@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "Bitmask.hpp"
 #include <EventQueue.hpp>
 #include <cstdint>
 #include <optional>
@@ -36,6 +37,11 @@
 struct IsPlayer {};
 struct IsWall {};
 struct IsEnemy {};
+
+struct Bitmask {
+  GameLayer layer;
+  GameLayer mask;
+};
 
 // We can use an enum to define the possible shapes we can use and have
 // deterministic outcomes on operating methods.
@@ -92,16 +98,14 @@ struct Sprite {
 struct Entity {
   uint32_t id;
   bool is_active;
+  std::optional<Bitmask> bitmask;
   std::optional<PlayerInput> player_input;
   std::optional<Velocity> velocity;
   std::optional<Transform> transform;
   std::optional<Sprite> sprite;
-  std::optional<IsPlayer> is_player;
   std::optional<Direction> direction;
   std::optional<Collider> collider;
-  std::optional<IsWall> is_wall;
   std::optional<Gun> gun;
-  std::optional<IsEnemy> is_enemy;
 };
 
 class GameState {

@@ -15,7 +15,7 @@ class MovementSystem;
 void MovementSystem::Update(GameState &game_state, float delta_time) {
   for (auto &entity : game_state.entities) {
     // I need to check if the entity is the player.
-    if (entity.is_player.has_value()) {
+    if (entity.bitmask->layer == GameLayer::Player) {
       // FIXME: Then I need to check if the player has an input state, if not
       // I'll log it. REMOVE later.This should be a requirement
       if (!entity.player_input.has_value()) {

@@ -9,10 +9,7 @@
 // to the renderer.
 // ============================================================================
 #pragma once
-#include "GameState.hpp"
 #include <iostream>
-
-struct SDL_FRect;
 
 inline void clearConsole() {
   // \033[2J clears the screen, \033[H moves cursor to top-left

@@ -1,4 +1,5 @@
 #include "RenderSystem.hpp"
+#include "Bitmask.hpp"
 #include "GameState.hpp"
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
@@ -19,11 +20,15 @@ void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
   // it.
   for (auto entity : game_state.entities) {
 
-    if (entity.is_player.has_value()) {
+    if (entity.bitmask->layer == GameLayer::Player) {
       drawPlayer(renderer, entity);
     }
 
-    if (entity.is_wall.has_value()) {
+    if (entity.bitmask->layer == GameLayer::Enemy) {
+      drawPlayer(renderer, entity);
+    }
+
+    if (entity.bitmask->layer == GameLayer::Wall) {
       drawWall(renderer, entity);
     }
   }

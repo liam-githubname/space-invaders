@@ -18,8 +18,10 @@
 // #3 add the circle collider check.
 // #4 add other payload types.
 // FIX:========================================================================
-// #1 URGENT FIX: I have an enum for the entity_type in here. VERY BAD
+// #1 URGENT FIX I have an enum for the entity_type in here. VERY BAD
 // coupling, will remove later.
+// #2 I should try and decouple the shooting system from gameplay logic. I need
+// to figure out how to have a separation of concerns.
 // ============================================================================
 #include "ShootingSystem.hpp"
 #include "Events.hpp"
@@ -30,7 +32,7 @@
 void ShootingSystem::Update(GameState &game_state) {
   float shortest_distance = INFINITY;
   uint32_t hit_entity_id;
-  // FIX: #1 This doesn't follow style ON PURPOSE, FIX THIS SHIT lol
+  // FIX: #1 This doesn't follow style ON PURPOSE, FIX THIS lol
   //      Wait this is a non issue I just need to check if the entity
   enum class Entity_type { player_enemy, player_wall };
 
@@ -41,7 +43,7 @@ void ShootingSystem::Update(GameState &game_state) {
       continue;
 
     // 1. check players shooting
-    if (entity.is_player.has_value()) {
+    if (entity.bitmask->layer == GameLayer::Player) {
       if (entity.player_input.has_value() && entity.player_input->is_firing &&
           !entity.direction.has_value()) {
         Raycast::Ray ray{.origin_x = entity.transform->x,
@@ -82,11 +84,11 @@ void ShootingSystem::Update(GameState &game_state) {
               shortest_distance = distance.value();
               hit_entity_id = other_entity.id;
 
-              if (other_entity.is_enemy) {
+              if (other_entity.bitmask->layer == GameLayer::Enemy) {
                 return_entity_type = Entity_type::player_enemy;
               }
 
-              if (other_entity.is_wall) {
+              if (other_entity.bitmask->layer == GameLayer::Wall) {
                 return_entity_type = Entity_type::player_wall;
               }
             }

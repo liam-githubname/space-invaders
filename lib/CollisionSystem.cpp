@@ -15,6 +15,7 @@
 // ============================================================================
 
 #include "CollisionSystem.hpp"
+#include "Bitmask.hpp"
 #include "Events.hpp"
 #include "GameState.hpp"
 #include <SDL3/SDL.h>
@@ -41,7 +42,8 @@ void CollisionSystem::Update(GameState &game_state) {
       if (!entity_b.collider.has_value() || !entity_b.is_active) {
         continue;
       }
-      if (entity_a.is_wall.has_value() && entity_b.is_wall.has_value()) {
+      if (entity_a.bitmask->layer == GameLayer::Wall &&
+          entity_b.bitmask->layer == GameLayer::Wall) {
         continue;
       }
 

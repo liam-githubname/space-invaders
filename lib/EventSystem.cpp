@@ -25,6 +25,7 @@
 // ============================================================================
 
 #include "EventSystem.hpp"
+#include "Bitmask.hpp"
 #include "Events.hpp"
 #include "GameState.hpp"
 // TODO: Remove after the logging isn't required
@@ -87,7 +88,7 @@ void EventSystem::HandleCollisionPayload(const CollisionPayload &payload,
     if (entity.id == payload.entity_a_id || entity.id == payload.entity_b_id) {
 
       // FIXME: #1
-      if (entity.is_player.has_value()) {
+      if (entity.bitmask->layer == GameLayer::Player) {
         entity.velocity->dy = -entity.velocity->dy;
         entity.velocity->dx = -entity.velocity->dx;
         player = &entity;
@@ -118,10 +119,12 @@ void EventSystem::HandleCollisionPayload(const CollisionPayload &payload,
 
 bool EventSystem::IsPlayerAndWall(const Entity &entity_a,
                                   const Entity &entity_b) {
-  if (entity_a.is_player.has_value() && entity_b.is_wall.has_value()) {
+  if (entity_a.bitmask->layer == GameLayer::Player &&
+      entity_b.bitmask->layer == GameLayer::Wall) {
     return true;
   }
-  if (entity_a.is_wall.has_value() && entity_b.is_player.has_value()) {
+  if (entity_a.bitmask->layer == GameLayer::Wall &&
+      entity_b.bitmask->layer == GameLayer::Player) {
     return true;
   }
   return false;
@@ -129,10 +132,12 @@ bool EventSystem::IsPlayerAndWall(const Entity &entity_a,
 
 bool EventSystem::IsPlayerAndEnemy(const Entity &entity_a,
                                    const Entity &entity_b) {
-  if (entity_a.is_player.has_value() && entity_b.is_enemy.has_value()) {
+  if (entity_a.bitmask->layer == GameLayer::Player &&
+      entity_b.bitmask->layer == GameLayer::Enemy) {
     return true;
   }
-  if (entity_a.is_enemy.has_value() && entity_b.is_player.has_value()) {
+  if (entity_a.bitmask->layer == GameLayer::Enemy &&
+      entity_b.bitmask->layer == GameLayer::Player) {
     return true;
   }
   return false;

@@ -15,6 +15,7 @@
 //    the way it works now. It also causes magic numbers in the collision code.
 // ============================================================================
 
+#include "Bitmask.hpp"
 #include "CollisionSystem.hpp"
 #include "EventSystem.hpp"
 #include "GameState.hpp"
@@ -117,7 +118,8 @@ int main(int argc, char *argv[]) {
   // ==================== Initialization of entities ==========================
   // TODO: Look at making CreateEntity a factory pattern?
   Entity &player = game_state.CreateEntity();
-  player.is_player.emplace();
+  player.bitmask.emplace(Bitmask{.layer = GameLayer::Player,
+                                 .mask = GameLayer::Wall | GameLayer::Enemy});
   player.is_active = true;
   player.velocity.emplace(0.0f, 0.0f);
   player.transform.emplace(window_width / 2, window_height / 2);
@@ -130,15 +132,16 @@ int main(int argc, char *argv[]) {
   // FIX: #1 The wall instantiation logic is a real problem that needs to be
   // solved
   auto &top_wall = game_state.CreateEntity();
-  top_wall.is_wall.emplace();
-  top_wall.is_active = true;
+  top_wall.bitmask.emplace(
+      Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player});
   top_wall.transform.emplace(window_width / 2, 0);
   top_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
                                      .offset_y = 5.0f,
                                      .rect{(float)window_width, 10.0f}});
   // Bottom wall
   auto &bottom_wall = game_state.CreateEntity();
-  bottom_wall.is_wall.emplace();
+  bottom_wall.bitmask.emplace(
+      Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player});
   bottom_wall.is_active = true;
   bottom_wall.transform.emplace(window_width / 2, (float)window_height);
   bottom_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
@@ -146,7 +149,8 @@ int main(int argc, char *argv[]) {
                                         .rect{(float)window_width, 10.0f}});
   // Left wall
   auto &left_wall = game_state.CreateEntity();
-  left_wall.is_wall.emplace();
+  left_wall.bitmask.emplace(
+      Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player});
   left_wall.is_active = true;
   left_wall.transform.emplace(0, window_height / 2);
   left_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
@@ -154,7 +158,8 @@ int main(int argc, char *argv[]) {
                                       .rect{10.0f, (float)window_height}});
   // Right wall
   auto &right_wall = game_state.CreateEntity();
-  right_wall.is_wall.emplace();
+  right_wall.bitmask.emplace(
+      Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player});
   right_wall.is_active = true;
   right_wall.transform.emplace((float)window_width, window_height / 2);
   right_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
@@ -162,9 +167,8 @@ int main(int argc, char *argv[]) {
                                        .rect{10.0f, (float)window_height}});
 
   auto &enemy = game_state.CreateEntity();
-  enemy.is_enemy.emplace();
-  // NOTE: This is only here so the renderer will draw it. REMOVE
-  enemy.is_player.emplace();
+  enemy.bitmask.emplace(
+      Bitmask{.layer = GameLayer::Enemy, .mask = GameLayer::Player});
   enemy.transform.emplace(window_width / 2, window_height / 4);
   enemy.collider.emplace(
       Collider{.shape = ColliderShape::Rectangle, .rect{100.0, 100.0}});

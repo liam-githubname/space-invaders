@@ -52,7 +52,8 @@ void InputSystem::Update(GameState &game_state) {
 
   // PlayerInput component is updating.
   for (auto &entity : game_state.entities) {
-    if (entity.is_player.has_value() && entity.player_input.has_value()) {
+    if (entity.bitmask->layer == GameLayer::Player &&
+        entity.player_input.has_value()) {
       entity.player_input->move_y = move_y;
       entity.player_input->move_x = move_x;
       entity.player_input->is_firing = is_firing;
