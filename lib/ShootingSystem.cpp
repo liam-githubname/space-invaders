@@ -46,16 +46,22 @@ void ShootingSystem::Update(GameState &game_state) {
     if (!entity.gun || !entity.gun->fire_flag)
       continue;
 
-    // 1. check players shooting
     Raycast::Ray ray{.origin_x = entity.transform->x,
                      .origin_y = entity.transform->y,
                      .direction_x = entity.transform->direction_x,
                      .direction_y = entity.transform->direction_y};
 
     for (auto &other_entity : game_state.entities) {
-      if (entity.id == other_entity.id || !other_entity.collider.has_value()) {
+
+      if (entity.id == other_entity.id) {
         continue;
       }
+
+      if ((entity.bitmask->mask & other_entity.bitmask->layer) ==
+          GameLayer::None) {
+        continue;
+      }
+
       if (other_entity.collider->shape == ColliderShape::Rectangle) {
         float min_x =
             other_entity.transform->x - other_entity.collider->rect.width / 2;
@@ -69,6 +75,8 @@ void ShootingSystem::Update(GameState &game_state) {
         // NOTE: This is the first time I'm returning an optional like this.
         std::optional<float> distance =
             Raycast::RayAgainstAABB(ray, min_x, min_y, max_x, max_y);
+        SDL_Log("raycast: %f %f %f %f", ray.direction_x, ray.direction_y,
+                ray.origin_x, ray.origin_y);
 
         // I just learned that you don't need .has_value()
         // the optional has a built-in operator bool().

@@ -15,12 +15,6 @@
 //      - It's funny how I could feel something wrong growing in this file, but
 //      I couldn't quite figure out how to fix it yet.
 // TODO:=======================================================================
-// #1 The collision and hit types feel like they are redundent to each other.
-//    Although I think they should stay separate, as they might diverge a
-//    little. More importantly though I'm thinking that they are specific types
-//    that entities can be. When/If I get around to creating a union around the
-//    IsType components on entities I may need to change the way that these
-//    work.
 // ============================================================================
 #pragma once
 
@@ -29,9 +23,6 @@
 
 // INFO: The reason I have class here is the enum must be accessed through the
 // name CollisionType.
-// TODO: #1
-enum class CollisionType { PlayerAndWall, PlayerAndEnemy };
-enum class HitType { PlayerAndEnemy };
 
 struct CollisionPayload {
   uint32_t entity_a_id;
@@ -49,7 +40,6 @@ struct ScorePayload {
 struct HitPayload {
   uint32_t entity_a_id;
   uint32_t entity_b_id;
-  HitType hit_type;
 };
 
 // TODO: Write doc for clangd to tell me how to add Event variants when I

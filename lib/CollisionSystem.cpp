@@ -5,15 +5,10 @@
 // 2. Colliders bounding box has to be accounted for around the origin of the
 // entity. In other words you need to expand the collider to the half the height
 // and width of the entity in both directions.
+// 3. Only supports circles and AABB
 // TODO:=======================================================================
-// #4 Move IsPlayerAndWall to a util file? I will do this if I end up needing it
-//    somewhere else.
 // #5 Move IsRectToRectColliding to a util file? It's just pure math.
-// #6 I don't like how I have to have a separate branch for each combination of
-// types. I have tried to reduce the nesting and specific conditions required to
-// understand the state of the collision system by the time there is a detected
-// collision.
-// #7
+// #7 Could implement OBB, for multiple shapes.
 // FIX:========================================================================
 // ============================================================================
 
@@ -29,6 +24,8 @@
 struct SDL_FRect;
 class GameState;
 
+// This looks through all entity pairs that have colliders and are active to see
+// if they have a collision.
 void CollisionSystem::Update(GameState &game_state) {
 
   for (int i = 0; i < game_state.entities.size(); i++) {
