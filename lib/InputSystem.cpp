@@ -10,6 +10,7 @@
 #include "InputSystem.hpp"
 #include "GameState.hpp"
 #include <SDL3/SDL.h>
+#include <algorithm>
 
 class InputSystem;
 
@@ -47,13 +48,22 @@ void InputSystem::Update(GameState &game_state) {
     SDL_Log("is_firing: %d", fire_input);
   }
 
-  // PlayerInput component is updating.
-  for (auto &entity : game_state.entities) {
-    if (entity.player_input) {
-      entity.player_input->move_y = move_y;
-      entity.player_input->move_x = move_x;
-      entity.player_input->is_firing = fire_input;
-      entity.gun->fire_flag = fire_input;
-    }
-  }
+  // This is another way to search through something.
+  auto entity = std::find_if(
+      game_state.entities.begin(), game_state.entities.end(),
+      // This lambda expression is a good example for explanation.
+      // 1. The [] capture clause - tells compiler that a lambda is beginning
+      // It also passes outside variables that the lambda is allowed to see.
+      // Empty means there it can see nothing/ & means it can see and modify
+      // everything.
+      // 2. () parameters, it works the same way as always.
+      // 3. The & creates a reference instead of a copy which is vital.
+      // 4. The body of the lambda is what is ran on all the Entity &entity it
+      // finds.
+      [](Entity &entity) { return entity.player_input.has_value(); });
+
+  entity->player_input->move_y = move_y;
+  entity->player_input->move_x = move_x;
+  entity->player_input->is_firing = fire_input;
+  entity->gun->fire_flag = fire_input;
 }

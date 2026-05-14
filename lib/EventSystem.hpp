@@ -20,5 +20,5 @@ private:
   void DispatchEvent(const Event &event);
   void HandleCollisionPayload(const CollisionPayload &payload,
                               GameState &game_state);
-  void WallCollision(Entity &entity_a, Entity &entity_b);
+  void WallCollisionHandler(Entity &entity_a, Entity &entity_b);
 };
