@@ -65,7 +65,6 @@ inline std::optional<float> RayAgainstAABB(Ray ray, float entity_min_x,
   // SDL_Log("%f, %f", latest_time_floor, earliest_time_ceiling);
 
   // 5. Check if ray is inside slab intersection.
-  //
   return (latest_time_floor <= earliest_time_ceiling &&
           earliest_time_ceiling >= 0)
              ? std::optional<float>(latest_time_floor)
