@@ -61,6 +61,7 @@ struct Gun {
 
 // These are the C (Component) in an ECS
 struct Velocity {
+  float speed;
   float dx;
   float dy;
 };

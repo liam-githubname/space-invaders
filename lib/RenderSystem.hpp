@@ -19,6 +19,7 @@ private:
   void drawLives(SDL_Renderer renderer, Entity entity);
   void renderBackground(SDL_Renderer renderer, Entity background);
   void drawWall(SDL_Renderer *renderer, Entity wall);
+  void drawFire(SDL_Renderer *renderer, Entity entity);
 };
 // const int CIRCLE_DRAW_SIDES = 32;
 // const int CIRCLE_DRAW_SIDES_LEN = (CIRCLE_DRAW_SIDES + 1);

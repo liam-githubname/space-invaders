@@ -82,16 +82,16 @@ int main(int argc, char *argv[]) {
   player.bitmask.emplace(Bitmask{.layer = GameLayer::Player,
                                  .mask = GameLayer::Wall | GameLayer::Enemy});
   player.is_active = true;
-  player.velocity.emplace(0.0f, 0.0f);
+  player.velocity.emplace(Velocity{.speed = 20.0f, .dx = 0.0f, .dy = 0.0f});
   player.transform.emplace(Transform{.x = window_width / 2,
                                      .y = window_height / 2,
                                      .direction_x = 0.0f,
-                                     .direction_y = 1.0f});
+                                     .direction_y = -1.0f});
   player.collider.emplace(
       Collider{.shape = ColliderShape::Rectangle, .rect{100.0, 100.0}});
   player.player_input.emplace(
       PlayerInput{.move_x = 0.0, .move_y = 0.0, .is_firing = false});
-  player.gun.emplace(100.0f);
+  player.gun.emplace(Gun{.distance = 200.0, .fire_flag = false});
 
   // FIX: #1 The wall instantiation logic is a real problem that needs to be
   // solved

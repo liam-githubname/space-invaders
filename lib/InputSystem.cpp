@@ -47,7 +47,6 @@ void InputSystem::Update(GameState &game_state) {
   }
   if (keyboard_state[SDL_SCANCODE_SPACE]) {
     fire_input = true;
-    SDL_Log("is_firing: %d", fire_input);
   }
 
   // This is another way to search through something.
@@ -66,8 +65,11 @@ void InputSystem::Update(GameState &game_state) {
 
   entity->player_input->move_y = move_y;
   entity->player_input->move_x = move_x;
-  entity->transform->direction_y = move_y;
-  entity->transform->direction_x = move_x;
+  // WARN: For space invaders this is something that I don't want to change.
+  // I know that that's not how I should do it if I want gameplay to be
+  // completely decoupled. I should do something like have a response and update
+  // component maybe? entity->transform->direction_y = move_y;
+  // entity->transform->direction_x = move_x;
   entity->player_input->is_firing = fire_input;
   entity->gun->fire_flag = fire_input;
 }

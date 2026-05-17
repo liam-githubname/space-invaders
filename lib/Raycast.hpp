@@ -26,9 +26,13 @@ inline std::optional<float> RayAgainstAABB(Ray ray, float entity_min_x,
                                            float entity_min_y,
                                            float entity_max_x,
                                            float entity_max_y) {
-  SDL_Log("In RayAgainstAABB");
+
+  // SDL_Log("In RayAgainstAABB");
   // 1. Get the minimum and maximum coordinates for the rectangle entity.
   // Passed to the function.
+  //    note: the minimum and maximum coordinates don't correspond inherently to
+  //    the min and max time values. To get the floor and ceiling time you have
+  //    to sort the items.
   // 2. Cast the Ray and find where ray crosses into the slab.
   // 3. Calculate the slabs.
   if (ray.direction_x == 0 && ray.direction_y == 0)
@@ -36,26 +40,40 @@ inline std::optional<float> RayAgainstAABB(Ray ray, float entity_min_x,
 
   // Use the Euclidean norm to transform the direction into a standard
   // comparable format. This lets me check the actual distance in game.
-  float magnitude = std::hypot(ray.direction_x, ray.direction_y);
-
+  auto magnitude = std::hypot(ray.direction_x, ray.direction_y);
   ray.direction_x = ray.direction_x / magnitude;
   ray.direction_y = ray.direction_y / magnitude;
 
-  float time_x_min = (entity_min_x - ray.origin_x) / ray.direction_x;
-  float time_x_max = (entity_max_x - ray.origin_x) / ray.direction_x;
+  // Calculate the inverse so we don't have to divide by 0.0.
+  auto inverse_direction_x = 1.0f / ray.direction_x;
+  auto inverse_direction_y = 1.0f / ray.direction_y;
 
-  float time_y_min = (entity_min_y - ray.origin_y) / ray.direction_y;
-  float time_y_max = (entity_max_y - ray.origin_y) / ray.direction_y;
+  auto time_x_1 = (entity_min_x - ray.origin_x) * inverse_direction_x;
+  auto time_x_2 = (entity_max_x - ray.origin_x) * inverse_direction_x;
+  auto time_x_floor = std::min(time_x_1, time_x_2);
+  auto time_x_ceiling = std::max(time_x_1, time_x_2);
+
+  auto time_y_1 = (entity_min_y - ray.origin_y) * inverse_direction_y;
+  auto time_y_2 = (entity_max_y - ray.origin_y) * inverse_direction_y;
+  auto time_y_floor = std::min(time_y_1, time_y_2);
+  auto time_y_ceiling = std::max(time_y_1, time_y_2);
 
   // 4. Combine the slabs.
-  float latest_time_enter = std::max(time_x_min, time_y_min);
-  float earliest_time_exit = std::min(time_x_max, time_y_max);
+  auto latest_time_floor = std::max(time_x_floor, time_y_floor);
+  auto earliest_time_ceiling = std::min(time_x_ceiling, time_y_ceiling);
+
+  // SDL_Log("%f, %f", latest_time_floor, earliest_time_ceiling);
+
   // 5. Check if ray is inside slab intersection.
-  return (latest_time_enter <= earliest_time_exit && earliest_time_exit >= 0)
-             ? std::optional<float>(latest_time_enter)
+  //
+  return (latest_time_floor <= earliest_time_ceiling &&
+          earliest_time_ceiling >= 0)
+             ? std::optional<float>(latest_time_floor)
              : std::nullopt;
 }
 
+// Apply the same fixes to RayAgainstCircle, currently could divide by zero on
+// axis aligned raycasting.
 inline std::optional<float> RayAgainstCircle(Ray ray, float center_x,
                                              float center_y, float radius) {
 

@@ -22,6 +22,7 @@ void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
 
     if (entity.bitmask->layer == GameLayer::Player) {
       drawPlayer(renderer, entity);
+      drawFire(renderer, entity);
     }
 
     if (entity.bitmask->layer == GameLayer::Enemy) {
@@ -65,4 +66,19 @@ void RenderSystem::drawWall(SDL_Renderer *renderer, Entity wall) {
   SDL_RenderFillRect(renderer, &wall_rect);
   SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
   SDL_RenderFillRect(renderer, &wall_center);
+}
+
+void RenderSystem::drawFire(SDL_Renderer *renderer, Entity entity) {
+
+  if (!entity.gun->fire_flag)
+    return;
+
+  auto endpointx = entity.transform->x +
+                   entity.transform->direction_x * entity.gun->distance;
+  auto endpointy = entity.transform->y +
+                   entity.transform->direction_y * entity.gun->distance;
+
+  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+  SDL_RenderLine(renderer, entity.transform->x, entity.transform->y, endpointx,
+                 endpointy);
 }

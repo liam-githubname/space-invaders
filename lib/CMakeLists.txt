@@ -44,6 +44,7 @@ add_library(game-engine
     CollisionSystem.cpp
     EventSystem.cpp
     ShootingSystem.cpp
+    # HitscanSystem.cpp
 )
 target_include_directories(game-engine PUBLIC ${CMAKE_SOURCE_DIR}/lib)
 target_link_libraries(game-engine PUBLIC SDL3::SDL3 SDL3_image::SDL3_image)

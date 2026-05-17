@@ -24,9 +24,9 @@ void MovementSystem::Update(GameState &game_state, float delta_time) {
       }
 
       entity.velocity->dy =
-          entity.player_input->move_y * MovementSystem::acceleration;
+          entity.player_input->move_y * entity.velocity->speed;
       entity.velocity->dx =
-          entity.player_input->move_x * MovementSystem::acceleration;
+          entity.player_input->move_x * entity.velocity->speed;
     }
     //============================================================
 
