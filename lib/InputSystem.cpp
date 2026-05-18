@@ -6,8 +6,6 @@
 // SDL_PollEvent(&event), otherwise the keyboard_state will never update.
 // TODO:===================================================================
 // 6. Input checking for mouse events?
-// 7. Alter the input system to avoid prioritized inputs (right now left is
-// higher priority than right).
 // ========================================================================
 #include "InputSystem.hpp"
 #include "GameState.hpp"
@@ -50,7 +48,7 @@ void InputSystem::Update(GameState &game_state) {
   }
 
   // This is another way to search through something.
-  auto entity = std::find_if(
+  auto player_entity = std::find_if(
       game_state.entities.begin(), game_state.entities.end(),
       [](Entity &entity) { return entity.player_input.has_value(); });
   // This lambda expression is a good example for explanation.
@@ -63,13 +61,13 @@ void InputSystem::Update(GameState &game_state) {
   // 4. The body of the lambda is what is ran on all the Entity &entity it
   // finds.
 
-  entity->player_input->move_y = move_y;
-  entity->player_input->move_x = move_x;
+  player_entity->velocity->dy = move_y * player_entity->velocity->speed;
+  player_entity->velocity->dx = move_x * player_entity->velocity->speed;
   // WARN: For space invaders this is something that I don't want to change.
   // I know that that's not how I should do it if I want gameplay to be
   // completely decoupled. I should do something like have a response and update
   // component maybe? entity->transform->direction_y = move_y;
   // entity->transform->direction_x = move_x;
-  entity->player_input->is_firing = fire_input;
-  entity->gun->fire_flag = fire_input;
+  player_entity->player_input->is_firing = fire_input;
+  player_entity->gun->fire_flag = fire_input;
 }

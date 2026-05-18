@@ -14,22 +14,6 @@ class MovementSystem;
 
 void MovementSystem::Update(GameState &game_state, float delta_time) {
   for (auto &entity : game_state.entities) {
-    // I need to check if the entity is the player.
-    if (entity.bitmask->layer == GameLayer::Player) {
-      // FIXME: Then I need to check if the player has an input state, if not
-      // I'll log it. REMOVE later.This should be a requirement
-      if (!entity.player_input.has_value()) {
-        // SDL_Log("Player doesn't have player_input component");
-        continue;
-      }
-
-      entity.velocity->dy =
-          entity.player_input->move_y * entity.velocity->speed;
-      entity.velocity->dx =
-          entity.player_input->move_x * entity.velocity->speed;
-    }
-    //============================================================
-
     // Update the transform component with the velocity component
     if (entity.velocity.has_value() && entity.transform.has_value()) {
       entity.transform->y += entity.velocity->dy;

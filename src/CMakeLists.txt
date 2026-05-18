@@ -11,7 +11,9 @@ target_compile_features(space-invaders PRIVATE cxx_std_23)
 # Link against libraries - 2026-04-15
 # graphics-module: window/renderer management (transitively provides SDL3::SDL3 and SDL3_image)
 # game-engine: consolidated game logic, input, and movement systems (see lib/CMakeLists.txt for rationale)
-target_link_libraries(space-invaders PRIVATE graphics-module game-engine)
+# space-invaders-game: Space Invaders specific orchestration and gameplay rules - 2026-05-17
+#   Added because main.cpp will construct and run the Game class which lives in game/
+target_link_libraries(space-invaders PRIVATE graphics-module game-engine space-invaders-game)
 
 # Copy assets directory to build directory during build
 # Assets path remains in project root following game development conventions - 2026-04-08

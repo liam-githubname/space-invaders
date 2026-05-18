@@ -25,6 +25,7 @@
 #include "RenderSystem.hpp"
 #include "ShootingSystem.hpp"
 #include "Timestep.hpp"
+#include "Util.hpp"
 #include <SDL3_image/SDL_image.h>
 #include <string>
 

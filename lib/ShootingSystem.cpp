@@ -69,7 +69,7 @@ void ShootingSystem::Update(GameState &game_state) {
           continue;
         }
         if (*distance >= entity.gun->distance) {
-          SDL_Log("Distance value %f", *distance);
+          // SDL_Log("Distance value %f", *distance);
           continue;
         }
 
