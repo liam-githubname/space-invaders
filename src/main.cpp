@@ -15,19 +15,8 @@
 //    the way it works now. It also causes magic numbers in the collision code.
 // ============================================================================
 
-#include "Bitmask.hpp"
-#include "CollisionSystem.hpp"
-#include "EventSystem.hpp"
-#include "GameState.hpp"
-#include "GraphicsModule.hpp"
-#include "InputSystem.hpp"
-#include "MovementSystem.hpp"
-#include "RenderSystem.hpp"
-#include "ShootingSystem.hpp"
-#include "Timestep.hpp"
-#include "Util.hpp"
+#include "Game.hpp"
 #include <SDL3_image/SDL_image.h>
-#include <string>
 
 // FIXME: This should probably exist in the game mechanics source file
 // but not in the class. That way they can see eachother, but aren't entirely
@@ -43,129 +32,7 @@
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
-
-  // This is resource Acquisition plus the GraphicsModule object is wrapped
-  // in an expected type.
-  auto title = std::string("Test Title");
-  auto engineResult = GraphicsModule::create(title, 1920, 1080);
-  if (!engineResult.has_value()) {
-    SDL_Log("Engine failed to start: %s", engineResult.error().c_str());
-    return 1;
-  }
-  // This unwraps the Graphics Module
-  // The program needs to take ownership of the module
-  // We have to use std::move because we removed the copy constructor.
-
-  // ==================== Initialization of Systems ===========================
-  TimeStep time_step = TimeStep();
-  // TODO: Figure out if the other systems should remove some of their default
-  // constructors. Like GraphicsModule.
-  GraphicsModule graphics = std::move(engineResult.value());
-  GameState game_state = GameState();
-  SDL_Event event;
-  SDL_zero(event);
-  InputSystem input_system = InputSystem::create();
-  MovementSystem movement_system = MovementSystem();
-  CollisionSystem collision_system = CollisionSystem();
-  EventSystem event_system = EventSystem();
-  RenderSystem render_system = RenderSystem();
-  ShootingSystem shooting_system = ShootingSystem();
-
-  // miscellaneous
-  constexpr float dt = 1.0f / 60.0f;
-  float window_width = 1920;
-  float window_height = 1080;
-  bool is_running = true;
-
-  // ==================== Initialization of entities ==========================
-  // TODO: Look at making CreateEntity a factory pattern?
-  Entity &player = game_state.CreateEntity();
-  player.bitmask.emplace(Bitmask{.layer = GameLayer::Player,
-                                 .mask = GameLayer::Wall | GameLayer::Enemy});
-  player.is_active = true;
-  player.velocity.emplace(Velocity{.speed = 20.0f, .dx = 0.0f, .dy = 0.0f});
-  player.transform.emplace(Transform{.x = window_width / 2,
-                                     .y = window_height / 2,
-                                     .direction_x = 0.0f,
-                                     .direction_y = -1.0f});
-  player.collider.emplace(
-      Collider{.shape = ColliderShape::Rectangle, .rect{100.0, 100.0}});
-  player.player_input.emplace(
-      PlayerInput{.move_x = 0.0, .move_y = 0.0, .is_firing = false});
-  player.gun.emplace(Gun{.distance = 200.0, .fire_flag = false});
-
-  // FIX: #1 The wall instantiation logic is a real problem that needs to be
-  // solved
-  auto &top_wall = game_state.CreateEntity();
-  top_wall.bitmask.emplace(
-      Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player});
-  top_wall.wall_info.emplace(WallSide::Top);
-  top_wall.transform.emplace(window_width / 2, 0);
-  top_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
-                                     .offset_y = 5.0f,
-                                     .rect{(float)window_width, 10.0f}});
-  // Bottom wall
-  auto &bottom_wall = game_state.CreateEntity();
-  bottom_wall.bitmask.emplace(
-      Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player});
-  bottom_wall.wall_info.emplace(WallSide::Bottom);
-  bottom_wall.is_active = true;
-  bottom_wall.transform.emplace(window_width / 2, (float)window_height);
-  bottom_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
-                                        .offset_y = 5.0,
-                                        .rect{(float)window_width, 10.0f}});
-  // Left wall
-  auto &left_wall = game_state.CreateEntity();
-  left_wall.bitmask.emplace(
-      Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player});
-  left_wall.wall_info.emplace(WallSide::Left);
-  left_wall.is_active = true;
-  left_wall.transform.emplace(0, window_height / 2);
-  left_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
-                                      .offset_x = 5.0f,
-                                      .rect{10.0f, (float)window_height}});
-  // Right wall
-  auto &right_wall = game_state.CreateEntity();
-  right_wall.bitmask.emplace(
-      Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player});
-  right_wall.wall_info.emplace(WallSide::Right);
-  right_wall.is_active = true;
-  right_wall.transform.emplace((float)window_width, window_height / 2);
-  right_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
-                                       .offset_x = -5.0f,
-                                       .rect{10.0f, (float)window_height}});
-
-  auto &enemy = game_state.CreateEntity();
-  enemy.bitmask.emplace(Bitmask{.layer = GameLayer::Enemy,
-                                .mask = GameLayer::Player | GameLayer::Wall});
-  enemy.transform.emplace(window_width / 2, window_height / 4);
-  enemy.collider.emplace(
-      Collider{.shape = ColliderShape::Rectangle, .rect{100.0, 100.0}});
-  enemy.is_active = true;
-
-  while (is_running) {
-    // It is important to realize that the input_system actually relies on this
-    // call to SDL_PollEvent to update the keyboard state array
-    while (SDL_PollEvent(&event)) {
-      if (event.type == SDL_EVENT_QUIT)
-        is_running = false;
-    }
-    time_step.Tick();
-
-    while (time_step.consumeStep()) {
-      //========================== Input & Logic ==============================
-      input_system.Update(game_state);
-      //========================== Shooting ===================================
-      shooting_system.Update(game_state);
-      //========================== Movement ===================================
-      movement_system.Update(game_state, dt);
-      //========================== Collision ==================================
-      collision_system.Update(game_state);
-    }
-    //========================== Consume Events ===============================
-    event_system.ProcessEvents(game_state);
-    //============================ Render =====================================
-    render_system.Update(game_state, graphics.getRenderer());
-  }
+  auto game = Game::create("Space Invaders", 1920, 1080);
+  game->run();
   return 0;
 }

@@ -20,14 +20,14 @@ void ShootingSystem::Update(GameState &game_state) {
 
   for (auto &entity : game_state.entities) {
     // Make sure the entity has a transform
-    float shortest_distance = INFINITY;
-    uint32_t hit_entity_id;
-
     if (!entity.transform)
       continue;
     // Check if the entity has a gun and if it's firing
     if (!entity.gun || !entity.gun->fire_flag)
       continue;
+
+    float shortest_distance = INFINITY;
+    uint32_t hit_entity_id;
 
     // Raycast
     Raycast::Ray ray{.origin_x = entity.transform->x,

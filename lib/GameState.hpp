@@ -110,8 +110,8 @@ public:
   // constructor unless explicitly declared.
   GameState() = default;
   // make this class non-copyable
-  GameState(const GameState &) = delete;
-  GameState &operator=(const GameState &) = delete;
+  // GameState(const GameState &) = delete;
+  // GameState &operator=(const GameState &) = delete;
 
   Entity &CreateEntity();
   void DestroyEntity(uint32_t target_id);

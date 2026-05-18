@@ -11,6 +11,26 @@
 #pragma once
 #include <iostream>
 
+// This is pulled directly from
+// https://en.cppreference.com/cpp/utility/variant/visit2 @ 2026-04-22 14:45
+// A *Variadic template*. The ... is called a parameter pack.
+// "This template accepts any number of type arguments by the name Ts"
+// struct overloaded : Ts... "multiple inheritance" via pack expansion.
+// "the struct [overloaded] ihnherits from every type in Ts simultaneously"
+// but C++ templates are a compile-time code generation mechanism
+
+// This idiom exists because C++ doesn't have a built-in way to create an
+// overload set from multiple lambdas.
+
+// I'm writing this again because I still couldn't explain it.
+// Overload takes multiple lambdas and glues them together into one object that
+// inherits all their operator() functions.
+// This is used in Events.hpp only as of 2026-05-17 21:05
+template <typename... Ts> struct Overload : Ts... {
+  using Ts::operator()...;
+};
+template <typename... Ts> Overload(Ts...) -> Overload<Ts...>;
+
 inline void clearConsole() {
   // \033[2J clears the screen, \033[H moves cursor to top-left
   std::cout << "\033[2J\033[H" << std::endl;
