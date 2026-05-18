@@ -6,6 +6,7 @@
 #include "GraphicsModule.hpp"
 #include "InputSystem.hpp"
 #include "MovementSystem.hpp"
+#include "SpaceInvadersMovementSystem.hpp"
 #include "Util.hpp"
 #include <expected>
 
@@ -47,9 +48,10 @@ void Game::initializeGame() {
   player.bitmask.emplace(Bitmask{.layer = GameLayer::Player,
                                  .mask = GameLayer::Wall | GameLayer::Enemy});
   player.is_active = true;
-  player.velocity.emplace(Velocity{.speed = 20.0f, .dx = 0.0f, .dy = 0.0f});
+  player.velocity.emplace(
+      Velocity{.speed = 10.0f, .x_offset = 0.0f, .y_offset = 0.0f});
   player.transform.emplace(Transform{.x = window_width_ / 2,
-                                     .y = window_height_ / 2,
+                                     .y = 7 * (window_height_ / 8),
                                      .direction_x = 0.0f,
                                      .direction_y = -1.0f});
   player.collider.emplace(
@@ -100,13 +102,15 @@ void Game::initializeGame() {
   auto &enemy = game_state_.CreateEntity();
   enemy.bitmask.emplace(Bitmask{.layer = GameLayer::Enemy,
                                 .mask = GameLayer::Player | GameLayer::Wall});
+  enemy.velocity.emplace(
+      Velocity{.speed = 0.0, .x_offset = 0.0f, .y_offset = 0.0f});
   enemy.transform.emplace(window_width_ / 2, window_height_ / 4);
   enemy.collider.emplace(
       Collider{.shape = ColliderShape::Rectangle, .rect{100.0, 100.0}});
   enemy.is_active = true;
 }
 
-void Game::processGameEvents() {
+void Game::PassVisitorHandlersToEventSystem() {
   event_system_.ProcessEvents(
       game_state_,
       Overload{
@@ -142,6 +146,8 @@ void Game::run() {
     while (time_step_.consumeStep()) {
       //========================== Input & Logic ==============================
       input_system_.Update(game_state_);
+
+      gameplay_movement_.Update(game_state_);
       //========================== Shooting ===================================
       shooting_system_.Update(game_state_);
       //========================== Movement ===================================
@@ -150,7 +156,7 @@ void Game::run() {
       collision_system_.Update(game_state_);
     }
     //========================== Consume Events ===============================
-    processGameEvents();
+    PassVisitorHandlersToEventSystem();
     //============================ Render =====================================
     render_system_.Update(game_state_, graphics_.getRenderer());
   }

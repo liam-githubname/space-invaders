@@ -61,8 +61,8 @@ void InputSystem::Update(GameState &game_state) {
   // 4. The body of the lambda is what is ran on all the Entity &entity it
   // finds.
 
-  player_entity->velocity->dy = move_y * player_entity->velocity->speed;
-  player_entity->velocity->dx = move_x * player_entity->velocity->speed;
+  player_entity->player_input->move_y = move_y;
+  player_entity->player_input->move_x = move_x;
   // WARN: For space invaders this is something that I don't want to change.
   // I know that that's not how I should do it if I want gameplay to be
   // completely decoupled. I should do something like have a response and update

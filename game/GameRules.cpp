@@ -43,8 +43,8 @@ void GameRules::WallCollisionHandler(Entity &entity_a, Entity &entity_b) {
   WallSide wallside;
 
   // Set the velocity to zero
-  player.velocity->dy = 0.0f;
-  player.velocity->dx = 0.0f;
+  // player.velocity->dy = 0.0f;
+  // player.velocity->dx = 0.0f;
 
   wall_x = wall.transform->x + wall.collider->offset_x;
   wall_y = wall.transform->y + wall.collider->offset_y;

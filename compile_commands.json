@@ -1,13 +1,79 @@
 [
 {
   "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/lib",
-  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++2b -arch arm64 -o CMakeFiles/graphics-module.dir/GraphicsModule.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/lib/GraphicsModule.cpp",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++23 -arch arm64 -o CMakeFiles/graphics-module.dir/GraphicsModule.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/lib/GraphicsModule.cpp",
   "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/lib/GraphicsModule.cpp",
   "output": "lib/CMakeFiles/graphics-module.dir/GraphicsModule.cpp.o"
 },
 {
+  "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/lib",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++23 -arch arm64 -o CMakeFiles/game-engine.dir/GameState.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/lib/GameState.cpp",
+  "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/lib/GameState.cpp",
+  "output": "lib/CMakeFiles/game-engine.dir/GameState.cpp.o"
+},
+{
+  "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/lib",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++23 -arch arm64 -o CMakeFiles/game-engine.dir/InputSystem.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/lib/InputSystem.cpp",
+  "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/lib/InputSystem.cpp",
+  "output": "lib/CMakeFiles/game-engine.dir/InputSystem.cpp.o"
+},
+{
+  "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/lib",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++23 -arch arm64 -o CMakeFiles/game-engine.dir/MovementSystem.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/lib/MovementSystem.cpp",
+  "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/lib/MovementSystem.cpp",
+  "output": "lib/CMakeFiles/game-engine.dir/MovementSystem.cpp.o"
+},
+{
+  "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/lib",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++23 -arch arm64 -o CMakeFiles/game-engine.dir/RenderSystem.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/lib/RenderSystem.cpp",
+  "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/lib/RenderSystem.cpp",
+  "output": "lib/CMakeFiles/game-engine.dir/RenderSystem.cpp.o"
+},
+{
+  "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/lib",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++23 -arch arm64 -o CMakeFiles/game-engine.dir/CollisionSystem.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/lib/CollisionSystem.cpp",
+  "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/lib/CollisionSystem.cpp",
+  "output": "lib/CMakeFiles/game-engine.dir/CollisionSystem.cpp.o"
+},
+{
+  "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/lib",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++23 -arch arm64 -o CMakeFiles/game-engine.dir/EventSystem.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/lib/EventSystem.cpp",
+  "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/lib/EventSystem.cpp",
+  "output": "lib/CMakeFiles/game-engine.dir/EventSystem.cpp.o"
+},
+{
+  "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/lib",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++23 -arch arm64 -o CMakeFiles/game-engine.dir/ShootingSystem.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/lib/ShootingSystem.cpp",
+  "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/lib/ShootingSystem.cpp",
+  "output": "lib/CMakeFiles/game-engine.dir/ShootingSystem.cpp.o"
+},
+{
+  "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/game",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/Users/liam/Programming/projects/proj_2026/space-invaders/game -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++23 -arch arm64 -o CMakeFiles/space-invaders-game.dir/Game.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/game/Game.cpp",
+  "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/game/Game.cpp",
+  "output": "game/CMakeFiles/space-invaders-game.dir/Game.cpp.o"
+},
+{
+  "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/game",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/Users/liam/Programming/projects/proj_2026/space-invaders/game -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++23 -arch arm64 -o CMakeFiles/space-invaders-game.dir/PlayerControlSystem.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/game/PlayerControlSystem.cpp",
+  "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/game/PlayerControlSystem.cpp",
+  "output": "game/CMakeFiles/space-invaders-game.dir/PlayerControlSystem.cpp.o"
+},
+{
+  "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/game",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/Users/liam/Programming/projects/proj_2026/space-invaders/game -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++23 -arch arm64 -o CMakeFiles/space-invaders-game.dir/GameRules.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/game/GameRules.cpp",
+  "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/game/GameRules.cpp",
+  "output": "game/CMakeFiles/space-invaders-game.dir/GameRules.cpp.o"
+},
+{
+  "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/game",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/Users/liam/Programming/projects/proj_2026/space-invaders/game -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++23 -arch arm64 -o CMakeFiles/space-invaders-game.dir/EntityFactory.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/game/EntityFactory.cpp",
+  "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/game/EntityFactory.cpp",
+  "output": "game/CMakeFiles/space-invaders-game.dir/EntityFactory.cpp.o"
+},
+{
   "directory": "/Users/liam/Programming/projects/proj_2026/space-invaders/build/src",
-  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/opt/homebrew/opt/sdl3/include -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++2b -arch arm64 -o CMakeFiles/space-invaders.dir/main.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/src/main.cpp",
+  "command": "/usr/bin/c++  -I/Users/liam/Programming/projects/proj_2026/space-invaders/lib -I/opt/homebrew/opt/sdl3/include -I/Users/liam/Programming/projects/proj_2026/space-invaders/game -isystem /opt/homebrew/opt/sdl3_image/include -std=gnu++23 -arch arm64 -o CMakeFiles/space-invaders.dir/main.cpp.o -c /Users/liam/Programming/projects/proj_2026/space-invaders/src/main.cpp",
   "file": "/Users/liam/Programming/projects/proj_2026/space-invaders/src/main.cpp",
   "output": "src/CMakeFiles/space-invaders.dir/main.cpp.o"
 }

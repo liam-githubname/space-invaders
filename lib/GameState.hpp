@@ -54,16 +54,19 @@ struct PlayerInput {
   bool is_firing;
 };
 
+// TODO: Make ShootingSystem to check for a cooldown.
 struct Gun {
   float distance;
   bool fire_flag;
+  float last_fired;
+  float cooldown_time;
 };
 
 // These are the C (Component) in an ECS
 struct Velocity {
   float speed;
-  float dx;
-  float dy;
+  float x_offset;
+  float y_offset;
 };
 
 struct Transform {

@@ -11,6 +11,7 @@
 #include "MovementSystem.hpp"
 #include "RenderSystem.hpp"
 #include "ShootingSystem.hpp"
+#include "SpaceInvadersMovementSystem.hpp"
 #include "Timestep.hpp"
 
 // I think I want to do the same thing that I did with GraphicsModule
@@ -30,6 +31,16 @@ public:
   Game &operator=(Game &&) = default;
 
 private:
+  // Private Constructor
+  // A constructor will quietly call it's members default constructors if they
+  // have one. If not the Compiler will through an error. Game cannot have a
+  // default constructor because it has been implicitly deleted because
+  // GraphicsModules's constructor was deleted. (it was deleted because it's
+  // copy semantics we're deleted which implicitly delets the default
+  // constructor of a class)
+  Game(GraphicsModule &&graphics);
+
+  // Engine systems
   TimeStep time_step_;
   GraphicsModule graphics_;
   GameState game_state_;
@@ -41,15 +52,19 @@ private:
   RenderSystem render_system_;
   ShootingSystem shooting_system_;
   GameRules game_rules_;
+  void initializeLibrarySystems(std::string_view title);
+
+  // Miscellaneous
   bool is_running;
   float dt = 1.0f / 60.0f;
   float window_width_ = 1920;
   float window_height_ = 1080;
+
+  // space_invaders specific
   // This is a virtual wrapper around EventSystem::ProcessEvents
   // Which takes a Visitor&& visitor parameter
-  void processGameEvents();
-  void initializeLibrarySystems(std::string_view title);
+  void PassVisitorHandlersToEventSystem();
   void initializeGame();
 
-  Game(GraphicsModule &&graphics);
+  SpaceInvadersMovementSystem gameplay_movement_;
 };
