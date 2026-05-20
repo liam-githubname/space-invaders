@@ -9,6 +9,7 @@
 #include "SpaceInvadersMovementSystem.hpp"
 #include "Util.hpp"
 #include <expected>
+#include <limits>
 
 Game::Game(GraphicsModule &&graphics)
     : graphics_(std::move(graphics)), input_system_(InputSystem::create()),
@@ -58,7 +59,7 @@ void Game::initializeGame() {
       Collider{.shape = ColliderShape::Rectangle, .rect{100.0, 100.0}});
   player.player_input.emplace(
       PlayerInput{.move_x = 0.0, .move_y = 0.0, .is_firing = false});
-  player.gun.emplace(Gun{.distance = 200.0, .fire_flag = false});
+  player.gun.emplace(Gun{.distance = 900.0, .fire_flag = false});
 
   auto &top_wall = game_state_.CreateEntity();
   top_wall.bitmask.emplace(
@@ -102,8 +103,9 @@ void Game::initializeGame() {
   auto &enemy = game_state_.CreateEntity();
   enemy.bitmask.emplace(Bitmask{.layer = GameLayer::Enemy,
                                 .mask = GameLayer::Player | GameLayer::Wall});
+  enemy.alien_info.emplace(Alien{.type = AlienSpecies::Squid});
   enemy.velocity.emplace(
-      Velocity{.speed = 0.0, .x_offset = 0.0f, .y_offset = 0.0f});
+      Velocity{.speed = 60.0, .x_offset = 0.0f, .y_offset = 0.0f});
   enemy.transform.emplace(window_width_ / 2, window_height_ / 4);
   enemy.collider.emplace(
       Collider{.shape = ColliderShape::Rectangle, .rect{100.0, 100.0}});
@@ -128,7 +130,6 @@ void Game::PassVisitorHandlersToEventSystem() {
 
 void Game::run() {
 
-  SDL_Log("In Run");
   initializeGame();
   SDL_Event event;
   SDL_zero(event);
@@ -147,13 +148,13 @@ void Game::run() {
       //========================== Input & Logic ==============================
       input_system_.Update(game_state_);
 
-      gameplay_movement_.Update(game_state_);
-      //========================== Shooting ===================================
-      shooting_system_.Update(game_state_);
+      gameplay_movement_.Update(game_state_, TimeStep::GetCurrentTime(), dt);
       //========================== Movement ===================================
       movement_system_.Update(game_state_, dt);
       //========================== Collision ==================================
       collision_system_.Update(game_state_);
+      //========================== Shooting ===================================
+      shooting_system_.Update(game_state_);
     }
     //========================== Consume Events ===============================
     PassVisitorHandlersToEventSystem();

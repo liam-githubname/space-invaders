@@ -22,6 +22,7 @@ void ShootingSystem::Update(GameState &game_state) {
     // Make sure the entity has a transform
     if (!entity.transform)
       continue;
+    // WARN: There has to be way to remove gun component from this system??
     // Check if the entity has a gun and if it's firing
     if (!entity.gun || !entity.gun->fire_flag)
       continue;

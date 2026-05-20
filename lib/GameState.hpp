@@ -54,17 +54,9 @@ struct PlayerInput {
   bool is_firing;
 };
 
-// TODO: Make ShootingSystem to check for a cooldown.
-struct Gun {
-  float distance;
-  bool fire_flag;
-  float last_fired;
-  float cooldown_time;
-};
-
 // These are the C (Component) in an ECS
 struct Velocity {
-  float speed;
+  std::optional<float> speed;
   float x_offset;
   float y_offset;
 };
@@ -86,6 +78,33 @@ struct WallInfo {
   WallSide side;
 };
 
+// TODO: Swap out the Gun component for the Raycaster component.
+struct Raycaster {
+  float distance;
+  float last_fired;
+};
+
+// WARN: Space-invaders structs, these make lib aware of space-invaders
+// TODO: Make ShootingSystem to check for a cooldown.
+struct Gun {
+  float distance;
+  bool fire_flag;
+  Raycaster raycaster;
+  float cooldown_time;
+};
+
+enum class AlienSpecies { Squid, Ship, Crab, Octopus };
+struct Alien {
+  AlienSpecies type;
+};
+struct AlienFormation {
+  std::vector<Alien> aliens;
+};
+
+struct AlterMovement {
+  float x_mod, y_mod, speed_mod;
+};
+
 // This is the E (Entity) in the ECS
 struct Entity {
   uint32_t id;
@@ -96,8 +115,13 @@ struct Entity {
   std::optional<Transform> transform;
   std::optional<Sprite> sprite;
   std::optional<Collider> collider;
-  std::optional<Gun> gun;
   std::optional<WallInfo> wall_info;
+  std::optional<Alien> alien_info;
+  std::optional<AlterMovement> movement_mod;
+
+  // WARN: This stuff shouldn't be here but I don't really have a fix right now.
+  // space_invaders stuff
+  std::optional<Gun> gun;
 };
 
 class GameState {

@@ -6,13 +6,11 @@
 // 1. Guide for how logic should flow: -> Mutate state -> Detect facts
 // -> Queue facts -> Interpret facts and mutate state again -> Render
 // TODO:=======================================================================
-// 1. Fix the walls transforms location.
 // 2. Move the AssetManager struct to it's own header file.
 // 3. Write a utility that pulls the corners of the rectangle colliders.
 // 4. Trace the actual worstcase runtime for the program.
+// 5. Look into investing into map to hold index for entities.
 // FIX:========================================================================
-// 1. The wall entities need to be fixed somehow, it is an absolute nightmare
-//    the way it works now. It also causes magic numbers in the collision code.
 // ============================================================================
 
 #include "Game.hpp"

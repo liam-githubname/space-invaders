@@ -1,4 +1,5 @@
 #include "GameRules.hpp"
+#include "GameState.hpp"
 // TODO: Implement GameRules - 2026-05-17
 //
 //
@@ -35,7 +36,7 @@ void GameRules::WallCollisionHandler(Entity &entity_a, Entity &entity_b) {
     return;
 
   // This is the easiest way to assign the player.
-  auto &player = (a_velocity) ? entity_a : entity_b;
+  auto &entity = (a_velocity) ? entity_a : entity_b;
   // This is redundant but a more elegant solution isn't coming to mind rn
   auto &wall = (a_wall) ? entity_a : entity_b;
 
@@ -52,19 +53,32 @@ void GameRules::WallCollisionHandler(Entity &entity_a, Entity &entity_b) {
 
   switch (wallside) {
   case WallSide::Top:
-    player.transform->y = wall_y + player.collider->rect.height / 2;
+    entity.transform->y = wall_y + entity.collider->rect.height / 2;
     break;
   case WallSide::Bottom:
-    player.transform->y = wall_y - player.collider->rect.height / 2;
+    entity.transform->y = wall_y - entity.collider->rect.height / 2;
     break;
   case WallSide::Left:
-    player.transform->x = wall_x + player.collider->rect.width / 2;
+    entity.transform->x = wall_x + entity.collider->rect.width / 2;
     break;
   case WallSide::Right:
-    player.transform->x = wall_x - player.collider->rect.width / 2;
+    entity.transform->x = wall_x - entity.collider->rect.width / 2;
     break;
   default:
     SDL_Log("in default switch case in EventSystem.cpp");
     break;
+  }
+
+  // If an alien hits the wall add the altermovement component
+  if (entity.alien_info) {
+    if (!entity.movement_mod.has_value()) {
+      entity.movement_mod.emplace(AlterMovement{
+          .speed_mod = -1.0,
+      });
+      entity.transform->y += 100.0f;
+    } else {
+      entity.movement_mod->speed_mod *= -1.0;
+      entity.transform->y += 100.0f;
+    }
   }
 }
