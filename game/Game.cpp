@@ -6,7 +6,6 @@
 #include "GraphicsModule.hpp"
 #include "InputSystem.hpp"
 #include "MovementSystem.hpp"
-#include "SpaceInvadersMovementSystem.hpp"
 #include "Timestep.hpp"
 #include "Util.hpp"
 #include <expected>

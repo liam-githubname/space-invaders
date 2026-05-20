@@ -11,7 +11,6 @@
 #include "MovementSystem.hpp"
 #include "RenderSystem.hpp"
 #include "ShootingSystem.hpp"
-#include "SpaceInvadersMovementSystem.hpp"
 #include "Timestep.hpp"
 
 // I think I want to do the same thing that I did with GraphicsModule
@@ -65,6 +64,4 @@ private:
   // Which takes a Visitor&& visitor parameter
   void PassVisitorHandlersToEventSystem();
   void initializeGame();
-
-  SpaceInvadersMovementSystem gameplay_movement_;
 };
