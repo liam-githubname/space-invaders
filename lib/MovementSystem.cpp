@@ -11,7 +11,11 @@
 
 class MovementSystem;
 
-void MovementSystem::Update(GameState &game_state, float delta_time) {
+void MovementSystem::Update(GameState &game_state, float current_frame_time) {
+
+  auto has_been_half_second =
+      ((current_frame_time - last_time) > (1000000000ULL));
+
   for (auto &entity : game_state.entities) {
     // Guard against dead entities.
     if (!entity.is_active) {
@@ -22,21 +26,28 @@ void MovementSystem::Update(GameState &game_state, float delta_time) {
       continue;
     }
 
-    auto new_transform_x_value = entity.transform->x;
-    auto new_transform_y_value = entity.transform->y;
+    // If it hasnt been long enough and you're looking an alien stop looking.
+    if (!has_been_half_second && entity.alien_info.has_value()) {
+      continue;
+    }
+
+    auto new_transform_x_value = 0.0;
+    auto new_transform_y_value = 0.0;
 
     // WARN: This won't work for anything but transform based movement.
     // Physics based movement isn't an easy swap.
     new_transform_x_value +=
         (entity.player_input && entity.velocity->speed)
             ? (entity.player_input->move_x * entity.velocity->speed.value())
-            : entity.velocity->x_offset;
-    new_transform_y_value +=
-        (entity.player_input && entity.velocity->speed)
-            ? (entity.player_input->move_y * entity.velocity->speed.value())
-            : entity.velocity->y_offset;
+            : entity.velocity->speed.value();
 
-    entity.transform->x = new_transform_x_value;
-    entity.transform->y = new_transform_y_value;
+    if (entity.movement_mod.has_value()) {
+      new_transform_x_value *= entity.movement_mod->speed_mod;
+    }
+
+    entity.transform->x += new_transform_x_value;
+    entity.transform->y += new_transform_y_value;
+
+    last_time = has_been_half_second ? current_frame_time : last_time;
   }
 }

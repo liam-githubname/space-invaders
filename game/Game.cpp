@@ -7,6 +7,7 @@
 #include "InputSystem.hpp"
 #include "MovementSystem.hpp"
 #include "SpaceInvadersMovementSystem.hpp"
+#include "Timestep.hpp"
 #include "Util.hpp"
 #include <expected>
 #include <limits>
@@ -105,7 +106,7 @@ void Game::initializeGame() {
                                 .mask = GameLayer::Player | GameLayer::Wall});
   enemy.alien_info.emplace(Alien{.type = AlienSpecies::Squid});
   enemy.velocity.emplace(
-      Velocity{.speed = 60.0, .x_offset = 0.0f, .y_offset = 0.0f});
+      Velocity{.speed = 50.0, .x_offset = 0.0f, .y_offset = 0.0f});
   enemy.transform.emplace(window_width_ / 2, window_height_ / 4);
   enemy.collider.emplace(
       Collider{.shape = ColliderShape::Rectangle, .rect{100.0, 100.0}});
@@ -147,10 +148,8 @@ void Game::run() {
     while (time_step_.consumeStep()) {
       //========================== Input & Logic ==============================
       input_system_.Update(game_state_);
-
-      gameplay_movement_.Update(game_state_, TimeStep::GetCurrentTime(), dt);
       //========================== Movement ===================================
-      movement_system_.Update(game_state_, dt);
+      movement_system_.Update(game_state_, TimeStep::GetCurrentTime());
       //========================== Collision ==================================
       collision_system_.Update(game_state_);
       //========================== Shooting ===================================
