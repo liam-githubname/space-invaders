@@ -31,10 +31,10 @@ void ShootingSystem::Update(GameState &game_state) {
     uint32_t hit_entity_id;
 
     // Raycast
-    Raycast::Ray ray{.origin_x = entity.transform->x,
-                     .origin_y = entity.transform->y,
-                     .direction_x = entity.transform->direction_x,
-                     .direction_y = entity.transform->direction_y};
+    Raycast::Ray ray{.origin = Vec2{entity.transform->position.x,
+                                    entity.transform->position.y},
+                     .direction = Vec2{entity.transform->direction.x,
+                                       entity.transform->direction.y}};
 
     for (auto &other_entity : game_state.entities) {
 
@@ -50,13 +50,13 @@ void ShootingSystem::Update(GameState &game_state) {
 
       if (other_entity.collider->shape == ColliderShape::Rectangle) {
         float min_x =
-            other_entity.transform->x - other_entity.collider->rect.width / 2;
+            other_entity.transform->position.x - other_entity.collider->rect.width / 2;
         float max_x =
-            other_entity.transform->x + other_entity.collider->rect.width / 2;
+            other_entity.transform->position.x + other_entity.collider->rect.width / 2;
         float min_y =
-            other_entity.transform->y - other_entity.collider->rect.height / 2;
+            other_entity.transform->position.y - other_entity.collider->rect.height / 2;
         float max_y =
-            other_entity.transform->y + other_entity.collider->rect.height / 2;
+            other_entity.transform->position.y + other_entity.collider->rect.height / 2;
 
         // NOTE: This is the first time I'm returning an optional like this.
         std::optional<float> distance =

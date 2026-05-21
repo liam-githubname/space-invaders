@@ -1,6 +1,8 @@
 #pragma once
 
+#include "Events.hpp"
 #include "GameState.hpp"
+#include <SDL3/SDL_log.h>
 
 struct Entity;
 class GameState;
@@ -11,31 +13,15 @@ class GameState;
 
 class EventSystem {
 public:
-  // TODO: Move the std::visitor for Events from main to here
-  // Explain this template here!
-  template <typename Visitor>
-  void ProcessEvents(GameState &game_state, Visitor &&visitor) {
-    for (auto &event : game_state.event_queue.GetEvents()) {
-      // WARN: This auto &&payload syntax can accept
-      // anything, this is probably why clangd can't help out here.
-      std::visit(
-          // Overload{
-          //     [&](const CollisionPayload payload) {
-          //       HandleCollisionPayload(payload, game_state);
-          //     },
-          //     [&](const DeathPayload payload) {
-          //       SDL_Log("Consumed DeathPayload");
-          //     },
-          //     [&](const ScorePayload payload) {
-          //       SDL_Log("Consumed ScorePayload");
-          //     },
-          //     [&](const HitPayload payload) { SDL_Log("HitPayload event"); },
-          //     //====================Add new payloads here===================
-          // },
-          std::forward<Visitor>(visitor), event);
-    }
-    game_state.event_queue.ClearEventQueue();
-  }
+  void ProcessEvents(GameState &game_state);
+  void HandleCollisionPayload(const CollisionPayload &payload,
+                              GameState &game_state);
+  void WallCollisionHandler(Entity &entity_a, Entity &entity_b,
+                            GameState &game_state);
+
+  void HandleDeathPayload() { SDL_Log("handleDeathPayload"); };
+  void HandleScorePayload() { SDL_Log("handlescorepayload"); };
+  void HandleHitPayload() { SDL_Log("handleHiyPayload"); };
 
   // Moving gameplay logic to separate gameplay directory
 private:

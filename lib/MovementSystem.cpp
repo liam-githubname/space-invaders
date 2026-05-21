@@ -14,7 +14,7 @@ class MovementSystem;
 void MovementSystem::Update(GameState &game_state, float current_frame_time) {
 
   auto has_been_half_second =
-      ((current_frame_time - last_time) > (1000000000ULL));
+      ((current_frame_time - last_time) > (500000000ULL));
 
   for (auto &entity : game_state.entities) {
     // Guard against dead entities.
@@ -31,22 +31,35 @@ void MovementSystem::Update(GameState &game_state, float current_frame_time) {
       continue;
     }
 
-    auto new_transform_x_value = 0.0;
-    auto new_transform_y_value = 0.0;
+    // auto new_transform_x_value = 0.0;
+    // auto new_transform_y_value = 0.0;
 
     // WARN: This won't work for anything but transform based movement.
     // Physics based movement isn't an easy swap.
-    new_transform_x_value +=
-        (entity.player_input && entity.velocity->speed)
-            ? (entity.player_input->move_x * entity.velocity->speed.value())
-            : entity.velocity->speed.value();
+    bool suppress = false;
 
+    // The system sees an intent component
     if (entity.movement_mod.has_value()) {
-      new_transform_x_value *= entity.movement_mod->speed_mod;
+
+      if (entity.movement_mod->transform_update.has_value()) {
+        entity.transform->position.x = entity.movement_mod->transform_update->x;
+        entity.transform->position.y = entity.movement_mod->transform_update->y;
+      }
+
+      entity.velocity->speed.value() *= entity.movement_mod->speed_mod;
+      entity.transform->position.x += entity.movement_mod->x_mod;
+      entity.transform->position.y += entity.movement_mod->y_mod;
+      suppress = entity.movement_mod->suppress_velocity;
     }
 
-    entity.transform->x += new_transform_x_value;
-    entity.transform->y += new_transform_y_value;
+    if (!suppress) {
+      entity.transform->position.x +=
+          (entity.player_input && entity.velocity->speed)
+              ? (entity.player_input->move.x * entity.velocity->speed.value())
+              : entity.velocity->speed.value();
+    }
+
+    entity.movement_mod = {};
 
     last_time = has_been_half_second ? current_frame_time : last_time;
   }

@@ -27,21 +27,20 @@ InputSystem::InputSystem(const bool *keyboard_state)
     : keyboard_state(keyboard_state) {}
 
 void InputSystem::Update(GameState &game_state) {
-  auto move_y = 0.0f;
-  auto move_x = 0.0f;
+  Vec2 move{0.0f, 0.0f};
   auto fire_input = false;
 
   if (keyboard_state[SDL_SCANCODE_W] || keyboard_state[SDL_SCANCODE_UP]) {
-    move_y += -1.0f;
+    move.y += -1.0f;
   }
   if (keyboard_state[SDL_SCANCODE_A] || keyboard_state[SDL_SCANCODE_LEFT]) {
-    move_x += -1.0f;
+    move.x += -1.0f;
   }
   if (keyboard_state[SDL_SCANCODE_S] || keyboard_state[SDL_SCANCODE_DOWN]) {
-    move_y += 1.0f;
+    move.y += 1.0f;
   }
   if (keyboard_state[SDL_SCANCODE_D] || keyboard_state[SDL_SCANCODE_RIGHT]) {
-    move_x += 1.0f;
+    move.x += 1.0f;
   }
   if (keyboard_state[SDL_SCANCODE_SPACE]) {
     fire_input = true;
@@ -61,13 +60,11 @@ void InputSystem::Update(GameState &game_state) {
   // 4. The body of the lambda is what is ran on all the Entity &entity it
   // finds.
 
-  player_entity->player_input->move_y = move_y;
-  player_entity->player_input->move_x = move_x;
+  player_entity->player_input->move = move;
   // WARN: For space invaders this is something that I don't want to change.
   // I know that that's not how I should do it if I want gameplay to be
   // completely decoupled. I should do something like have a response and update
-  // component maybe? entity->transform->direction_y = move_y;
-  // entity->transform->direction_x = move_x;
+  // component maybe? entity->transform->direction = move;
   player_entity->player_input->is_firing = fire_input;
   player_entity->gun->fire_flag = fire_input;
 }

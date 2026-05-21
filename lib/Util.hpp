@@ -11,6 +11,10 @@
 #pragma once
 #include <iostream>
 
+struct Vec2 {
+  float x, y;
+};
+
 // This is pulled directly from
 // https://en.cppreference.com/cpp/utility/variant/visit2 @ 2026-04-22 14:45
 // A *Variadic template*. The ... is called a parameter pack.

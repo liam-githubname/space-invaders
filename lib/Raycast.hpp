@@ -10,6 +10,7 @@
 // ============================================================================
 #pragma once
 
+#include "Util.hpp"
 #include <SDL3/SDL_log.h>
 #include <algorithm>
 #include <cmath>
@@ -17,8 +18,8 @@
 
 namespace Raycast {
 struct Ray {
-  float origin_x, origin_y;
-  float direction_x, direction_y;
+  Vec2 origin;
+  Vec2 direction;
 };
 
 // 4. I want to update the names to reflect their return value.
@@ -35,26 +36,26 @@ inline std::optional<float> RayAgainstAABB(Ray ray, float entity_min_x,
   //    to sort the items.
   // 2. Cast the Ray and find where ray crosses into the slab.
   // 3. Calculate the slabs.
-  if (ray.direction_x == 0 && ray.direction_y == 0)
+  if (ray.direction.x == 0 && ray.direction.y == 0)
     return std::nullopt;
 
   // Use the Euclidean norm to transform the direction into a standard
   // comparable format. This lets me check the actual distance in game.
-  auto magnitude = std::hypot(ray.direction_x, ray.direction_y);
-  ray.direction_x = ray.direction_x / magnitude;
-  ray.direction_y = ray.direction_y / magnitude;
+  auto magnitude = std::hypot(ray.direction.x, ray.direction.y);
+  ray.direction.x = ray.direction.x / magnitude;
+  ray.direction.y = ray.direction.y / magnitude;
 
   // Calculate the inverse so we don't have to divide by 0.0.
-  auto inverse_direction_x = 1.0f / ray.direction_x;
-  auto inverse_direction_y = 1.0f / ray.direction_y;
+  auto inverse_direction_x = 1.0f / ray.direction.x;
+  auto inverse_direction_y = 1.0f / ray.direction.y;
 
-  auto time_x_1 = (entity_min_x - ray.origin_x) * inverse_direction_x;
-  auto time_x_2 = (entity_max_x - ray.origin_x) * inverse_direction_x;
+  auto time_x_1 = (entity_min_x - ray.origin.x) * inverse_direction_x;
+  auto time_x_2 = (entity_max_x - ray.origin.x) * inverse_direction_x;
   auto time_x_floor = std::min(time_x_1, time_x_2);
   auto time_x_ceiling = std::max(time_x_1, time_x_2);
 
-  auto time_y_1 = (entity_min_y - ray.origin_y) * inverse_direction_y;
-  auto time_y_2 = (entity_max_y - ray.origin_y) * inverse_direction_y;
+  auto time_y_1 = (entity_min_y - ray.origin.y) * inverse_direction_y;
+  auto time_y_2 = (entity_max_y - ray.origin.y) * inverse_direction_y;
   auto time_y_floor = std::min(time_y_1, time_y_2);
   auto time_y_ceiling = std::max(time_y_1, time_y_2);
 
@@ -76,17 +77,17 @@ inline std::optional<float> RayAgainstAABB(Ray ray, float entity_min_x,
 inline std::optional<float> RayAgainstCircle(Ray ray, float center_x,
                                              float center_y, float radius) {
 
-  float magnitude = std::hypot(ray.direction_x, ray.direction_y);
-  ray.direction_x = ray.direction_x / magnitude;
-  ray.direction_y = ray.direction_y / magnitude;
+  float magnitude = std::hypot(ray.direction.x, ray.direction.y);
+  ray.direction.x = ray.direction.x / magnitude;
+  ray.direction.y = ray.direction.y / magnitude;
 
   float a =
-      ray.direction_x * ray.direction_x + ray.direction_y * ray.direction_y;
+      ray.direction.x * ray.direction.x + ray.direction.y * ray.direction.y;
 
-  float b = 2 * (ray.direction_x * (ray.origin_x - center_x) +
-                 ray.direction_y * (ray.origin_y - center_y));
-  float c = (ray.origin_x - center_x) * (ray.origin_x - center_x) +
-            (ray.origin_y - center_y) * (ray.origin_y - center_y) -
+  float b = 2 * (ray.direction.x * (ray.origin.x - center_x) +
+                 ray.direction.y * (ray.origin.y - center_y));
+  float c = (ray.origin.x - center_x) * (ray.origin.x - center_x) +
+            (ray.origin.y - center_y) * (ray.origin.y - center_y) -
             radius * radius;
 
   float d = (b * b) - (4 * a * c);

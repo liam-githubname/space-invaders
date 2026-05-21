@@ -18,6 +18,7 @@
 #pragma once
 
 #include "Bitmask.hpp"
+#include "Util.hpp"
 #include <EventQueue.hpp>
 #include <cstdint>
 #include <optional>
@@ -49,23 +50,20 @@ struct Collider {
 };
 
 struct PlayerInput {
-  float move_x, move_y; // If we "normalize" this to -1.0:1.0 we can do fun
-                        // stuff with speed later I bet.
+  Vec2 move; // If we "normalize" this to -1.0:1.0 we can do fun
+             // stuff with speed later I bet.
   bool is_firing;
 };
 
 // These are the C (Component) in an ECS
 struct Velocity {
   std::optional<float> speed;
-  float x_offset;
-  float y_offset;
+  Vec2 offset;
 };
 
 struct Transform {
-  float x;
-  float y;
-  float direction_x;
-  float direction_y;
+  Vec2 position;
+  Vec2 direction;
 };
 
 struct Sprite {
@@ -102,7 +100,11 @@ struct AlienFormation {
 };
 
 struct AlterMovement {
-  float x_mod, y_mod, speed_mod;
+  float x_mod = 0.0;
+  float y_mod = 0.0;
+  float speed_mod = 1.0;
+  bool suppress_velocity = false;
+  std::optional<Vec2> transform_update;
 };
 
 // This is the E (Entity) in the ECS

@@ -1,15 +1,12 @@
 #include "Game.hpp"
 #include "CollisionSystem.hpp"
 #include "EventSystem.hpp"
-#include "Events.hpp"
 #include "GameState.hpp"
 #include "GraphicsModule.hpp"
 #include "InputSystem.hpp"
 #include "MovementSystem.hpp"
 #include "Timestep.hpp"
-#include "Util.hpp"
 #include <expected>
-#include <limits>
 
 Game::Game(GraphicsModule &&graphics)
     : graphics_(std::move(graphics)), input_system_(InputSystem::create()),
@@ -50,22 +47,22 @@ void Game::initializeGame() {
                                  .mask = GameLayer::Wall | GameLayer::Enemy});
   player.is_active = true;
   player.velocity.emplace(
-      Velocity{.speed = 10.0f, .x_offset = 0.0f, .y_offset = 0.0f});
-  player.transform.emplace(Transform{.x = window_width_ / 2,
-                                     .y = 7 * (window_height_ / 8),
-                                     .direction_x = 0.0f,
-                                     .direction_y = -1.0f});
+      Velocity{.speed = 10.0f, .offset = Vec2{0.0f, 0.0f}});
+  player.transform.emplace(
+      Transform{Vec2{window_width_ / 2.0f, 7.0f * (window_height_ / 8.0f)},
+                Vec2{0.0f, -1.0f}});
   player.collider.emplace(
       Collider{.shape = ColliderShape::Rectangle, .rect{100.0, 100.0}});
   player.player_input.emplace(
-      PlayerInput{.move_x = 0.0, .move_y = 0.0, .is_firing = false});
+      PlayerInput{.move = Vec2{0.0f, 0.0f}, .is_firing = false});
   player.gun.emplace(Gun{.distance = 900.0, .fire_flag = false});
 
   auto &top_wall = game_state_.CreateEntity();
   top_wall.bitmask.emplace(
       Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player});
   top_wall.wall_info.emplace(WallSide::Top);
-  top_wall.transform.emplace(window_width_ / 2, 0);
+  top_wall.transform.emplace(
+      Transform{Vec2{window_width_ / 2.0f, 0.0f}, Vec2{0.0f, 0.0f}});
   top_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
                                      .offset_y = 5.0f,
                                      .rect{(float)window_width_, 10.0f}});
@@ -75,7 +72,9 @@ void Game::initializeGame() {
       Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player});
   bottom_wall.wall_info.emplace(WallSide::Bottom);
   bottom_wall.is_active = true;
-  bottom_wall.transform.emplace(window_width_ / 2, (float)window_height_);
+  bottom_wall.transform.emplace(
+      Transform{Vec2{window_width_ / 2.0f, (float)window_height_},
+                Vec2{0.0f, 0.0f}});
   bottom_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
                                         .offset_y = 5.0,
                                         .rect{(float)window_width_, 10.0f}});
@@ -85,7 +84,8 @@ void Game::initializeGame() {
       Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player});
   left_wall.wall_info.emplace(WallSide::Left);
   left_wall.is_active = true;
-  left_wall.transform.emplace(0, window_height_ / 2);
+  left_wall.transform.emplace(
+      Transform{Vec2{0.0f, window_height_ / 2.0f}, Vec2{0.0f, 0.0f}});
   left_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
                                       .offset_x = 5.0f,
                                       .rect{10.0f, (float)window_height_}});
@@ -95,7 +95,9 @@ void Game::initializeGame() {
       Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player});
   right_wall.wall_info.emplace(WallSide::Right);
   right_wall.is_active = true;
-  right_wall.transform.emplace((float)window_width_, window_height_ / 2);
+  right_wall.transform.emplace(
+      Transform{Vec2{(float)window_width_, window_height_ / 2.0f},
+                Vec2{0.0f, 0.0f}});
   right_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
                                        .offset_x = -5.0f,
                                        .rect{10.0f, (float)window_height_}});
@@ -105,28 +107,56 @@ void Game::initializeGame() {
                                 .mask = GameLayer::Player | GameLayer::Wall});
   enemy.alien_info.emplace(Alien{.type = AlienSpecies::Squid});
   enemy.velocity.emplace(
-      Velocity{.speed = 50.0, .x_offset = 0.0f, .y_offset = 0.0f});
-  enemy.transform.emplace(window_width_ / 2, window_height_ / 4);
+      Velocity{.speed = 50.0, .offset = Vec2{0.0f, 0.0f}});
+  enemy.transform.emplace(
+      Transform{Vec2{window_width_ / 2.0f, window_height_ / 4.0f},
+                Vec2{0.0f, 0.0f}});
   enemy.collider.emplace(
       Collider{.shape = ColliderShape::Rectangle, .rect{100.0, 100.0}});
   enemy.is_active = true;
+
+  auto &enemy2 = game_state_.CreateEntity();
+  enemy2.bitmask.emplace(Bitmask{.layer = GameLayer::Enemy,
+                                 .mask = GameLayer::Player | GameLayer::Wall});
+  enemy2.alien_info.emplace(Alien{.type = AlienSpecies::Squid});
+  enemy2.velocity.emplace(
+      Velocity{.speed = 50.0, .offset = Vec2{0.0f, 0.0f}});
+  enemy2.transform.emplace(
+      Transform{Vec2{window_width_ / 4.0f, window_height_ / 4.0f},
+                Vec2{0.0f, 0.0f}});
+  enemy2.collider.emplace(
+      Collider{.shape = ColliderShape::Rectangle, .rect{100.0, 100.0}});
+  enemy2.is_active = true;
+  auto &enemy3 = game_state_.CreateEntity();
+  enemy3.bitmask.emplace(Bitmask{.layer = GameLayer::Enemy,
+                                 .mask = GameLayer::Player | GameLayer::Wall});
+  enemy3.alien_info.emplace(Alien{.type = AlienSpecies::Squid});
+  enemy3.velocity.emplace(
+      Velocity{.speed = 50.0, .offset = Vec2{0.0f, 0.0f}});
+  enemy3.transform.emplace(
+      Transform{Vec2{window_width_ / 4.0f, window_height_ / 2.0f},
+                Vec2{0.0f, 0.0f}});
+  enemy3.collider.emplace(
+      Collider{.shape = ColliderShape::Rectangle, .rect{100.0, 100.0}});
+  enemy3.is_active = true;
 }
 
-void Game::PassVisitorHandlersToEventSystem() {
-  event_system_.ProcessEvents(
-      game_state_,
-      Overload{
-          [&](const CollisionPayload &payload) {
-            game_rules_.HandleCollisionPayload(payload, game_state_);
-          },
-          [&](const DeathPayload &payload) {
-            game_rules_.HandleDeathPayload();
-          },
-          [&](const ScorePayload &payload) {
-            game_rules_.HandleScorePayload();
-          },
-          [&](const HitPayload &payload) { game_rules_.HandleHitPayload(); }});
-}
+// void Game::PassVisitorHandlersToEventSystem() {
+//   event_system_.ProcessEvents(
+//       game_state_,
+//       Overload{
+//           [&](const CollisionPayload &payload) {
+//             game_rules_.HandleCollisionPayload(payload, game_state_);
+//           },
+//           [&](const DeathPayload &payload) {
+//             game_rules_.HandleDeathPayload();
+//           },
+//           [&](const ScorePayload &payload) {
+//             game_rules_.HandleScorePayload();
+//           },
+//           [&](const HitPayload &payload) { game_rules_.HandleHitPayload();
+//           }});
+// }
 
 void Game::run() {
 
@@ -153,9 +183,9 @@ void Game::run() {
       collision_system_.Update(game_state_);
       //========================== Shooting ===================================
       shooting_system_.Update(game_state_);
+      //========================== Consume Events =============================
+      event_system_.ProcessEvents(game_state_);
     }
-    //========================== Consume Events ===============================
-    PassVisitorHandlersToEventSystem();
     //============================ Render =====================================
     render_system_.Update(game_state_, graphics_.getRenderer());
   }
