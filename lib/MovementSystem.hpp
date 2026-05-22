@@ -12,6 +12,6 @@ public:
   void Update(GameState &game_state, float current_frame_time);
 
 private:
-  float acceleration = 10.0f;
   float last_time = 0.0f;
+  int alien_step = 11;
 };

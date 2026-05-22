@@ -2,7 +2,6 @@
 # This target holds gameplay logic that is NOT reusable across projects - 2026-05-17
 add_library(space-invaders-game
   Game.cpp
-  GameRules.cpp
   EntityFactory.cpp
 )
 

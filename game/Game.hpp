@@ -3,8 +3,8 @@
 // these are
 
 #include "CollisionSystem.hpp"
+#include "EntityFactory.hpp"
 #include "EventSystem.hpp"
-#include "GameRules.hpp"
 #include "GameState.hpp"
 #include "GraphicsModule.hpp"
 #include "InputSystem.hpp"
@@ -50,7 +50,6 @@ private:
   EventSystem event_system_;
   RenderSystem render_system_;
   ShootingSystem shooting_system_;
-  GameRules game_rules_;
   void initializeLibrarySystems(std::string_view title);
 
   // Miscellaneous
@@ -62,6 +61,7 @@ private:
   // space_invaders specific
   // This is a virtual wrapper around EventSystem::ProcessEvents
   // Which takes a Visitor&& visitor parameter
-  void PassVisitorHandlersToEventSystem();
+  // void PassVisitorHandlersToEventSystem();
+
   void initializeGame();
 };

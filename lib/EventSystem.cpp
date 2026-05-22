@@ -70,8 +70,8 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b,
   float wall_x, wall_y;
   WallSide which_wallside;
 
-   wall_x = wall.transform->position.x + wall.collider->offset_x;
-   wall_y = wall.transform->position.y + wall.collider->offset_y;
+  wall_x = wall.transform->position.x + wall.collider->offset_x;
+  wall_y = wall.transform->position.y + wall.collider->offset_y;
   which_wallside = wall.wall_info->side;
   Vec2 transform_update;
 
@@ -113,17 +113,16 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b,
   // Create a Predicate (lambda expression)
   auto is_formation_alien = [](Entity &entity) {
     if (!entity.alien_info.has_value()) {
-      SDL_Log("is_alien lambda, ran on non-alien entity with ID %d", entity.id);
       return false;
     }
     switch (entity.alien_info->type) {
-    case AlienSpecies::Squid:
+    case AlienType::Squid:
       return true;
       break;
-    case AlienSpecies::Crab:
+    case AlienType::Crab:
       return true;
       break;
-    case AlienSpecies::Octopus:
+    case AlienType::Octopus:
       return true;
       break;
     default:
@@ -133,12 +132,16 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b,
 
   if (is_formation_alien(entity)) {
 
+    if (wall.wall_info->side == WallSide::Top ||
+        wall.wall_info->side == WallSide::Bottom) {
+      entity.is_active = false;
+    }
+
     float new_direction_sign = -1.0;
 
-    SDL_Log("%f for entity %d", new_direction_sign, entity.id);
-
+    // FIX: This is obviously bad, will fix before I finish
     auto new_movement_intent = AlterMovement{
-        .y_mod = 100.0,
+        .y_mod = 2 * 1920.0 / 44.0,
         .speed_mod = new_direction_sign,
     };
 

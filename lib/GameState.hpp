@@ -91,9 +91,10 @@ struct Gun {
   float cooldown_time;
 };
 
-enum class AlienSpecies { Squid, Ship, Crab, Octopus };
+enum class AlienType { Squid, Ship, Crab, Octopus };
+
 struct Alien {
-  AlienSpecies type;
+  AlienType type;
 };
 struct AlienFormation {
   std::vector<Alien> aliens;

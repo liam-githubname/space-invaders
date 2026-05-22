@@ -24,7 +24,7 @@ GraphicsModule::create(std::string_view title, int width, int height) {
 
   // Turns on VSYNC 1: Enabled (Synchronizes to your monitor's refresh rate)
   SDL_SetRenderVSync(raw_renderer, 1);
-  SDL_SetRenderLogicalPresentation(raw_renderer, 1920, 1080,
+  SDL_SetRenderLogicalPresentation(raw_renderer, width, height,
                                    SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
   return GraphicsModule(raw_window, raw_renderer);

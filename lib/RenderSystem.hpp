@@ -12,7 +12,7 @@ public:
 
 private:
   void drawCircle(SDL_Renderer renderer, Entity entity);
-  void drawPlayer(SDL_Renderer *renderer, Entity player_entity);
+  void drawRectangle(SDL_Renderer *renderer, Entity player_entity);
   void drawTriangle(SDL_Renderer renderer, Entity entity);
   void drawAsteroid(SDL_Renderer renderer, Entity entity);
   void drawScore(SDL_Renderer renderer, Entity entity);

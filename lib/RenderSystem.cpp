@@ -21,12 +21,12 @@ void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
   for (auto entity : game_state.entities) {
 
     if (entity.bitmask->layer == GameLayer::Player) {
-      drawPlayer(renderer, entity);
+      drawRectangle(renderer, entity);
       drawFire(renderer, entity);
     }
 
-    if (entity.bitmask->layer == GameLayer::Enemy) {
-      drawPlayer(renderer, entity);
+    if (entity.bitmask->layer == GameLayer::Enemy && entity.is_active) {
+      drawRectangle(renderer, entity);
     }
 
     if (entity.bitmask->layer == GameLayer::Wall) {
@@ -41,14 +41,14 @@ void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
   SDL_RenderPresent(renderer);
 }
 
-void RenderSystem::drawPlayer(SDL_Renderer *renderer, Entity player_entity) {
+void RenderSystem::drawRectangle(SDL_Renderer *renderer, Entity entity) {
   // This was the first time I used this syntax instinctually
   SDL_FRect player_rect{
-      player_entity.transform->position.x - player_entity.collider->rect.width / 2,
-      player_entity.transform->position.y - player_entity.collider->rect.height / 2,
-      100.0, 100.0};
-  SDL_FRect player_center{player_entity.transform->position.x,
-                          player_entity.transform->position.y, 10.0, 10.0};
+      entity.transform->position.x - entity.collider->rect.width / 2,
+      entity.transform->position.y - entity.collider->rect.height / 2,
+      entity.collider->rect.width, entity.collider->rect.height};
+  SDL_FRect player_center{entity.transform->position.x,
+                          entity.transform->position.y, 5.0, 5.0};
   SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
   SDL_RenderRect(renderer, &player_rect);
   SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
@@ -56,12 +56,13 @@ void RenderSystem::drawPlayer(SDL_Renderer *renderer, Entity player_entity) {
 }
 
 void RenderSystem::drawWall(SDL_Renderer *renderer, Entity wall) {
-  SDL_FRect wall_rect{wall.transform->position.x - wall.collider->rect.width / 2,
-                      wall.transform->position.y - wall.collider->rect.height / 2,
-                      wall.collider->rect.width, wall.collider->rect.height};
-  SDL_FRect wall_center{wall.transform->position.x - wall.collider->rect.width / 2,
-                        wall.transform->position.y - wall.collider->rect.height / 2, 2.0,
-                        2.0};
+  SDL_FRect wall_rect{
+      wall.transform->position.x - wall.collider->rect.width / 2,
+      wall.transform->position.y - wall.collider->rect.height / 2,
+      wall.collider->rect.width, wall.collider->rect.height};
+  SDL_FRect wall_center{
+      wall.transform->position.x - wall.collider->rect.width / 2,
+      wall.transform->position.y - wall.collider->rect.height / 2, 2.0, 2.0};
   SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
   SDL_RenderFillRect(renderer, &wall_rect);
   SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
@@ -79,6 +80,6 @@ void RenderSystem::drawFire(SDL_Renderer *renderer, Entity entity) {
                    entity.transform->direction.y * entity.gun->distance;
 
   SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-  SDL_RenderLine(renderer, entity.transform->position.x, entity.transform->position.y, endpointx,
-                 endpointy);
+  SDL_RenderLine(renderer, entity.transform->position.x,
+                 entity.transform->position.y, endpointx, endpointy);
 }
