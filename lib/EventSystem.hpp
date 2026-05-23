@@ -22,7 +22,4 @@ public:
   void HandleDeathPayload() { SDL_Log("handleDeathPayload"); };
   void HandleScorePayload() { SDL_Log("handlescorepayload"); };
   void HandleHitPayload() { SDL_Log("handleHiyPayload"); };
-
-  // Moving gameplay logic to separate gameplay directory
-private:
 };

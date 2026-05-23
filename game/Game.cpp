@@ -10,9 +10,10 @@
 #include "Util.hpp"
 #include <expected>
 
-Game::Game(GraphicsModule &&graphics)
+Game::Game(GraphicsModule &&graphics, float window_width, float window_height)
     : graphics_(std::move(graphics)), input_system_(InputSystem::create()),
-      game_state_(GameState()), is_running(true) {
+      game_state_(GameState()), is_running(true), window_width_(window_width),
+      window_height_(window_height) {
   /*
    * Members with default constructors will auto-initialize.
    */
@@ -34,56 +35,28 @@ std::expected<Game, std::string> Game::create(std::string_view title, int width,
   // This unwraps the Graphics Module
   // The program needs to take ownership of the module
   // We have to use std::move because we removed the copy constructor.
-  Game game(std::move(sdl_graphics_result.value()));
+  Game game(std::move(sdl_graphics_result.value()), (float)width,
+            (float)height);
 
   return game;
   ;
 }
 
+struct config {
+  float game_margins = 140.0f;
+};
+
 void Game::initializeGame() {
 
   auto factory = EntityFactory(game_state_, window_width_, window_height_);
 
-  auto width_unit = window_width_ / 44;
-  auto height_unit = window_height_ / 44;
-
   // ==================== Initialization of entities
   // ==========================
-  factory.createPlayer();
   factory.createGameWalls();
+  factory.createPlayer();
+  // factory.createAlien(AlienType::Squid, Vec2{.x = window_width_ / 2.0f,
+  // .y = window_height_ / 4.0f});
   factory.createAlienFormation();
-  // factory.createAlien(AlienType::Squid, Vec2{
-  //                                           .x = 3 * width_unit,
-  //                                           .y = 3 * height_unit,
-  //                                       });
-  // factory.createAlien(AlienType::Squid, Vec2{
-  //                                           .x = 3 * width_unit,
-  //                                           .y = 6 * height_unit,
-  //                                       });
-  // factory.createAlien(AlienType::Squid, Vec2{
-  //                                           .x = 3 * width_unit,
-  //                                           .y = 9 * height_unit,
-  //                                       });
-  // factory.createAlien(AlienType::Squid, Vec2{
-  //                                           .x = 3 * width_unit,
-  //                                           .y = 12 * height_unit,
-  //                                       });
-  // factory.createAlien(AlienType::Squid, Vec2{
-  //                                           .x = 6 * width_unit,
-  //                                           .y = 15 * height_unit,
-  //                                       });
-  // factory.createAlien(AlienType::Squid, Vec2{
-  //                                           .x = 6 * width_unit,
-  //                                           .y = 18 * height_unit,
-  //                                       });
-  // factory.createAlien(AlienType::Squid, Vec2{
-  //                                           .x = 6 * width_unit,
-  //                                           .y = 21 * height_unit,
-  //                                       });
-  // factory.createAlien(AlienType::Squid, Vec2{
-  //                                           .x = 6 * width_unit,
-  //                                           .y = 24 * height_unit,
-  //                                       });
 }
 
 void Game::run() {
@@ -116,12 +89,10 @@ void Game::run() {
       //========================== Shooting
       //===================================
       shooting_system_.Update(game_state_);
-      //========================== Consume Events
-      //=============================
-      event_system_.ProcessEvents(game_state_);
     }
-    //============================ Render
-    //=====================================
+    //========================== Consume Events =============================
+    event_system_.ProcessEvents(game_state_);
+    //============================ Render =====================================
     render_system_.Update(game_state_, graphics_.getRenderer());
   }
   return;

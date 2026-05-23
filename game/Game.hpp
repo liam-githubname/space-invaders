@@ -37,7 +37,7 @@ private:
   // GraphicsModules's constructor was deleted. (it was deleted because it's
   // copy semantics we're deleted which implicitly delets the default
   // constructor of a class)
-  Game(GraphicsModule &&graphics);
+  Game(GraphicsModule &&graphics, float window_width, float window_height);
 
   // Engine systems
   TimeStep time_step_;
@@ -55,13 +55,8 @@ private:
   // Miscellaneous
   bool is_running;
   float dt = 1.0f / 60.0f;
-  float window_width_ = 1920;
-  float window_height_ = 1080;
-
-  // space_invaders specific
-  // This is a virtual wrapper around EventSystem::ProcessEvents
-  // Which takes a Visitor&& visitor parameter
-  // void PassVisitorHandlersToEventSystem();
+  float window_width_;
+  float window_height_;
 
   void initializeGame();
 };

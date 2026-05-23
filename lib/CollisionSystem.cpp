@@ -96,14 +96,22 @@ void CollisionSystem::Update(GameState &game_state) {
 bool CollisionSystem::IsRectToRectColliding(const Entity &entity_a,
                                             const Entity &entity_b) {
 
-  auto a_left = entity_a.transform->position.x - entity_a.collider->rect.width / 2;
-  auto a_right = entity_a.transform->position.x + entity_a.collider->rect.width / 2;
-  auto a_top = entity_a.transform->position.y - entity_a.collider->rect.height / 2;
-  auto a_bottom = entity_a.transform->position.y + entity_a.collider->rect.height / 2;
-  auto b_left = entity_b.transform->position.x - entity_b.collider->rect.width / 2;
-  auto b_right = entity_b.transform->position.x + entity_b.collider->rect.width / 2;
-  auto b_top = entity_b.transform->position.y - entity_b.collider->rect.height / 2;
-  auto b_bottom = entity_b.transform->position.y + entity_b.collider->rect.height / 2;
+  auto a_left =
+      entity_a.transform->position.x - entity_a.collider->rect.width / 2;
+  auto a_right =
+      entity_a.transform->position.x + entity_a.collider->rect.width / 2;
+  auto a_top =
+      entity_a.transform->position.y - entity_a.collider->rect.height / 2;
+  auto a_bottom =
+      entity_a.transform->position.y + entity_a.collider->rect.height / 2;
+  auto b_left =
+      entity_b.transform->position.x - entity_b.collider->rect.width / 2;
+  auto b_right =
+      entity_b.transform->position.x + entity_b.collider->rect.width / 2;
+  auto b_top =
+      entity_b.transform->position.y - entity_b.collider->rect.height / 2;
+  auto b_bottom =
+      entity_b.transform->position.y + entity_b.collider->rect.height / 2;
 
   if (a_right <= b_left || a_bottom <= b_top || a_left >= b_right ||
       a_top >= b_bottom) {
@@ -114,9 +122,10 @@ bool CollisionSystem::IsRectToRectColliding(const Entity &entity_a,
 
 bool CollisionSystem::IsCircleToCircleColliding(const Entity &entity_a,
                                                 const Entity &entity_b) {
-  float center_to_center_dist =
-      std::hypot(std::abs(entity_a.transform->position.x - entity_b.transform->position.x),
-                 std::abs(entity_a.transform->position.y - entity_b.transform->position.y));
+  float center_to_center_dist = std::hypot(
+      std::abs(entity_a.transform->position.x - entity_b.transform->position.x),
+      std::abs(entity_a.transform->position.y -
+               entity_b.transform->position.y));
 
   float maximum_distance_apart =
       entity_a.collider->circle.radius + entity_b.collider->circle.radius;
@@ -127,20 +136,23 @@ bool CollisionSystem::IsCircleToCircleColliding(const Entity &entity_a,
 bool CollisionSystem::IsRectToCircleColliding(const Entity &rectangle_entity,
                                               const Entity &circle_entity) {
 
-  float closest_point_of_rectangle_x = std::clamp(
-      circle_entity.transform->position.x,
-      rectangle_entity.transform->position.x - rectangle_entity.collider->rect.width / 2,
-      rectangle_entity.transform->position.x +
-          rectangle_entity.collider->rect.width / 2);
-  float closest_point_of_rectangle_y = std::clamp(
-      circle_entity.transform->position.y,
-      rectangle_entity.transform->position.y - rectangle_entity.collider->rect.height / 2,
-      rectangle_entity.transform->position.y +
-          rectangle_entity.collider->rect.height / 2);
+  float closest_point_of_rectangle_x =
+      std::clamp(circle_entity.transform->position.x,
+                 rectangle_entity.transform->position.x -
+                     rectangle_entity.collider->rect.width / 2,
+                 rectangle_entity.transform->position.x +
+                     rectangle_entity.collider->rect.width / 2);
+  float closest_point_of_rectangle_y =
+      std::clamp(circle_entity.transform->position.y,
+                 rectangle_entity.transform->position.y -
+                     rectangle_entity.collider->rect.height / 2,
+                 rectangle_entity.transform->position.y +
+                     rectangle_entity.collider->rect.height / 2);
 
-  float distance = std::hypot(
-      std::abs(closest_point_of_rectangle_x - circle_entity.transform->position.x),
-      std::abs(closest_point_of_rectangle_y - circle_entity.transform->position.y));
+  float distance = std::hypot(std::abs(closest_point_of_rectangle_x -
+                                       circle_entity.transform->position.x),
+                              std::abs(closest_point_of_rectangle_y -
+                                       circle_entity.transform->position.y));
 
   if (distance <= circle_entity.collider->circle.radius) {
     return true;

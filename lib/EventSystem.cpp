@@ -52,6 +52,7 @@ void EventSystem::HandleCollisionPayload(const CollisionPayload &payload,
   // ==========================================================================
 }
 
+// NOTE: I know it's not pretty but I'm running out of time.
 void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b,
                                        GameState &game_state) {
   // Check to see if it's a wall and something with velocity.
@@ -70,12 +71,14 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b,
   float wall_x, wall_y;
   WallSide which_wallside;
 
-  wall_x = wall.transform->position.x + wall.collider->offset_x;
-  wall_y = wall.transform->position.y + wall.collider->offset_y;
+  // I wasnt' addign the walls width? I think that's causing it to get stuck?
+  wall_x = wall.transform->position.x;
+  wall_y = wall.transform->position.y;
   which_wallside = wall.wall_info->side;
   Vec2 transform_update;
 
   auto wall_transform_update = [&](WallSide wallside) {
+    // I wasnt' addign the walls width? I think that's causing it to get stuck?
     switch (wallside) {
     case WallSide::Top:
       return Vec2{
@@ -91,13 +94,15 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b,
       break;
     case WallSide::Left:
       return Vec2{
-          .x = wall_x + entity.collider->rect.width / 2,
+          .x = wall_x + entity.collider->rect.width / 2 +
+               wall.collider->rect.width / 2,
           .y = entity.transform->position.y,
       };
       break;
     case WallSide::Right:
       return Vec2{
-          .x = wall_x - entity.collider->rect.width / 2,
+          .x = wall_x - entity.collider->rect.width / 2 -
+               wall.collider->rect.width / 2,
           .y = entity.transform->position.y,
       };
       break;
@@ -134,35 +139,30 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b,
 
     if (wall.wall_info->side == WallSide::Top ||
         wall.wall_info->side == WallSide::Bottom) {
-      entity.is_active = false;
+      game_state.DestroyEntity(entity.id);
     }
 
-    float new_direction_sign = -1.0;
+    auto new_direction_sign =
+        (wall.wall_info->side == WallSide::Right) ? -2.0f : 2.0f;
 
     // FIX: This is obviously bad, will fix before I finish
     auto new_movement_intent = AlterMovement{
-        .y_mod = 2 * 1920.0 / 44.0,
+        .y_mod = 2.0f,
         .speed_mod = new_direction_sign,
     };
 
-    entity.movement_mod.emplace(new_movement_intent);
-    entity.movement_mod->transform_update.emplace(
-        wall_transform_update(which_wallside));
     // Then you create a std::view by using your predicate as the filter
     for (auto &enemy :
          game_state.entities | std::views::filter(is_formation_alien)) {
-      // Then you apply whatever you want to the members of the view.
-      if (entity.id == enemy.id)
-        continue;
 
-      // This is something you'd call an intentComponent
+      // Then you apply whatever you want to the members of the view.
       enemy.movement_mod.emplace(new_movement_intent);
     }
+
   } else {
 
     auto player_movement_intent = AlterMovement{
         .suppress_velocity = true,
-        // .transform_update = wall_transform_update(which_wallside),
     };
 
     entity.movement_mod.emplace(player_movement_intent);

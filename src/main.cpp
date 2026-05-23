@@ -30,7 +30,7 @@
 //-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[]) {
-  auto game = Game::create("Space Invaders", 1920, 1080);
+  auto game = Game::create("Space Invaders", 224, 256);
   game->run();
   return 0;
 }

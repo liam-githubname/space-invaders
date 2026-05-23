@@ -35,7 +35,6 @@ enum class ColliderShape { Rectangle, Circle };
 // attach this component to the entity
 struct Collider {
   ColliderShape shape;
-  float offset_x, offset_y;
   // This is called an ANONYMOUS Union, only one of the structs can be valid at
   // the same time
   union {
@@ -100,6 +99,7 @@ struct AlienFormation {
   std::vector<Alien> aliens;
 };
 
+// FIX: Fix up this component
 struct AlterMovement {
   float x_mod = 0.0;
   float y_mod = 0.0;

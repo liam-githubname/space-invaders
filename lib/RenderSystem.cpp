@@ -47,12 +47,12 @@ void RenderSystem::drawRectangle(SDL_Renderer *renderer, Entity entity) {
       entity.transform->position.x - entity.collider->rect.width / 2,
       entity.transform->position.y - entity.collider->rect.height / 2,
       entity.collider->rect.width, entity.collider->rect.height};
-  SDL_FRect player_center{entity.transform->position.x,
-                          entity.transform->position.y, 5.0, 5.0};
+  // SDL_FRect player_center{entity.transform->position.x,
+  //                         entity.transform->position.y, 5.0, 5.0};
   SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
   SDL_RenderRect(renderer, &player_rect);
-  SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-  SDL_RenderFillRect(renderer, &player_center);
+  // SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+  // SDL_RenderFillRect(renderer, &player_center);
 }
 
 void RenderSystem::drawWall(SDL_Renderer *renderer, Entity wall) {
@@ -60,13 +60,13 @@ void RenderSystem::drawWall(SDL_Renderer *renderer, Entity wall) {
       wall.transform->position.x - wall.collider->rect.width / 2,
       wall.transform->position.y - wall.collider->rect.height / 2,
       wall.collider->rect.width, wall.collider->rect.height};
-  SDL_FRect wall_center{
-      wall.transform->position.x - wall.collider->rect.width / 2,
-      wall.transform->position.y - wall.collider->rect.height / 2, 2.0, 2.0};
+  // SDL_FRect wall_center{
+  //     wall.transform->position.x - wall.collider->rect.width / 2,
+  //     wall.transform->position.y - wall.collider->rect.height / 2, 2.0, 2.0};
   SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
   SDL_RenderFillRect(renderer, &wall_rect);
-  SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
-  SDL_RenderFillRect(renderer, &wall_center);
+  // SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+  // SDL_RenderFillRect(renderer, &wall_center);
 }
 
 void RenderSystem::drawFire(SDL_Renderer *renderer, Entity entity) {
