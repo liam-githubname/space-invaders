@@ -11,6 +11,7 @@
 // FIX:========================================================================
 // ============================================================================
 #include "ShootingSystem.hpp"
+#include "Bitmask.hpp"
 #include "Events.hpp"
 #include "GameState.hpp"
 #include "Raycast.hpp"
@@ -26,6 +27,20 @@ void ShootingSystem::Update(GameState &game_state) {
     // Check if the entity has a gun and if it's firing
     if (!entity.gun || !entity.gun->fire_flag)
       continue;
+
+    // Bullet emission logic
+    auto player_bullet = game_state.CreateEntity();
+
+    player_bullet.collider.emplace(Collider{.rect{2.0f, 3.0f}});
+    player_bullet.velocity.emplace(Velocity{.speed = 3.0f});
+    player_bullet.bitmask.emplace(Bitmask{
+        .layer = GameLayer::Projectile,
+        .mask = GameLayer::Player | GameLayer::Wall,
+    });
+    player_bullet.transform.emplace(Transform{
+        .position = entity.transform->position,
+    });
+    player_bullet.transform->position.y += 2.0f * entity.transform->direction.y;
 
     float shortest_distance = INFINITY;
     uint32_t hit_entity_id;
@@ -49,14 +64,14 @@ void ShootingSystem::Update(GameState &game_state) {
       }
 
       if (other_entity.collider->shape == ColliderShape::Rectangle) {
-        float min_x =
-            other_entity.transform->position.x - other_entity.collider->rect.width / 2;
-        float max_x =
-            other_entity.transform->position.x + other_entity.collider->rect.width / 2;
-        float min_y =
-            other_entity.transform->position.y - other_entity.collider->rect.height / 2;
-        float max_y =
-            other_entity.transform->position.y + other_entity.collider->rect.height / 2;
+        float min_x = other_entity.transform->position.x -
+                      other_entity.collider->rect.width / 2;
+        float max_x = other_entity.transform->position.x +
+                      other_entity.collider->rect.width / 2;
+        float min_y = other_entity.transform->position.y -
+                      other_entity.collider->rect.height / 2;
+        float max_y = other_entity.transform->position.y +
+                      other_entity.collider->rect.height / 2;
 
         // NOTE: This is the first time I'm returning an optional like this.
         std::optional<float> distance =

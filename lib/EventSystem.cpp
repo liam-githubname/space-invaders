@@ -145,10 +145,9 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b,
     auto new_direction_sign =
         (wall.wall_info->side == WallSide::Right) ? -2.0f : 2.0f;
 
-    // FIX: This is obviously bad, will fix before I finish
     auto new_movement_intent = AlterMovement{
-        .y_mod = 2.0f,
-        .speed_mod = new_direction_sign,
+        .position_mod.y = 2.0f,
+        .speed_mod = {new_direction_sign},
     };
 
     // Then you create a std::view by using your predicate as the filter

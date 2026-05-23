@@ -10,7 +10,8 @@ enum class AlienType;
 struct Config {
   int rows = 11;
   int columns = 5;
-  Vec2 start_pos = Vec2{15.0f, 20.0f};
+  Vec2 first_alien_position = Vec2{.x = 15.0f, .y = 20.0f};
+  Vec2 player_spawn_position = Vec2{.x = 112.0f, .y = 224.0f};
 };
 
 class EntityFactory {

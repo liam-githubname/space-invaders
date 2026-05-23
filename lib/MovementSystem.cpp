@@ -41,20 +41,24 @@ void MovementSystem::Update(GameState &game_state, float current_frame_time) {
         entity.transform->position.y = entity.movement_mod->transform_update->y;
       }
 
-      SDL_Log("%f for entity %d", entity.velocity->speed.value(), entity.id);
-      entity.velocity->speed.value() = entity.movement_mod->speed_mod;
-      entity.transform->position.x += entity.movement_mod->x_mod;
-      entity.transform->position.y += entity.movement_mod->y_mod;
+      entity.velocity->speed = entity.movement_mod->speed_mod;
       suppress = entity.movement_mod->suppress_velocity;
 
       entity.movement_mod = {};
     }
 
     if (!suppress) {
-      entity.transform->position.x +=
-          (entity.player_input && entity.velocity->speed)
-              ? (entity.player_input->move.x * entity.velocity->speed.value())
-              : entity.velocity->speed.value();
+      // entity.transform->position.x +=
+      //     (entity.player_input && entity.velocity)
+      //         ? (entity.player_input->move.x * entity.velocity->speed.x)
+      //         : entity.velocity->speed.x;
+
+      auto new_entity_position = Zero();
+      if (entity.player_input)
+        entity
+
+            entity.transform->position *=
+            entity.transform->direction * entity.velocity->speed;
     }
 
     last_time = has_been_half_second ? current_frame_time : last_time;

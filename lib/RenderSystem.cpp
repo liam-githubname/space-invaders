@@ -25,6 +25,10 @@ void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
       drawFire(renderer, entity);
     }
 
+    if (entity.bitmask->layer == GameLayer::Projectile) {
+      drawRectangle(renderer, entity);
+    }
+
     if (entity.bitmask->layer == GameLayer::Enemy && entity.is_active) {
       drawRectangle(renderer, entity);
     }

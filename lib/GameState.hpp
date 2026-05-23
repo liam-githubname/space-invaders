@@ -56,8 +56,7 @@ struct PlayerInput {
 
 // These are the C (Component) in an ECS
 struct Velocity {
-  std::optional<float> speed;
-  Vec2 offset;
+  Vec2 speed = Vec2{.x = 0.0f, .y = 0.0f};
 };
 
 struct Transform {
@@ -101,9 +100,8 @@ struct AlienFormation {
 
 // FIX: Fix up this component
 struct AlterMovement {
-  float x_mod = 0.0;
-  float y_mod = 0.0;
-  float speed_mod = 1.0;
+  Vec2 position_mod = Zero();
+  Vec2 speed_mod = One();
   bool suppress_velocity = false;
   std::optional<Vec2> transform_update;
 };

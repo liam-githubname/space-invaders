@@ -15,6 +15,47 @@ struct Vec2 {
   float x, y;
 };
 
+inline static constexpr Vec2 Zero() { return {0.0f, 0.0f}; }
+inline static constexpr Vec2 Up() { return {0.0f, -1.0f}; }
+inline static constexpr Vec2 Down() { return {0.0f, 1.0f}; }
+inline static constexpr Vec2 Left() { return {-1.0f, 0.0f}; }
+inline static constexpr Vec2 Right() { return {1.0f, 0.0f}; }
+inline static constexpr Vec2 One() { return {1.0, 1.0}; }
+
+inline Vec2 operator*(const Vec2 a, const Vec2 b) {
+  return Vec2{.x = a.x * b.x, .y = a.y * b.y};
+}
+inline Vec2 operator*(const Vec2 a, const float b) {
+  return Vec2{.x = a.x * b, .y = a.y * b};
+}
+inline Vec2 operator/(const Vec2 a, const Vec2 b) {
+  return Vec2{.x = a.x / b.x, .y = a.y / b.y};
+}
+inline Vec2 operator/(const Vec2 a, const float b) {
+  return Vec2{.x = a.x / b, .y = a.y / b};
+}
+// inline Vec2& operator=(Vec2& a, const Vec2 b) {
+//   a.x = b.x;
+//   a.y = b.y;
+//   return a;
+// }
+inline Vec2 &operator*=(Vec2 &a, const Vec2 b) {
+  a = a * b;
+  return a;
+}
+inline Vec2 &operator*=(Vec2 &a, const float b) {
+  a = a * b;
+  return a;
+}
+inline Vec2 &operator/=(Vec2 &a, const Vec2 b) {
+  a = a / b;
+  return a;
+}
+inline Vec2 &operator/=(Vec2 &a, const float b) {
+  a = a / b;
+  return a;
+}
+
 // This is pulled directly from
 // https://en.cppreference.com/cpp/utility/variant/visit2 @ 2026-04-22 14:45
 // A *Variadic template*. The ... is called a parameter pack.

@@ -12,16 +12,16 @@ void EntityFactory::createPlayer() {
       .mask = GameLayer::Wall | GameLayer::Enemy,
   });
   player.is_active = true;
-  player.velocity.emplace(Velocity{.speed = 2.0f, .offset = Vec2{0.0f, 0.0f}});
+  player.velocity.emplace(Velocity{.speed = 2.0f});
   player.transform.emplace(Transform{
-      Vec2{window_width_ / 2.0f, window_height_ / 2.0f},
-      Vec2{0.0f, -1.0f},
+      config.player_spawn_position,
+      Up(),
   });
   player.collider.emplace(
       Collider{.shape = ColliderShape::Rectangle, .rect{12.0f, 6.0f}});
-  player.player_input.emplace(
-      PlayerInput{.move = Vec2{0.0f, 0.0f}, .is_firing = false});
-  player.gun.emplace(Gun{.distance = 900.0, .fire_flag = false});
+  player.player_input.emplace(PlayerInput{.move = Zero(), .is_firing = false});
+  player.gun.emplace(
+      Gun{.distance = window_height_ - 1.0f, .fire_flag = false});
 }
 
 void EntityFactory::createGameWalls() {
@@ -105,7 +105,7 @@ void EntityFactory::createAlien(AlienType species, Vec2 position) {
 
   alien.alien_info.emplace(Alien{.type = species});
 
-  alien.velocity.emplace(Velocity{.speed = 2.0, .offset = Vec2{0.0f, 0.0f}});
+  alien.velocity.emplace(Velocity{.speed = {2.0f}});
 
   alien.transform.emplace(Transform{position, Vec2{0.0f, 0.0f}});
 
@@ -120,14 +120,17 @@ void EntityFactory::createAlienFormation() {
   for (int i = 1; i <= config.rows; i++) {
     for (int j = 1; j <= config.columns; j++) {
       if (i == 1) {
-        createAlien(AlienType::Squid, Vec2{.x = i * 18 + config.start_pos.x,
-                                           .y = j * 9 + config.start_pos.y});
+        createAlien(AlienType::Squid,
+                    Vec2{.x = i * 18 + config.first_alien_position.x,
+                         .y = j * 9 + config.first_alien_position.y});
       } else if (i >= 2 && i < 5) {
-        createAlien(AlienType::Crab, Vec2{.x = i * 18 + config.start_pos.x,
-                                          .y = j * 9 + config.start_pos.y});
+        createAlien(AlienType::Crab,
+                    Vec2{.x = i * 18 + config.first_alien_position.x,
+                         .y = j * 9 + config.first_alien_position.y});
       } else {
-        createAlien(AlienType::Crab, Vec2{.x = i * 18 + config.start_pos.x,
-                                          .y = j * 9 + config.start_pos.y});
+        createAlien(AlienType::Crab,
+                    Vec2{.x = i * 18 + config.first_alien_position.x,
+                         .y = j * 9 + config.first_alien_position.y});
       }
     }
   }
