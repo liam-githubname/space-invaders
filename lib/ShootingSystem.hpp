@@ -2,7 +2,6 @@
  * Authored by Liam Harvell
  */
 #pragma once
-#include "Raycast.hpp"
 
 class GameState;
 

@@ -100,10 +100,9 @@ struct AlienFormation {
 
 // FIX: Fix up this component
 struct AlterMovement {
-  Vec2 position_mod = Zero();
-  Vec2 speed_mod = One();
+  std::optional<Vec2> position_update = Zero();
+  std::optional<Vec2> speed_assignment = One();
   bool suppress_velocity = false;
-  std::optional<Vec2> transform_update;
 };
 
 // This is the E (Entity) in the ECS
@@ -125,6 +124,19 @@ struct Entity {
   std::optional<Gun> gun;
 };
 
+// FIXME: This should probably exist in the game mechanics source file
+// but not in the class. That way they can see eachother, but aren't entirely
+// coupled.
+//-----------------------------------------------------------------------------
+// using wrappedTexture = std::unique_ptr<SDL_Texture, SDLTextureDeleter>;
+// struct AssetManager {
+//   void loadTexture(std::string path) {
+//     SDL_Texture *raw_texture = IMG_LoadTexture(renderer, path.c_str());
+//     textures[path] = wrappedTexture(raw_texture);
+//   }
+// };
+//-----------------------------------------------------------------------------
+
 class GameState {
 private:
   uint32_t next_id = 0;
@@ -132,6 +144,7 @@ private:
 public:
   std::vector<Entity> entities;
   EventQueue event_queue;
+  bool bullet_is_active = false;
 
   // This had to be here because the copy constructor below that
   // is deleted suppreses the compilers creation of any

@@ -19,17 +19,19 @@ void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
   // NOTE: I am not making entity a reference because it doesn't need to affect
   // it.
   for (auto entity : game_state.entities) {
+    if (!entity.is_active)
+      continue;
 
     if (entity.bitmask->layer == GameLayer::Player) {
       drawRectangle(renderer, entity);
-      drawFire(renderer, entity);
+      // drawFire(renderer, entity);
     }
 
     if (entity.bitmask->layer == GameLayer::Projectile) {
       drawRectangle(renderer, entity);
     }
 
-    if (entity.bitmask->layer == GameLayer::Enemy && entity.is_active) {
+    if (entity.bitmask->layer == GameLayer::Enemy) {
       drawRectangle(renderer, entity);
     }
 

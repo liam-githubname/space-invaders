@@ -15,6 +15,7 @@
 #include "Events.hpp"
 #include "GameState.hpp"
 #include "Raycast.hpp"
+#include "Util.hpp"
 #include <optional>
 
 void ShootingSystem::Update(GameState &game_state) {
@@ -29,18 +30,24 @@ void ShootingSystem::Update(GameState &game_state) {
       continue;
 
     // Bullet emission logic
-    auto player_bullet = game_state.CreateEntity();
+    if (!game_state.bullet_is_active) {
 
-    player_bullet.collider.emplace(Collider{.rect{2.0f, 3.0f}});
-    player_bullet.velocity.emplace(Velocity{.speed = 3.0f});
-    player_bullet.bitmask.emplace(Bitmask{
-        .layer = GameLayer::Projectile,
-        .mask = GameLayer::Player | GameLayer::Wall,
-    });
-    player_bullet.transform.emplace(Transform{
-        .position = entity.transform->position,
-    });
-    player_bullet.transform->position.y += 2.0f * entity.transform->direction.y;
+      auto &player_bullet = game_state.CreateEntity();
+      player_bullet.is_active = true;
+
+      player_bullet.collider.emplace(Collider{.rect{1.0f, 1.5f}});
+      player_bullet.velocity.emplace(Velocity{.speed = Up() * 2.0f});
+      player_bullet.bitmask.emplace(Bitmask{
+          .layer = GameLayer::Projectile,
+          .mask = GameLayer::Wall | GameLayer::Enemy,
+      });
+      player_bullet.transform.emplace(
+          Transform{.position = entity.transform->position, .direction = Up()});
+      player_bullet.transform->position.y +=
+          -2.0f * entity.transform->direction.y;
+
+      game_state.bullet_is_active = true;
+    }
 
     float shortest_distance = INFINITY;
     uint32_t hit_entity_id;
@@ -95,7 +102,7 @@ void ShootingSystem::Update(GameState &game_state) {
         if (*distance < shortest_distance) {
           shortest_distance = distance.value();
           hit_entity_id = other_entity.id;
-          SDL_Log("shortest distance %f", shortest_distance);
+          // SDL_Log("shortest distance %f", shortest_distance);
         }
       }
       // TODO: #3 Check Circle colliders.

@@ -1,4 +1,5 @@
 #include "EntityFactory.hpp"
+#include "Bitmask.hpp"
 #include "GameState.hpp"
 #include "Util.hpp"
 // TODO: Implement EntityFactory - 2026-05-17
@@ -12,7 +13,7 @@ void EntityFactory::createPlayer() {
       .mask = GameLayer::Wall | GameLayer::Enemy,
   });
   player.is_active = true;
-  player.velocity.emplace(Velocity{.speed = 2.0f});
+  player.velocity.emplace(Velocity{.speed = {2.0f, 0.0f}});
   player.transform.emplace(Transform{
       config.player_spawn_position,
       Up(),
@@ -32,7 +33,9 @@ void EntityFactory::createGameWalls() {
   auto &top_wall = game_state_.CreateEntity();
   top_wall.bitmask.emplace(Bitmask{
       .layer = GameLayer::Wall,
-      .mask = GameLayer::Player,
+      .mask =
+          GameLayer::Player | GameLayer::Projectile, // I am adding projectiles
+                                                     // to the top walls mask
   });
   top_wall.wall_info.emplace(WallSide::Top);
   top_wall.transform.emplace(Transform{
@@ -101,7 +104,8 @@ void EntityFactory::createAlien(AlienType species, Vec2 position) {
   auto &alien = game_state_.CreateEntity();
 
   alien.bitmask.emplace(Bitmask{.layer = GameLayer::Enemy,
-                                .mask = GameLayer::Player | GameLayer::Wall});
+                                .mask = GameLayer::Player | GameLayer::Wall |
+                                        GameLayer::Projectile});
 
   alien.alien_info.emplace(Alien{.type = species});
 

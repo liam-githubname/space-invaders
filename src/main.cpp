@@ -16,19 +16,6 @@
 #include "Game.hpp"
 #include <SDL3_image/SDL_image.h>
 
-// FIXME: This should probably exist in the game mechanics source file
-// but not in the class. That way they can see eachother, but aren't entirely
-// coupled.
-//-----------------------------------------------------------------------------
-// using wrappedTexture = std::unique_ptr<SDL_Texture, SDLTextureDeleter>;
-// struct AssetManager {
-//   void loadTexture(std::string path) {
-//     SDL_Texture *raw_texture = IMG_LoadTexture(renderer, path.c_str());
-//     textures[path] = wrappedTexture(raw_texture);
-//   }
-// };
-//-----------------------------------------------------------------------------
-
 int main(int argc, char *argv[]) {
   auto game = Game::create("Space Invaders", 224, 256);
   game->run();

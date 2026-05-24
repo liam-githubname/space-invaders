@@ -20,6 +20,7 @@
 // ============================================================================
 
 #include "EventSystem.hpp"
+#include "Bitmask.hpp"
 #include "GameState.hpp"
 #include "Util.hpp"
 // TODO: Remove after the logging isn't required
@@ -48,8 +49,40 @@ void EventSystem::HandleCollisionPayload(const CollisionPayload &payload,
   } // WARN: There is a c++ function called find_if that I could use to have
   // The dereferenced entity pointer should hold a entity reference
   WallCollisionHandler(*entity_a, *entity_b, game_state);
+  BulletCollisionHandler(*entity_a, *entity_b, game_state);
 
   // ==========================================================================
+}
+
+void EventSystem::BulletCollisionHandler(Entity &entity_a, Entity &entity_b,
+                                         GameState &game_state) {
+  if ((entity_a.bitmask->layer & entity_b.bitmask->mask) == GameLayer::None) {
+    return;
+  }
+  if ((entity_b.bitmask->layer & entity_a.bitmask->mask) == GameLayer::None) {
+    return;
+  }
+  if (!(entity_a.bitmask->layer == GameLayer::Projectile) &&
+      !(entity_b.bitmask->layer == GameLayer::Projectile)) {
+    return;
+  }
+
+  // destroy the bullet.
+  if (entity_a.bitmask->layer == GameLayer::Projectile) {
+    game_state.DestroyEntity(entity_a.id);
+    game_state.bullet_is_active = false;
+  } else {
+    game_state.DestroyEntity(entity_b.id);
+    game_state.bullet_is_active = false;
+  }
+
+  if (entity_a.bitmask->layer == GameLayer::Enemy) {
+    game_state.DestroyEntity(entity_a.id);
+  } else if (entity_b.bitmask->layer == GameLayer::Enemy) {
+    game_state.DestroyEntity(entity_b.id);
+  }
+
+  return;
 }
 
 // NOTE: I know it's not pretty but I'm running out of time.
@@ -146,8 +179,9 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b,
         (wall.wall_info->side == WallSide::Right) ? -2.0f : 2.0f;
 
     auto new_movement_intent = AlterMovement{
-        .position_mod.y = 2.0f,
-        .speed_mod = {new_direction_sign},
+        .position_update = Vec2{.x = 0.0f, .y = 2.0f},
+        .speed_assignment = Vec2{.x = new_direction_sign, .y = 0.0f},
+        .suppress_velocity = false,
     };
 
     // Then you create a std::view by using your predicate as the filter
@@ -182,7 +216,7 @@ void EventSystem::ProcessEvents(GameState &game_state) {
             [&](const ScorePayload payload) {
               SDL_Log("Consumed ScorePayload");
             },
-            [&](const HitPayload payload) { SDL_Log("HitPayload event"); },
+            [&](const HitPayload payload) { /*SDL_Log("HitPayload event");*/ },
             //====================Add new payloads here===================
         },
         event);

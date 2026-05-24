@@ -36,30 +36,36 @@ void MovementSystem::Update(GameState &game_state, float current_frame_time) {
     // The system sees an intent component
     if (entity.movement_mod.has_value()) {
 
-      if (entity.movement_mod->transform_update.has_value()) {
-        entity.transform->position.x = entity.movement_mod->transform_update->x;
-        entity.transform->position.y = entity.movement_mod->transform_update->y;
+      // if the intent component has updates for position, apply those directly
+      if (entity.movement_mod->position_update.has_value()) {
+        entity.transform->position +=
+            entity.movement_mod->position_update.value();
       }
 
-      entity.velocity->speed = entity.movement_mod->speed_mod;
+      // if the new speed_assignment is there assign entities speed
+      entity.velocity->speed =
+          entity.movement_mod->speed_assignment.has_value()
+              ? entity.movement_mod->speed_assignment.value()
+              : entity.velocity->speed;
+
       suppress = entity.movement_mod->suppress_velocity;
 
+      // clear the intent component
       entity.movement_mod = {};
     }
 
-    if (!suppress) {
-      // entity.transform->position.x +=
-      //     (entity.player_input && entity.velocity)
-      //         ? (entity.player_input->move.x * entity.velocity->speed.x)
-      //         : entity.velocity->speed.x;
+    auto new_entity_position = One();
 
-      auto new_entity_position = Zero();
-      if (entity.player_input)
-        entity
-
-            entity.transform->position *=
-            entity.transform->direction * entity.velocity->speed;
+    if (entity.player_input) {
+      new_entity_position *= entity.player_input->move;
     }
+    new_entity_position *= entity.velocity->speed;
+
+    if (suppress) {
+      continue;
+    }
+
+    entity.transform->position += new_entity_position;
 
     last_time = has_been_half_second ? current_frame_time : last_time;
   }
