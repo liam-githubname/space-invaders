@@ -1,4 +1,7 @@
 #include "GraphicsModule.hpp"
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <expected>
 #include <string>
 
@@ -15,8 +18,9 @@ GraphicsModule::create(std::string_view title, int width, int height) {
   SDL_Renderer *raw_renderer = nullptr;
 
   if (!SDL_CreateWindowAndRenderer(title.data(), width, height,
-                                   SDL_WINDOW_RESIZABLE, &raw_window,
-                                   &raw_renderer)) {
+                                   SDL_WINDOW_RESIZABLE |
+                                       SDL_WINDOW_HIGH_PIXEL_DENSITY,
+                                   &raw_window, &raw_renderer)) {
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
     return std::unexpected<std::string>(
         std::string("Failed to create window and renderer: ") + SDL_GetError());
@@ -26,6 +30,9 @@ GraphicsModule::create(std::string_view title, int width, int height) {
   SDL_SetRenderVSync(raw_renderer, 1);
   SDL_SetRenderLogicalPresentation(raw_renderer, width, height,
                                    SDL_LOGICAL_PRESENTATION_LETTERBOX);
+
+  // FIX: Initialize and cleanup should be handled.
+  TTF_Init();
 
   return GraphicsModule(raw_window, raw_renderer);
 };

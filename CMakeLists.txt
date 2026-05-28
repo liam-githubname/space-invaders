@@ -9,6 +9,7 @@ project(space-invaders LANGUAGES CXX VERSION 0.1.0)
 # IMPORTANT: Both lib/ and src/ need SDL3, so we find it once here rather than duplicating find_package calls
 find_package(SDL3 REQUIRED)
 find_package(SDL3_image REQUIRED)
+find_package(SDL3_ttf REQUIRED)  # Needed for text rendering (score display) - 2026-05-27
 
 # Modern CMake project structure: libraries first, then executables, then tests
 # This ensures proper dependency ordering: lib -> game -> src -> tests - 2026-05-17

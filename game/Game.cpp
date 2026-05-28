@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include "AssetManager.hpp"
 #include "CollisionSystem.hpp"
 #include "EntityFactory.hpp"
 #include "EventSystem.hpp"
@@ -7,7 +8,6 @@
 #include "InputSystem.hpp"
 #include "MovementSystem.hpp"
 #include "Timestep.hpp"
-#include "Util.hpp"
 #include <expected>
 
 Game::Game(GraphicsModule &&graphics, float window_width, float window_height)
@@ -48,14 +48,16 @@ struct config {
 
 void Game::initializeGame() {
 
-  auto factory = EntityFactory(game_state_, window_width_, window_height_);
+  // Initialize the assets first
+  asset_manager_.Initialize(graphics_, game_state_);
 
-  // ==================== Initialization of entities
-  // ==========================
+  // create the factory
+  auto factory =
+      EntityFactory(game_state_, asset_manager_, window_width_, window_height_);
+
+  // factory creates entites that use the assets
   factory.createGameWalls();
   factory.createPlayer();
-  // factory.createAlien(AlienType::Squid, Vec2{.x = window_width_ / 2.0f,
-  // .y = window_height_ / 4.0f});
   factory.createAlienFormation();
 }
 
@@ -88,10 +90,12 @@ void Game::run() {
       collision_system_.Update(game_state_);
       //========================== Shooting
       //===================================
-      shooting_system_.Update(game_state_);
+      shooting_system_.Update(game_state_, asset_manager_);
     }
     //========================== Consume Events =============================
     event_system_.ProcessEvents(game_state_);
+    //========================================================================
+    ui_system_.Update(graphics_, game_state_, asset_manager_);
     //============================ Render =====================================
     render_system_.Update(game_state_, graphics_.getRenderer());
   }

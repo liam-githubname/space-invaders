@@ -21,6 +21,7 @@
 
 #include "EventSystem.hpp"
 #include "Bitmask.hpp"
+#include "Events.hpp"
 #include "GameState.hpp"
 #include "Util.hpp"
 // TODO: Remove after the logging isn't required
@@ -56,18 +57,22 @@ void EventSystem::HandleCollisionPayload(const CollisionPayload &payload,
 
 void EventSystem::BulletCollisionHandler(Entity &entity_a, Entity &entity_b,
                                          GameState &game_state) {
+  // Shouldn't theoretically be possible but useful nonetheless
   if ((entity_a.bitmask->layer & entity_b.bitmask->mask) == GameLayer::None) {
+    SDL_Log("not on eachother's layer");
     return;
   }
-  if ((entity_b.bitmask->layer & entity_a.bitmask->mask) == GameLayer::None) {
+  if ((entity_a.bitmask->layer & entity_b.bitmask->mask) == GameLayer::None) {
+    SDL_Log("not on eachother's layer");
     return;
   }
+  // If it's not a bullet then leave.
   if (!(entity_a.bitmask->layer == GameLayer::Projectile) &&
       !(entity_b.bitmask->layer == GameLayer::Projectile)) {
     return;
   }
 
-  // destroy the bullet.
+  // Destroy the bullet.
   if (entity_a.bitmask->layer == GameLayer::Projectile) {
     game_state.DestroyEntity(entity_a.id);
     game_state.bullet_is_active = false;
@@ -76,11 +81,19 @@ void EventSystem::BulletCollisionHandler(Entity &entity_a, Entity &entity_b,
     game_state.bullet_is_active = false;
   }
 
+  // If the other entity is an enemy destroy the enemy.
   if (entity_a.bitmask->layer == GameLayer::Enemy) {
     game_state.DestroyEntity(entity_a.id);
+    game_state.score += entity_a.alien_info->score;
+    game_state.score_update = true;
+    game_state.number_of_aliens--;
   } else if (entity_b.bitmask->layer == GameLayer::Enemy) {
     game_state.DestroyEntity(entity_b.id);
+    game_state.score += entity_b.alien_info->score;
+    game_state.score_update = true;
+    game_state.number_of_aliens--;
   }
+  SDL_Log("Score: %d", game_state.score);
 
   return;
 }
@@ -176,7 +189,7 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b,
     }
 
     auto new_direction_sign =
-        (wall.wall_info->side == WallSide::Right) ? -2.0f : 2.0f;
+        (wall.wall_info->side == WallSide::Right) ? -1.0f : 1.0f;
 
     auto new_movement_intent = AlterMovement{
         .position_update = Vec2{.x = 0.0f, .y = 2.0f},
@@ -195,12 +208,19 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b,
   } else {
 
     auto player_movement_intent = AlterMovement{
+        .speed_assignment = Vec2{.x = 1.0f, .y = 0.0f},
         .suppress_velocity = true,
     };
 
     entity.movement_mod.emplace(player_movement_intent);
     entity.transform->position = wall_transform_update(which_wallside);
   }
+}
+
+void EventSystem::HandleScorePayload(const ScorePayload &payload,
+                                     GameState &game_state) {
+  game_state.score += payload.points;
+  SDL_Log("Score: %d", game_state.score);
 }
 
 void EventSystem::ProcessEvents(GameState &game_state) {
@@ -213,8 +233,9 @@ void EventSystem::ProcessEvents(GameState &game_state) {
             [&](const DeathPayload payload) {
               SDL_Log("Consumed DeathPayload");
             },
+            // TODO: I'm probably not going to use this, I'll have to remove it.
             [&](const ScorePayload payload) {
-              SDL_Log("Consumed ScorePayload");
+              HandleScorePayload(payload, game_state);
             },
             [&](const HitPayload payload) { /*SDL_Log("HitPayload event");*/ },
             //====================Add new payloads here===================

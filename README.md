@@ -4,6 +4,11 @@ Implement an ECS (Entity-Component System).
 Focus on Clean Code decisions.
 Focus on writing code that follows SRP (Single Responsibility Principle), and DRY (Don't Repeat Yourself).
 
+# Credit
+https://github.com/leerob/space-invaders/blob/master/fonts/space_invaders.ttf
+
+For the space invaders font
+
 # Issues
 ## Should Input update components or only emit events?
 -  Both?
@@ -47,6 +52,16 @@ Focus on writing code that follows SRP (Single Responsibility Principle), and DR
     You mentioned the renderer showing the state. To keep things decoupled, your RenderSystem should be incredibly "dumb"—it should only care about drawing shapes, sprites, or meshes to the screen.
     Instead, an Animation System runs before the Renderer. It looks at the PlayerControllerComponent (isFiring == true) and updates the player's SpriteComponent or MeshComponent to the "shooting" frame. The Renderer then just blindly draws whatever the Sprite/Mesh component tells it to.
 
+
+# The movement system was unfortunately too rigid and couldn't be decoupled from game logic because of the much earlier decision to use an event driven system. 
+1. The modern entity component system tends to prefer intent and response components from what I can tell about the general landscape of game development.
+1. I wasn't quite aware of that when I was building the architecture. I instead jumped into what felt the most natural which was an event emitting system, with an event processor. 
+  1. This caused a few issues later on as creating robust handlers that could account for all possible actions or events.
+
+# The scoring system.
+1. Event Driven actions has caused another issue, scoring.
+  - It can be done two ways:
+  1. The first way is bullet emits a score event, then the event processor (or separate scoring processor) handles the scoring updates.
 
 
 # Footnotes:

@@ -22,6 +22,6 @@ public:
   void BulletCollisionHandler(Entity &entity_a, Entity &entity_b,
                               GameState &game_state);
   void HandleDeathPayload() { SDL_Log("handleDeathPayload"); };
-  void HandleScorePayload() { SDL_Log("handlescorepayload"); };
-  void HandleHitPayload() { SDL_Log("handleHiyPayload"); };
+  void HandleScorePayload(const ScorePayload &payload, GameState &game_state);
+  // void HandleHitPayload() { SDL_Log("handleHiyPayload"); };
 };

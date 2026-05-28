@@ -13,7 +13,18 @@ class MovementSystem;
 
 void MovementSystem::Update(GameState &game_state, float current_frame_time) {
 
-  auto has_been_half_second =
+  // NOTE: The real Space Invaders got faster with every alien killed, because
+  // it freed up cpu cycles. There is a way to do this here. I could reduce the
+  // time threshold to move the aliens with each ones death. I could increase
+  // their velocity (I think that would look least like the original).
+  // But the movement already doens't look exactly like the arcade as only one
+  // alien was updated per frame back then. If I were to achieve that today I
+  // would have to write some "sophisticated" algorithm to move them one at a
+  // time and keep up with each other.
+  // It also explains how the original space invaders got around this multiple
+  // wall collision problem that I had. Only one alien could touch the wall at
+  // any given moment.
+  auto has_been_alien_step_time =
       ((current_frame_time - last_time) > (500000000ULL));
 
   for (auto &entity : game_state.entities) {
@@ -27,7 +38,7 @@ void MovementSystem::Update(GameState &game_state, float current_frame_time) {
     }
 
     // If it hasnt been long enough and you're looking an alien stop looking.
-    if (!has_been_half_second && entity.alien_info.has_value()) {
+    if (!has_been_alien_step_time && entity.alien_info.has_value()) {
       continue;
     }
 
@@ -61,12 +72,18 @@ void MovementSystem::Update(GameState &game_state, float current_frame_time) {
     }
     new_entity_position *= entity.velocity->speed;
 
+    // WARN: This is so the renederer knows when to swap to the other sprite,
+    // if it exists.
+    if (entity.sprite->frame_data.frame2.has_value()) {
+      entity.sprite->step_1 = (entity.sprite->step_1) ? false : true;
+    }
+
     if (suppress) {
       continue;
     }
 
     entity.transform->position += new_entity_position;
 
-    last_time = has_been_half_second ? current_frame_time : last_time;
+    last_time = has_been_alien_step_time ? current_frame_time : last_time;
   }
 }

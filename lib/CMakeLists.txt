@@ -14,7 +14,7 @@ target_include_directories(graphics-module PUBLIC ${CMAKE_SOURCE_DIR}/lib)
 # Using PUBLIC because GraphicsModule's public API exposes SDL types (SDL_Window*, SDL_Renderer*)
 # This means consumers also need SDL3 linked when they call getWindow()/getRenderer()
 # Without PUBLIC, consumers would get linker errors when using the public API
-target_link_libraries(graphics-module PUBLIC SDL3::SDL3 SDL3_image::SDL3_image)
+target_link_libraries(graphics-module PUBLIC SDL3::SDL3 SDL3_image::SDL3_image SDL3_ttf::SDL3_ttf)  # Added SDL3_ttf for text rendering support - 2026-05-27
 
 # Set C++23 standard for this library - required for modern features like std::expected - 2026-04-09
 # Using PUBLIC because the public API uses std::expected<GraphicsModule, std::string>
@@ -44,8 +44,9 @@ add_library(game-engine
     CollisionSystem.cpp
     EventSystem.cpp
     ShootingSystem.cpp
-    # HitscanSystem.cpp
+    AssetManager.cpp  # Added AssetManager to the game-engine library - 2026-05-26
+    UISystem.cpp # Added UISystem to the game-engine library - 2026-05-27
 )
 target_include_directories(game-engine PUBLIC ${CMAKE_SOURCE_DIR}/lib)
-target_link_libraries(game-engine PUBLIC SDL3::SDL3 SDL3_image::SDL3_image)
+target_link_libraries(game-engine PUBLIC SDL3::SDL3 SDL3_image::SDL3_image SDL3_ttf::SDL3_ttf)  # Added SDL3_ttf for text rendering support - 2026-05-27
 target_compile_features(game-engine PUBLIC cxx_std_23)

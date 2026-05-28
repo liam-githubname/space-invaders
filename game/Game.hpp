@@ -2,6 +2,7 @@
 // TODO: I need to figure out how to properly tell the compiler what all of
 // these are
 
+#include "AssetManager.hpp"
 #include "CollisionSystem.hpp"
 #include "EntityFactory.hpp"
 #include "EventSystem.hpp"
@@ -12,6 +13,7 @@
 #include "RenderSystem.hpp"
 #include "ShootingSystem.hpp"
 #include "Timestep.hpp"
+#include "UISystem.hpp"
 
 // I think I want to do the same thing that I did with GraphicsModule
 class Game {
@@ -50,6 +52,8 @@ private:
   EventSystem event_system_;
   RenderSystem render_system_;
   ShootingSystem shooting_system_;
+  AssetManager asset_manager_;
+  UISystem ui_system_;
   void initializeLibrarySystems(std::string_view title);
 
   // Miscellaneous

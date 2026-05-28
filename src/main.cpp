@@ -17,7 +17,7 @@
 #include <SDL3_image/SDL_image.h>
 
 int main(int argc, char *argv[]) {
-  auto game = Game::create("Space Invaders", 224, 256);
+  auto game = Game::create("Space Invaders", 256, 224);
   game->run();
   return 0;
 }

@@ -11,6 +11,7 @@
 // FIX:========================================================================
 // ============================================================================
 #include "ShootingSystem.hpp"
+#include "AssetManager.hpp"
 #include "Bitmask.hpp"
 #include "Events.hpp"
 #include "GameState.hpp"
@@ -18,7 +19,8 @@
 #include "Util.hpp"
 #include <optional>
 
-void ShootingSystem::Update(GameState &game_state) {
+void ShootingSystem::Update(GameState &game_state,
+                            AssetManager &asset_manager) {
 
   for (auto &entity : game_state.entities) {
     // Make sure the entity has a transform
@@ -26,16 +28,23 @@ void ShootingSystem::Update(GameState &game_state) {
       continue;
     // WARN: There has to be way to remove gun component from this system??
     // Check if the entity has a gun and if it's firing
-    if (!entity.gun || !entity.gun->fire_flag)
-      continue;
 
     // Bullet emission logic
-    if (!game_state.bullet_is_active) {
+    if (game_state.bullet_is_active) {
+      continue;
+    }
+    if (entity.bitmask->layer == GameLayer::Player &&
+        entity.player_input->is_firing) {
 
       auto &player_bullet = game_state.CreateEntity();
       player_bullet.is_active = true;
 
-      player_bullet.collider.emplace(Collider{.rect{1.0f, 1.5f}});
+      player_bullet.sprite.emplace(
+          Sprite{.frame_data = asset_manager.textures["bullet"]});
+      auto col_width = player_bullet.sprite->frame_data.frame1.w;
+      auto col_height = player_bullet.sprite->frame_data.frame1.h;
+
+      player_bullet.collider.emplace(Collider{.rect{col_width, col_height}});
       player_bullet.velocity.emplace(Velocity{.speed = Up() * 2.0f});
       player_bullet.bitmask.emplace(Bitmask{
           .layer = GameLayer::Projectile,
@@ -43,11 +52,14 @@ void ShootingSystem::Update(GameState &game_state) {
       });
       player_bullet.transform.emplace(
           Transform{.position = entity.transform->position, .direction = Up()});
-      player_bullet.transform->position.y +=
-          -2.0f * entity.transform->direction.y;
+      player_bullet.transform->position.y += -7.0f;
 
       game_state.bullet_is_active = true;
     }
+
+    // The raycasting portion of the shooting system
+    if (!entity.gun || !entity.gun->fire_flag)
+      continue;
 
     float shortest_distance = INFINITY;
     uint32_t hit_entity_id;

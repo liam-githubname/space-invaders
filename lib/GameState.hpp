@@ -18,11 +18,13 @@
 #pragma once
 
 #include "Bitmask.hpp"
+#include "GraphicsModule.hpp"
 #include "Util.hpp"
 #include <EventQueue.hpp>
 #include <cstdint>
 #include <optional>
 #include <sys/types.h>
+#include <unordered_map>
 #include <vector>
 
 struct Bitmask {
@@ -64,9 +66,16 @@ struct Transform {
   Vec2 direction;
 };
 
+// TODO: I'll make an enum for the sprites
+// Space-invaders had a readily available sprite sheet, so instead of storing a
+// key for sprite I'm storing a sprites coordinates on the sprite sheet.
+struct SpriteData {
+  SDL_FRect frame1;
+  std::optional<SDL_FRect> frame2;
+};
 struct Sprite {
-  std::string texture_key;
-  float width, height;
+  SpriteData frame_data;
+  bool step_1 = true;
 };
 
 enum class WallSide { Top, Bottom, Left, Right };
@@ -91,8 +100,10 @@ struct Gun {
 
 enum class AlienType { Squid, Ship, Crab, Octopus };
 
+// TODO: see if I can make the score dedicated to the AlienType
 struct Alien {
   AlienType type;
+  int score;
 };
 struct AlienFormation {
   std::vector<Alien> aliens;
@@ -101,7 +112,7 @@ struct AlienFormation {
 // FIX: Fix up this component
 struct AlterMovement {
   std::optional<Vec2> position_update = Zero();
-  std::optional<Vec2> speed_assignment = One();
+  std::optional<Vec2> speed_assignment = Zero();
   bool suppress_velocity = false;
 };
 
@@ -124,27 +135,26 @@ struct Entity {
   std::optional<Gun> gun;
 };
 
-// FIXME: This should probably exist in the game mechanics source file
-// but not in the class. That way they can see eachother, but aren't entirely
-// coupled.
-//-----------------------------------------------------------------------------
-// using wrappedTexture = std::unique_ptr<SDL_Texture, SDLTextureDeleter>;
-// struct AssetManager {
-//   void loadTexture(std::string path) {
-//     SDL_Texture *raw_texture = IMG_LoadTexture(renderer, path.c_str());
-//     textures[path] = wrappedTexture(raw_texture);
-//   }
-// };
-//-----------------------------------------------------------------------------
+struct SpriteSheet {
+  TexturePtr sprite_sheet;
+  std::unordered_map<std::string, SDL_Rect> coordinate_map;
+};
 
 class GameState {
 private:
-  uint32_t next_id = 0;
+  uint32_t next_id_ = 0;
 
 public:
   std::vector<Entity> entities;
   EventQueue event_queue;
   bool bullet_is_active = false;
+  SpriteSheet textures;
+  int score = 0;
+  bool score_update = false;
+  SDL_Texture *score_texture = nullptr;
+  SDL_Texture *score_board_texture = nullptr;
+  int number_of_aliens = 55;
+  int total_number_of_aliens = 56;
 
   // This had to be here because the copy constructor below that
   // is deleted suppreses the compilers creation of any

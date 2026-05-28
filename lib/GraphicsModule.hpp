@@ -23,6 +23,7 @@ struct RendererDeleter {
       SDL_DestroyRenderer(renderer);
   }
 };
+// WARN: This is used in the AssetManager class
 struct SDLTextureDeleter {
   void operator()(SDL_Texture *texture) const {
     if (texture)
@@ -61,8 +62,8 @@ public:
 private:
   GraphicsModule(SDL_Window *window, SDL_Renderer *renderer);
 
-  std::unique_ptr<SDL_Window, WindowDeleter> window_;
-  std::unique_ptr<SDL_Renderer, RendererDeleter> renderer_;
+  WindowPtr window_;
+  RendererPtr renderer_;
 };
 
 /*

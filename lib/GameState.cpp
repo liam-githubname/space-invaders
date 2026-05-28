@@ -8,7 +8,7 @@ Entity &GameState::CreateEntity() {
   // Creates new one.
   Entity new_entity;
   // Increments the id of the entity
-  new_entity.id = next_id++;
+  new_entity.id = next_id_++;
   // pushes it onto game state vector
   entities.push_back(new_entity);
   return entities.back();

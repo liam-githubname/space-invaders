@@ -13,5 +13,5 @@ public:
 
 private:
   float last_time = 0.0f;
-  int alien_step = 11;
+  // int alien_step = 11;
 };
