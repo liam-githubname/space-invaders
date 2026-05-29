@@ -6,6 +6,10 @@
 
 class RenderSystem;
 
+bool is_the_same_SDL_FRect(const SDL_FRect &a, const SDL_FRect &b) {
+  return (a.x == b.x) && (a.y == b.y) && (a.w == b.w) && (a.h == b.h);
+}
+
 void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
 
   // This sets the draw color to white I want to see if there is a better
@@ -17,30 +21,46 @@ void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
   // NOTE: I am not making entity a reference because it doesn't need to affect
   // it.
   for (auto &entity : game_state.entities) {
-    if (!entity.is_active)
+    // NOTE: DEBUG Layer won't work with this
+    if (!entity.is_active || !entity.sprite.has_value())
       continue;
 
-    if (entity.sprite.has_value()) {
+    // calculate the position the sprite needs to be in.
+    const auto destination =
+        SDL_FRect{.x = entity.transform->position.x -
+                       entity.sprite->frame_data.frame1.w / 2,
+                  .y = entity.transform->position.y -
+                       entity.sprite->frame_data.frame1.h / 2,
+                  .w = entity.sprite->frame_data.frame1.w,
+                  .h = entity.sprite->frame_data.frame1.h};
 
-      // calculate the position the sprite needs to be in.
-      const auto destination =
-          SDL_FRect{.x = entity.transform->position.x -
-                         entity.sprite->frame_data.frame1.w / 2,
-                    .y = entity.transform->position.y -
-                         entity.sprite->frame_data.frame1.h / 2,
-                    .w = entity.sprite->frame_data.frame1.w,
-                    .h = entity.sprite->frame_data.frame1.h};
+    // I don't like that the sprite component has a different syntax to access
+    // frame1 and frame2 fields
+    auto &sprite_coordinates = (entity.sprite->step_1)
+                                   ? entity.sprite->frame_data.frame1
+                                   : entity.sprite->frame_data.frame2.value();
 
-      // I don't like that the sprite component has a different syntax to access
-      // frame1 and frame2 fields
-      auto &sprite_coordinates = (entity.sprite->step_1)
-                                     ? entity.sprite->frame_data.frame1
-                                     : entity.sprite->frame_data.frame2.value();
+    SDL_RenderTexture(renderer, game_state.textures.sprite_sheet.get(),
+                      &sprite_coordinates, &destination);
 
-      SDL_RenderTexture(renderer, game_state.textures.sprite_sheet.get(),
-                        &sprite_coordinates, &destination);
+    // FIX: I hate this double nest
+    if (entity.alien_info.has_value() &&
+        entity.alien_info->death_timer.has_value()) {
+
+      if (entity.alien_info->death_timer->tick_count < 30) {
+        entity.alien_info->death_timer->tick_count++;
+      } else {
+        game_state.DestroyEntity(entity.id);
+      }
     }
 
+    // // Is this bad code? Yes, yes it is.
+    // if (is_the_same_SDL_FRect(entity.sprite->frame_data.frame1,
+    //                           entity.death_sprite->frame_data.frame1)) {
+    //   game_state.DestroyEntity(entity.id);
+    // }
+
+    // DEBUG DRAWING =====================================
     // if (entity.bitmask->layer == GameLayer::Player) {
     //   drawRectangle(renderer, entity);
     //   // drawFire(renderer, entity);
@@ -53,10 +73,13 @@ void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
     // if (entity.bitmask->layer == GameLayer::Enemy) {
     //   drawRectangle(renderer, entity);
     // }
-    //
-    // if (entity.bitmask->layer == GameLayer::Wall) {
-    //   drawWall(renderer, entity);
-    // }
+    // ====================================================
+
+    // Render the Green line at the bottom
+    if (entity.wall_info.has_value() &&
+        entity.wall_info.value().side == WallSide::Bottom) {
+      drawWall(renderer, entity);
+    }
   }
 
   // This puts all of the rendering into the window
@@ -75,6 +98,19 @@ void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
     SDL_FRect score_rect{40, 1, (float)game_state.score_texture->w,
                          (float)game_state.score_texture->h};
     SDL_RenderTexture(renderer, game_state.score_texture, NULL, &score_rect);
+  }
+
+  if (game_state.live_text_texture != nullptr) {
+    SDL_FRect score_rect{120, 1, (float)game_state.live_text_texture->w,
+                         (float)game_state.live_text_texture->h};
+    SDL_RenderTexture(renderer, game_state.live_text_texture, NULL,
+                      &score_rect);
+  }
+
+  if (game_state.lives_texture != nullptr) {
+    SDL_FRect score_rect{155, 1, (float)game_state.lives_texture->w,
+                         (float)game_state.lives_texture->h};
+    SDL_RenderTexture(renderer, game_state.lives_texture, NULL, &score_rect);
   }
 
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -103,7 +139,7 @@ void RenderSystem::drawWall(SDL_Renderer *renderer, Entity wall) {
   // SDL_FRect wall_center{
   //     wall.transform->position.x - wall.collider->rect.width / 2,
   //     wall.transform->position.y - wall.collider->rect.height / 2, 2.0, 2.0};
-  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+  SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
   SDL_RenderFillRect(renderer, &wall_rect);
   // SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
   // SDL_RenderFillRect(renderer, &wall_center);

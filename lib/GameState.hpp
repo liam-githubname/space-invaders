@@ -99,11 +99,14 @@ struct Gun {
 };
 
 enum class AlienType { Squid, Ship, Crab, Octopus };
-
+struct AlienDeathTimer {
+  int tick_count = 0;
+};
 // TODO: see if I can make the score dedicated to the AlienType
 struct Alien {
   AlienType type;
   int score;
+  std::optional<AlienDeathTimer> death_timer;
 };
 struct AlienFormation {
   std::vector<Alien> aliens;
@@ -125,6 +128,7 @@ struct Entity {
   std::optional<Velocity> velocity;
   std::optional<Transform> transform;
   std::optional<Sprite> sprite;
+  std::optional<Sprite> death_sprite;
   std::optional<Collider> collider;
   std::optional<WallInfo> wall_info;
   std::optional<Alien> alien_info;
@@ -151,10 +155,14 @@ public:
   SpriteSheet textures;
   int score = 0;
   bool score_update = false;
+  bool lives_update = false;
   SDL_Texture *score_texture = nullptr;
   SDL_Texture *score_board_texture = nullptr;
+  SDL_Texture *live_text_texture = nullptr;
+  SDL_Texture *lives_texture = nullptr;
   int number_of_aliens = 55;
   int total_number_of_aliens = 56;
+  int number_of_lives = 5;
 
   // This had to be here because the copy constructor below that
   // is deleted suppreses the compilers creation of any

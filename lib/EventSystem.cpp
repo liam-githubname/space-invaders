@@ -83,17 +83,35 @@ void EventSystem::BulletCollisionHandler(Entity &entity_a, Entity &entity_b,
 
   // If the other entity is an enemy destroy the enemy.
   if (entity_a.bitmask->layer == GameLayer::Enemy) {
-    game_state.DestroyEntity(entity_a.id);
+    // WARN:
+    // I'm going to alter the entity in this loop.
+    // Make it an explosion instead of an enemy. Then I'll have the renderSystem
+    // clean up explosions?
+    // game_state.DestroyEntity(entity_a.id);
     game_state.score += entity_a.alien_info->score;
     game_state.score_update = true;
     game_state.number_of_aliens--;
+
+    // alter the entity.
+    // The entity shouldn't be able to seen by collision or movement_systems?
+    entity_a.bitmask->layer = GameLayer::None;
+    entity_a.velocity.reset();
+    entity_a.sprite.emplace(entity_a.death_sprite.value());
+    entity_a.alien_info->death_timer.emplace();
+
   } else if (entity_b.bitmask->layer == GameLayer::Enemy) {
-    game_state.DestroyEntity(entity_b.id);
+    // game_state.DestroyEntity(entity_b.id);
     game_state.score += entity_b.alien_info->score;
     game_state.score_update = true;
     game_state.number_of_aliens--;
+    //
+    // alter the entity.
+    // The entity shouldn't be able to seen by collision or movement_systems?
+    entity_b.bitmask->layer = GameLayer::None;
+    entity_b.velocity.reset();
+    entity_b.sprite.emplace(entity_b.death_sprite.value());
+    entity_b.alien_info->death_timer.emplace();
   }
-  SDL_Log("Score: %d", game_state.score);
 
   return;
 }
@@ -220,7 +238,6 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b,
 void EventSystem::HandleScorePayload(const ScorePayload &payload,
                                      GameState &game_state) {
   game_state.score += payload.points;
-  SDL_Log("Score: %d", game_state.score);
 }
 
 void EventSystem::ProcessEvents(GameState &game_state) {

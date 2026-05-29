@@ -30,6 +30,8 @@ public:
   std::unordered_map<std::string, SpriteData> textures;
   void createScoreText(GraphicsModule &graphics, GameState &game_state);
   void createScoreNumber(GraphicsModule &graphics, GameState &game_state);
+  void createLiveText(GraphicsModule &graphics, GameState &game_state);
+  void createLivesCounter(GraphicsModule &graphics, GameState &game_state);
   void loadFont();
   void Initialize(GraphicsModule &graphics, GameState &game_state);
 

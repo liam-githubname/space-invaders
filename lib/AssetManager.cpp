@@ -87,9 +87,74 @@ void AssetManager::createScoreNumber(GraphicsModule &graphics,
   game_state.score_update = false;
 }
 
+void AssetManager::createLiveText(GraphicsModule &graphics,
+                                  GameState &game_state) {
+  SDL_DestroyTexture(game_state.live_text_texture);
+  auto lives_str = "lives";
+
+  SDL_Surface *surface = TTF_RenderText_Blended(font_, lives_str, 0,
+                                                SDL_Color{255, 255, 255, 255});
+  game_state.live_text_texture =
+      SDL_CreateTextureFromSurface(graphics.getRenderer(), surface);
+  SDL_SetTextureScaleMode(game_state.live_text_texture, SDL_SCALEMODE_PIXELART);
+
+  SDL_DestroySurface(surface);
+}
+
+void AssetManager::createLivesCounter(GraphicsModule &graphics,
+                                      GameState &game_state) {
+
+  SDL_DestroyTexture(game_state.lives_texture);
+  float width = 120.0f;
+  int number_of_rows = game_state.number_of_lives / 4 + 1;
+  float height = (float)number_of_rows * 14.0f;
+
+  // create a texture that should fit all of the lives
+  SDL_Texture *lives_texture =
+      SDL_CreateTexture(graphics.getRenderer(), SDL_PIXELFORMAT_BGRA8888,
+                        SDL_TEXTUREACCESS_TARGET, width, height);
+
+  // some settings to make the background blend in.
+  SDL_SetTextureBlendMode(lives_texture, SDL_BLENDMODE_BLEND);
+
+  // turns out this is necessary to have sprite be rendered to the texture as
+  // pixelart
+  SDL_SetTextureScaleMode(lives_texture, SDL_SCALEMODE_PIXELART);
+
+  // moves the renderers target to the new texture.
+  SDL_SetRenderTarget(graphics.getRenderer(), lives_texture);
+
+  // logically places player_sprites according to how many there are
+  const auto &player_sprite = textures["canon"];
+  for (int i = 0; i < game_state.number_of_lives; i++) {
+
+    auto column_offset = (i % 4) * (player_sprite.frame1.w + 2.0f);
+
+    auto row_offset = (i / 4) * (player_sprite.frame1.h + 1.0f);
+
+    auto dstRect = SDL_FRect{.x = column_offset,
+                             .y = row_offset,
+                             .w = player_sprite.frame1.w,
+                             .h = player_sprite.frame1.h};
+    // const because I don't want any chance in altering the sprite data
+
+    SDL_RenderTexture(graphics.getRenderer(),
+                      game_state.textures.sprite_sheet.get(),
+                      &player_sprite.frame1, &dstRect);
+  }
+
+  // resets the target for the renderer.
+  SDL_SetRenderTarget(graphics.getRenderer(), nullptr);
+
+  game_state.lives_texture = lives_texture;
+  SDL_SetTextureScaleMode(game_state.live_text_texture, SDL_SCALEMODE_PIXELART);
+}
+
 void AssetManager::Initialize(GraphicsModule &graphics, GameState &game_state) {
   loadFont();
   loadTexture(graphics, game_state);
   createScoreText(graphics, game_state);
   createScoreNumber(graphics, game_state);
+  createLiveText(graphics, game_state);
+  createLivesCounter(graphics, game_state);
 }

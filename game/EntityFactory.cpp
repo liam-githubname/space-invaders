@@ -140,12 +140,18 @@ void EntityFactory::createAlien(AlienType species, Vec2 position) {
   alien.alien_info.emplace(
       Alien{.type = species, .score = species_to_score(species)});
 
+  // TODO: remove magic numbers
   alien.velocity.emplace(Velocity{.speed = {2.0f}});
 
-  alien.transform.emplace(Transform{position, Vec2{0.0f, 0.0f}});
+  alien.transform.emplace(Transform{position, Zero()});
 
   alien.sprite.emplace(
       Sprite{.frame_data = asset_manager.textures[species_to_key(species)]});
+
+  // Because it's cheap to hold just the explosion sprite in the entity, I'm
+  // going to do that.
+  alien.death_sprite.emplace(
+      Sprite{.frame_data = asset_manager.textures["explosion"]});
 
   auto sprite_width = alien.sprite->frame_data.frame1.w;
   auto sprite_height = alien.sprite->frame_data.frame1.h;
