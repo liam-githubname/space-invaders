@@ -29,6 +29,37 @@
 #include <cstdlib>
 #include <ranges>
 
+void update_alien_for_death(Entity &alien) {
+  if (!alien.alien_info.has_value()) {
+    SDL_Log(
+        "Update alien for death passed entity without alien_info component");
+    return;
+  }
+  alien.bitmask.reset();
+  alien.velocity.reset();
+  alien.collider.reset();
+  if (alien.death_sprite.has_value()) {
+    alien.sprite.emplace(alien.death_sprite.value());
+    alien.alien_info->death_ticker.emplace(Ticker{.max_ticks = 45});
+  }
+}
+
+bool is_formation_alien(Entity &entity) {
+  if (!entity.alien_info.has_value()) {
+    return false;
+  }
+  switch (entity.alien_info->type) {
+  case AlienType::Squid:
+    return true;
+  case AlienType::Crab:
+    return true;
+  case AlienType::Octopus:
+    return true;
+  default:
+    return false;
+  }
+}
+
 class EventSystem;
 // This is the main use of this class here.
 void EventSystem::HandleCollisionPayload(const CollisionPayload &payload,
@@ -58,17 +89,16 @@ void EventSystem::HandleCollisionPayload(const CollisionPayload &payload,
 void EventSystem::BulletCollisionHandler(Entity &entity_a, Entity &entity_b,
                                          GameState &game_state) {
   // Shouldn't theoretically be possible but useful nonetheless
+
   if ((entity_a.bitmask->layer & entity_b.bitmask->mask) == GameLayer::None) {
-    SDL_Log("not on eachother's layer");
     return;
   }
-  if ((entity_a.bitmask->layer & entity_b.bitmask->mask) == GameLayer::None) {
-    SDL_Log("not on eachother's layer");
+  if ((entity_b.bitmask->layer & entity_a.bitmask->mask) == GameLayer::None) {
     return;
   }
   // If it's not a bullet then leave.
-  if (!(entity_a.bitmask->layer == GameLayer::Projectile) &&
-      !(entity_b.bitmask->layer == GameLayer::Projectile)) {
+  if ((entity_a.bitmask->layer != GameLayer::Projectile) &&
+      (entity_b.bitmask->layer != GameLayer::Projectile)) {
     return;
   }
 
@@ -82,35 +112,31 @@ void EventSystem::BulletCollisionHandler(Entity &entity_a, Entity &entity_b,
   }
 
   // If the other entity is an enemy destroy the enemy.
-  if (entity_a.bitmask->layer == GameLayer::Enemy) {
-    // WARN:
-    // I'm going to alter the entity in this loop.
-    // Make it an explosion instead of an enemy. Then I'll have the renderSystem
-    // clean up explosions?
-    // game_state.DestroyEntity(entity_a.id);
+  if (entity_a.bitmask->layer == GameLayer::Enemy &&
+      entity_a.alien_info.has_value()) {
+
+    update_alien_for_death(entity_a);
+
     game_state.score += entity_a.alien_info->score;
     game_state.score_update = true;
-    game_state.number_of_aliens--;
 
-    // alter the entity.
-    // The entity shouldn't be able to seen by collision or movement_systems?
-    entity_a.bitmask->layer = GameLayer::None;
-    entity_a.velocity.reset();
-    entity_a.sprite.emplace(entity_a.death_sprite.value());
-    entity_a.alien_info->death_timer.emplace();
+    if (is_formation_alien(entity_a)) {
+      game_state.number_of_aliens--;
+    }
 
-  } else if (entity_b.bitmask->layer == GameLayer::Enemy) {
-    // game_state.DestroyEntity(entity_b.id);
+    // FIX: Look into making this only a check of alien_info.
+    // Otherwise replace it with a function.
+  } else if (entity_b.bitmask->layer == GameLayer::Enemy &&
+             entity_b.alien_info.has_value()) {
+
+    update_alien_for_death(entity_b);
+
     game_state.score += entity_b.alien_info->score;
     game_state.score_update = true;
-    game_state.number_of_aliens--;
-    //
-    // alter the entity.
-    // The entity shouldn't be able to seen by collision or movement_systems?
-    entity_b.bitmask->layer = GameLayer::None;
-    entity_b.velocity.reset();
-    entity_b.sprite.emplace(entity_b.death_sprite.value());
-    entity_b.alien_info->death_timer.emplace();
+
+    if (is_formation_alien(entity_b)) {
+      game_state.number_of_aliens--;
+    }
   }
 
   return;
@@ -135,7 +161,6 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b,
   float wall_x, wall_y;
   WallSide which_wallside;
 
-  // I wasnt' addign the walls width? I think that's causing it to get stuck?
   wall_x = wall.transform->position.x;
   wall_y = wall.transform->position.y;
   which_wallside = wall.wall_info->side;
@@ -180,24 +205,24 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b,
   // So I went looking to see if C++ had the ability to filter a vector with a
   // lambda and then to iterate over it and it does!
   // Create a Predicate (lambda expression)
-  auto is_formation_alien = [](Entity &entity) {
-    if (!entity.alien_info.has_value()) {
-      return false;
-    }
-    switch (entity.alien_info->type) {
-    case AlienType::Squid:
-      return true;
-      break;
-    case AlienType::Crab:
-      return true;
-      break;
-    case AlienType::Octopus:
-      return true;
-      break;
-    default:
-      return false;
-    }
-  };
+  // auto is_formation_alien = [](Entity &entity) {
+  //   if (!entity.alien_info.has_value()) {
+  //     return false;
+  //   }
+  //   switch (entity.alien_info->type) {
+  //   case AlienType::Squid:
+  //     return true;
+  //     break;
+  //   case AlienType::Crab:
+  //     return true;
+  //     break;
+  //   case AlienType::Octopus:
+  //     return true;
+  //     break;
+  //   default:
+  //     return false;
+  //   }
+  // };
 
   if (is_formation_alien(entity)) {
 

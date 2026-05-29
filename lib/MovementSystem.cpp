@@ -38,7 +38,9 @@ void MovementSystem::Update(GameState &game_state, float current_frame_time) {
     }
 
     // If it hasnt been long enough and you're looking an alien stop looking.
-    if (!has_been_alien_step_time && entity.alien_info.has_value()) {
+    // The spaceship now bypasses the time blocker
+    if (!has_been_alien_step_time && entity.alien_info.has_value() &&
+        entity.alien_info->type != AlienType::Ship) {
       continue;
     }
 

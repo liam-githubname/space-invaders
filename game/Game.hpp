@@ -10,7 +10,9 @@
 #include "GraphicsModule.hpp"
 #include "InputSystem.hpp"
 #include "MovementSystem.hpp"
+#include "MysteryShipSystem.hpp"
 #include "RenderSystem.hpp"
+#include "RoundSystem.hpp"
 #include "ShootingSystem.hpp"
 #include "Timestep.hpp"
 #include "UISystem.hpp"
@@ -54,6 +56,9 @@ private:
   ShootingSystem shooting_system_;
   AssetManager asset_manager_;
   UISystem ui_system_;
+  RoundSystem round_system_;
+  MysteryShipSystem mystery_ship_system_;
+
   void initializeLibrarySystems(std::string_view title);
 
   // Miscellaneous

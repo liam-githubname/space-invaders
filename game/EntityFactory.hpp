@@ -22,7 +22,8 @@ public:
   void createPlayer();
   void createGameWalls();
   void createAlien(AlienType species, Vec2 position);
-  void createAlienFormation();
+  void createAlienFormation(Vec2 position);
+  void createMysteryShipSpawner();
 
 private:
   GameState &game_state_;

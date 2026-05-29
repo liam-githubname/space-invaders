@@ -28,8 +28,8 @@
 #include <vector>
 
 struct Bitmask {
-  GameLayer layer;
-  GameLayer mask;
+  GameLayer layer = GameLayer::None;
+  GameLayer mask = GameLayer::None;
 };
 // We can use an enum to define the possible shapes we can use and have
 // deterministic outcomes on operating methods.
@@ -66,6 +66,16 @@ struct Transform {
   Vec2 direction;
 };
 
+// TODO: Figure out a way to have not have both?
+struct Ticker {
+  int tick_count = 0;
+  int max_ticks = 0;
+};
+
+struct MysteryTicker {
+  int tick_count = 0;
+};
+
 // TODO: I'll make an enum for the sprites
 // Space-invaders had a readily available sprite sheet, so instead of storing a
 // key for sprite I'm storing a sprites coordinates on the sprite sheet.
@@ -99,14 +109,11 @@ struct Gun {
 };
 
 enum class AlienType { Squid, Ship, Crab, Octopus };
-struct AlienDeathTimer {
-  int tick_count = 0;
-};
 // TODO: see if I can make the score dedicated to the AlienType
 struct Alien {
   AlienType type;
-  int score;
-  std::optional<AlienDeathTimer> death_timer;
+  int score = 0;
+  std::optional<Ticker> death_ticker;
 };
 struct AlienFormation {
   std::vector<Alien> aliens;
@@ -133,6 +140,7 @@ struct Entity {
   std::optional<WallInfo> wall_info;
   std::optional<Alien> alien_info;
   std::optional<AlterMovement> movement_mod;
+  std::optional<MysteryTicker> mystery_ticker;
 
   // WARN: This stuff shouldn't be here but I don't really have a fix right now.
   // space_invaders stuff

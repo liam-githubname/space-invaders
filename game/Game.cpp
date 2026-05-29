@@ -8,6 +8,7 @@
 #include "InputSystem.hpp"
 #include "MovementSystem.hpp"
 #include "Timestep.hpp"
+#include "Util.hpp"
 #include <expected>
 
 Game::Game(GraphicsModule &&graphics, float window_width, float window_height)
@@ -58,7 +59,8 @@ void Game::initializeGame() {
   // factory creates entites that use the assets
   factory.createGameWalls();
   factory.createPlayer();
-  factory.createAlienFormation();
+  factory.createAlienFormation(Zero());
+  factory.createMysteryShipSpawner();
 }
 
 void Game::run() {
@@ -67,6 +69,11 @@ void Game::run() {
 
   SDL_Event event;
   SDL_zero(event);
+
+  // FIX: Either make this a private member of Game or figure out a better way
+  // to create it.
+  auto entity_factory =
+      EntityFactory(game_state_, asset_manager_, window_width_, window_height_);
 
   while (is_running) {
     // It is important to realize that the input_system actually relies on
@@ -96,6 +103,11 @@ void Game::run() {
     event_system_.ProcessEvents(game_state_);
     //========================================================================
     ui_system_.Update(graphics_, game_state_, asset_manager_);
+    //=========================================================================
+    mystery_ship_system_.Update(game_state_, asset_manager_);
+    //==================================================================
+    round_system_.Update(game_state_, render_system_, entity_factory,
+                         graphics_.getRenderer());
     //============================ Render =====================================
     render_system_.Update(game_state_, graphics_.getRenderer());
   }

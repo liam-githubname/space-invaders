@@ -3,6 +3,8 @@
 add_library(space-invaders-game
   Game.cpp
   EntityFactory.cpp
+  MysteryShipSystem.cpp
+  RoundSystem.cpp
 )
 
 # Expose both lib/ (engine headers) and game/ (our own headers) to consumers - 2026-05-17

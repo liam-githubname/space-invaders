@@ -45,7 +45,7 @@ void ShootingSystem::Update(GameState &game_state,
       auto col_height = player_bullet.sprite->frame_data.frame1.h;
 
       player_bullet.collider.emplace(Collider{.rect{col_width, col_height}});
-      player_bullet.velocity.emplace(Velocity{.speed = Up() * 2.0f});
+      player_bullet.velocity.emplace(Velocity{.speed = Up() * 3.0f});
       player_bullet.bitmask.emplace(Bitmask{
           .layer = GameLayer::Projectile,
           .mask = GameLayer::Wall | GameLayer::Enemy,

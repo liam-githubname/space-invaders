@@ -45,20 +45,18 @@ void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
 
     // FIX: I hate this double nest
     if (entity.alien_info.has_value() &&
-        entity.alien_info->death_timer.has_value()) {
+        entity.alien_info->death_ticker.has_value()) {
 
-      if (entity.alien_info->death_timer->tick_count < 30) {
-        entity.alien_info->death_timer->tick_count++;
+      auto max_ticks = entity.alien_info->death_ticker->max_ticks;
+      // FIX: Magic number, 40 ticks feels like a good amount of cycles for the
+      // death sprites to be visible.
+      if (entity.alien_info->death_ticker->tick_count < max_ticks) {
+        entity.alien_info->death_ticker->tick_count++;
       } else {
+        // FIX: Render the system shouldn't know about entities.
         game_state.DestroyEntity(entity.id);
       }
     }
-
-    // // Is this bad code? Yes, yes it is.
-    // if (is_the_same_SDL_FRect(entity.sprite->frame_data.frame1,
-    //                           entity.death_sprite->frame_data.frame1)) {
-    //   game_state.DestroyEntity(entity.id);
-    // }
 
     // DEBUG DRAWING =====================================
     // if (entity.bitmask->layer == GameLayer::Player) {

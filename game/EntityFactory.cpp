@@ -164,13 +164,15 @@ void EntityFactory::createAlien(AlienType species, Vec2 position) {
   alien.is_active = true;
 }
 
-void EntityFactory::createAlienFormation() {
+void EntityFactory::createAlienFormation(Vec2 position_update) {
   // Authentic Space Invaders layout: 5 rows x 11 columns
   // Horizontal spacing: 16px (gives ~4-8px gap depending on sprite width)
   // Vertical spacing: 15px (8px sprite + 7px gap as requested)
   // Row 0: Squid (top)
   // Rows 1-2: Crab (middle)
   // Rows 3-4: Octopus (bottom)
+
+  config.first_alien_position += position_update;
 
   for (int row = 0; row < config.rows; row++) {
     for (int col = 0; col < config.columns; col++) {
@@ -194,6 +196,12 @@ void EntityFactory::createAlienFormation() {
       createAlien(species, Vec2{x, y});
     }
   }
+}
+
+void EntityFactory::createMysteryShipSpawner() {
+  auto &spawner = game_state_.CreateEntity();
+  spawner.mystery_ticker.emplace();
+  spawner.bitmask.emplace();
 }
 
 // Constructor that uses an initalizer list because it's more efficient, it

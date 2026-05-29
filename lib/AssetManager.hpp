@@ -36,6 +36,8 @@ public:
   void Initialize(GraphicsModule &graphics, GameState &game_state);
 
 private:
+  // https://www.spriters-resource.com/arcade/spaceinv/asset/115520/ Thanks to
+  // spriters-resource for the space invaders sheet.
   std::string file_path_ = "assets/space_invaders_sprite_sheet.png";
   std::string font_path_ = "assets/fonts/space_invaders.ttf";
   TTF_Font *font_ = nullptr;

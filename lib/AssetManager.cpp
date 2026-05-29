@@ -37,7 +37,10 @@ void AssetManager::loadTexture(GraphicsModule &graphics,
       .frame1 = SDL_FRect{.x = 3.0f, .y = 49.0f, .w = 13.0f, .h = 8.0f},
   };
   textures["spaceship"] = SpriteData{
-      .frame1 = SDL_FRect{.x = 1.0f, .y = 40.0f, .w = 16.0f, .h = 8.0f},
+      .frame1 = SDL_FRect{.x = 1.0f, .y = 40.0f, .w = 16.0f, .h = 7.0f},
+  };
+  textures["spaceship-death"] = SpriteData{
+      .frame1 = SDL_FRect{.x = 20.0f, .y = 39.0f, .w = 21.0f, .h = 8.0f},
   };
   textures["barrier"] = SpriteData{
       .frame1 = SDL_FRect{.x = 46.0f, .y = 31.0f, .w = 22.0f, .h = 16.0f},
