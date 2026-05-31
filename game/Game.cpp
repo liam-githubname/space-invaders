@@ -104,7 +104,7 @@ void Game::run() {
     //========================================================================
     ui_system_.Update(graphics_, game_state_, asset_manager_);
     //=========================================================================
-    mystery_ship_system_.Update(game_state_, asset_manager_);
+    mystery_ship_system_.Update(game_state_, asset_manager_, is_running);
     //==================================================================
     round_system_.Update(game_state_, render_system_, entity_factory,
                          graphics_.getRenderer());

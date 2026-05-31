@@ -49,11 +49,15 @@ For the space invaders font
 
 # Gameplay
 ## Not completed
-- I need to have it loop when the last invader is killed.
-- I need to have random alien spaceship go by.
 - I need to add the little green barriers.
 
 ## Completed
+- I need to have random alien spaceship go by.
+  - I created a system that checks manages the mystery ships. 
+  - I decided to go with atari 2600 style of ufo behavior.
+- I need to have it loop when the last invader is killed.
+  - There is a system that monitors the number of formation aliens still alive in a round. Once it detects a round has ended it calls the renderer to clean up the animations. Pauses the game for a moment and then spawns in a new round of aliens. 
+    - It doesn't have an issue where it creates a separate instance of entity factory. This means that the rounds don't keep descending, but more importantly it's a waste of resources.
 - The invaders move across the screen properly and descend (slightly incorrectly).
 - I need to add the explosion animation
 - The score is on the screen and updates.
@@ -65,7 +69,14 @@ For the space invaders font
     - Players lives are being drawn
     - I need to still add the actual logic for losing a life, but theoretically the texture should update.
 
-
+# Aliens shooting at the player
+- The aliens have an attack besides inching downwards toward the player, they can shoot!
+- Depending on which space invaders version you are playing, the rules for what aliens and when they can shoot differ. The one that I liked was that only the bottom row of any column can shoot. This means that the alien on the bottom has to know there is nothing blocking their shot.
+  - These projectiles are only every shot from the last alien in a column, to achieve this you have to understand what the aliens need to know.
+  1. Aliens need to be able to see what's below them (Raycasting).
+  1. Aliens need to know their place in line and know the status of all the aliens around them (some convoluted tracker or algorithm).
+  - I had already built a raycasting system that should act as a perfect drop in system that could be used!
+  - I was able to apply my raycasting system to the aliens, giving them vision and by proxy a very rudimentary AI!
 
 # Example [:^1]
 ## The "Firing a Weapon" Pipeline

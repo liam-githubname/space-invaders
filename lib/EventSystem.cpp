@@ -81,13 +81,14 @@ void EventSystem::HandleCollisionPayload(const CollisionPayload &payload,
   } // WARN: There is a c++ function called find_if that I could use to have
   // The dereferenced entity pointer should hold a entity reference
   WallCollisionHandler(*entity_a, *entity_b, game_state);
-  BulletCollisionHandler(*entity_a, *entity_b, game_state);
+  PlayerBulletCollisionHandler(*entity_a, *entity_b, game_state);
 
   // ==========================================================================
 }
 
-void EventSystem::BulletCollisionHandler(Entity &entity_a, Entity &entity_b,
-                                         GameState &game_state) {
+void EventSystem::PlayerBulletCollisionHandler(Entity &entity_a,
+                                               Entity &entity_b,
+                                               GameState &game_state) {
   // Shouldn't theoretically be possible but useful nonetheless
 
   if ((entity_a.bitmask->layer & entity_b.bitmask->mask) == GameLayer::None) {

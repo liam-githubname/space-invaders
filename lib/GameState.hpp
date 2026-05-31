@@ -21,6 +21,7 @@
 #include "GraphicsModule.hpp"
 #include "Util.hpp"
 #include <EventQueue.hpp>
+#include <cmath>
 #include <cstdint>
 #include <optional>
 #include <sys/types.h>
@@ -102,10 +103,14 @@ struct Raycaster {
 // WARN: Space-invaders structs, these make lib aware of space-invaders
 // TODO: Make ShootingSystem to check for a cooldown.
 struct Gun {
-  float distance;
+  float distance = INFINITY;
   bool fire_flag;
   Raycaster raycaster;
   float cooldown_time;
+};
+
+struct TimedDeath {
+  Ticker ticker;
 };
 
 enum class AlienType { Squid, Ship, Crab, Octopus };
@@ -141,6 +146,7 @@ struct Entity {
   std::optional<Alien> alien_info;
   std::optional<AlterMovement> movement_mod;
   std::optional<MysteryTicker> mystery_ticker;
+  std::optional<TimedDeath> time_death;
 
   // WARN: This stuff shouldn't be here but I don't really have a fix right now.
   // space_invaders stuff
@@ -169,7 +175,7 @@ public:
   SDL_Texture *live_text_texture = nullptr;
   SDL_Texture *lives_texture = nullptr;
   int number_of_aliens = 55;
-  int total_number_of_aliens = 56;
+  int total_number_of_aliens = 55;
   int number_of_lives = 5;
 
   // This had to be here because the copy constructor below that

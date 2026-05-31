@@ -6,20 +6,24 @@
 #include <cstdlib>
 #include <random>
 
-int zero_or_one() {
-
-  std::random_device rd;
-  // Mersenne Twister engine
-  std::mt19937 generator(rd());
-  // Give me an integer evenly distributed between 1 and 100
-  std::uniform_int_distribution<int> intDist(0, 1);
-
-  // pass the generator into the distribution
-  return intDist(generator);
+bool have_aliens_breached(GameState &game_state) {
+  auto has_breached = false;
+  for (Entity &entity : game_state.entities) {
+    if (!entity.alien_info.has_value()) {
+      continue;
+    }
+    if (!entity.transform) {
+      continue;
+    }
+    if (entity.transform->position.y >= 204.0f) {
+      has_breached = true;
+    }
+  }
+  return has_breached;
 }
 
-void MysteryShipSystem::Update(GameState &game_state,
-                               AssetManager &asset_manager) {
+void UpdateMysteryShipSpawner(GameState &game_state,
+                              AssetManager &asset_manager) {
 
   // Find the spawner
   auto spawner = std::find_if(
@@ -89,4 +93,13 @@ void MysteryShipSystem::Update(GameState &game_state,
   }
 
   spawner->mystery_ticker->tick_count++;
+}
+
+void MysteryShipSystem::Update(GameState &game_state,
+                               AssetManager &asset_manager, bool &is_running) {
+
+  if (have_aliens_breached(game_state)) {
+    is_running = false;
+  }
+  UpdateMysteryShipSpawner(game_state, asset_manager);
 }

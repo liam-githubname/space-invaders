@@ -24,8 +24,16 @@ void MovementSystem::Update(GameState &game_state, float current_frame_time) {
   // It also explains how the original space invaders got around this multiple
   // wall collision problem that I had. Only one alien could touch the wall at
   // any given moment.
+
+  auto number_of_aliens_alive =
+      game_state.total_number_of_aliens - game_state.number_of_aliens;
+  auto alien_speed_multiplier = number_of_aliens_alive;
+
+  // FIX: There are magic numbers here, Maybe extract it to somewhere or
+  // something else?
   auto has_been_alien_step_time =
-      ((current_frame_time - last_time) > (500000000ULL));
+      ((current_frame_time - last_time) >
+       (500000000ULL) - alien_speed_multiplier * 6000000);
 
   for (auto &entity : game_state.entities) {
     // Guard against dead entities.

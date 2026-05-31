@@ -62,7 +62,7 @@ private:
   void initializeLibrarySystems(std::string_view title);
 
   // Miscellaneous
-  bool is_running;
+  bool is_running = true;
   float dt = 1.0f / 60.0f;
   float window_width_;
   float window_height_;

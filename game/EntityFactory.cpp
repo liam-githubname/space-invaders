@@ -68,7 +68,8 @@ void EntityFactory::createGameWalls() {
   // Left wall
   auto &left_wall = game_state_.CreateEntity();
   left_wall.bitmask.emplace(
-      Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player});
+      Bitmask{.layer = GameLayer::Wall,
+              .mask = GameLayer::Player | GameLayer::Projectile});
   left_wall.wall_info.emplace(WallSide::Left);
   left_wall.is_active = true;
   left_wall.transform.emplace(Transform{
@@ -143,7 +144,7 @@ void EntityFactory::createAlien(AlienType species, Vec2 position) {
   // TODO: remove magic numbers
   alien.velocity.emplace(Velocity{.speed = {2.0f}});
 
-  alien.transform.emplace(Transform{position, Zero()});
+  alien.transform.emplace(Transform{position, Down()});
 
   alien.sprite.emplace(
       Sprite{.frame_data = asset_manager.textures[species_to_key(species)]});
@@ -159,7 +160,7 @@ void EntityFactory::createAlien(AlienType species, Vec2 position) {
   alien.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
                                   .rect{sprite_width, sprite_height}});
 
-  // TODO: complete the sprite work
+  alien.gun.emplace(Gun{.fire_flag = false});
 
   alien.is_active = true;
 }

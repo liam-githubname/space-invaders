@@ -10,6 +10,7 @@
 // ============================================================================
 #pragma once
 #include <iostream>
+#include <random>
 
 struct Vec2 {
   float x, y;
@@ -93,4 +94,28 @@ template <typename... Ts> Overload(Ts...) -> Overload<Ts...>;
 inline void clearConsole() {
   // \033[2J clears the screen, \033[H moves cursor to top-left
   std::cout << "\033[2J\033[H" << std::endl;
+}
+
+inline int zero_or_one() {
+
+  std::random_device rd;
+  // Mersenne Twister engine
+  std::mt19937 generator(rd());
+  // Give me an integer evenly distributed between 1 and 100
+  std::uniform_int_distribution<int> intDist(0, 1);
+
+  // pass the generator into the distribution
+  return intDist(generator);
+}
+
+inline int one_to_1k() {
+
+  std::random_device rd;
+  // Mersenne Twister engine
+  std::mt19937 generator(rd());
+  // Give me an integer evenly distributed between 1 and 100
+  std::uniform_int_distribution<int> intDist(1, 1000);
+
+  // pass the generator into the distribution
+  return intDist(generator);
 }

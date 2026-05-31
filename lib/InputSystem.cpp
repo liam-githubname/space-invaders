@@ -9,6 +9,7 @@
 // ========================================================================
 #include "InputSystem.hpp"
 #include "GameState.hpp"
+#include "Util.hpp"
 #include <SDL3/SDL.h>
 #include <algorithm>
 
@@ -22,11 +23,7 @@ InputSystem InputSystem::create() {
   return InputSystem(state);
 };
 
-// Private Constructor
-InputSystem::InputSystem(const bool *keyboard_state)
-    : keyboard_state(keyboard_state) {}
-
-void InputSystem::Update(GameState &game_state) {
+void update_player_input(const bool *keyboard_state, GameState &game_state) {
   Vec2 move{0.0f, 0.0f};
   auto fire_input = false;
 
@@ -67,4 +64,25 @@ void InputSystem::Update(GameState &game_state) {
   // component maybe? entity->transform->direction = move;
   player_entity->player_input->is_firing = fire_input;
   player_entity->gun->fire_flag = fire_input;
+}
+
+// TODO: implement
+void update_alien_input(GameState &game_state, Entity &entity) {
+  if (entity.gun.has_value()) {
+    entity.gun->fire_flag = (one_to_1k() == 1) ? true : false;
+  }
+}
+
+// Private Constructor
+InputSystem::InputSystem(const bool *keyboard_state)
+    : keyboard_state(keyboard_state) {}
+
+void InputSystem::Update(GameState &game_state) {
+  update_player_input(keyboard_state, game_state);
+
+  for (auto &entity : game_state.entities) {
+    if (entity.alien_info.has_value()) {
+      update_alien_input(game_state, entity);
+    }
+  }
 }
