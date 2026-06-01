@@ -32,14 +32,15 @@ public:
   void createScoreNumber(GraphicsModule &graphics, GameState &game_state);
   void createLiveText(GraphicsModule &graphics, GameState &game_state);
   void createLivesCounter(GraphicsModule &graphics, GameState &game_state);
+  void createMenuTextures(GraphicsModule &graphics, GameState &game_state);
   void loadFont();
   void Initialize(GraphicsModule &graphics, GameState &game_state);
+  TTF_Font *font_ = nullptr;
 
 private:
   // https://www.spriters-resource.com/arcade/spaceinv/asset/115520/ Thanks to
   // spriters-resource for the space invaders sheet.
   std::string file_path_ = "assets/space_invaders_sprite_sheet.png";
   std::string font_path_ = "assets/fonts/space_invaders.ttf";
-  TTF_Font *font_ = nullptr;
 };
 //-----------------------------------------------------------------------------

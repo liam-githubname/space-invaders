@@ -23,6 +23,7 @@ public:
   static std::expected<Game, std::string> create(std::string_view title,
                                                  int width, int height);
   void run();
+  void run_menu();
   // Copy semantic is being deleted
   Game(const Game &) = delete;
   Game &operator=(const Game &) = delete;
@@ -63,9 +64,11 @@ private:
 
   // Miscellaneous
   bool is_running = true;
+  bool start_menu_running = true;
+
   float dt = 1.0f / 60.0f;
   float window_width_;
   float window_height_;
 
-  void initializeGame();
+  void initializeGame(EntityFactory &factory);
 };

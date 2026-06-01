@@ -32,13 +32,16 @@ void update_player_shooting(GameState &game_state, AssetManager &asset_manager,
 
     auto &player_bullet = game_state.CreateEntity();
     player_bullet.is_active = true;
+    player_bullet.parent.emplace(ParentEntityClass{.was_player = true});
 
     player_bullet.sprite.emplace(
         Sprite{.frame_data = asset_manager.textures["bullet"]});
     auto col_width = player_bullet.sprite->frame_data.frame1.w;
     auto col_height = player_bullet.sprite->frame_data.frame1.h;
 
-    player_bullet.collider.emplace(Collider{.rect{col_width, col_height}});
+    player_bullet.health.emplace(Health{.max_hp = 1});
+    player_bullet.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
+                                            .rect{col_width, col_height}});
     player_bullet.velocity.emplace(Velocity{.speed = Up() * 3.0f});
     player_bullet.bitmask.emplace(Bitmask{
         .layer = GameLayer::Projectile,
@@ -201,6 +204,37 @@ uint32_t raycast(GameState &game_state, Entity &entity) {
   return hit_entity_id;
 }
 
+void update_alien_shooting(GameState &game_state, Entity &entity,
+                           AssetManager &asset_manager) {
+
+  if (ray_cast_hits_alien(game_state, entity)) {
+    return;
+  }
+
+  auto &enemy_bullet = game_state.CreateEntity();
+  enemy_bullet.is_active = true;
+
+  enemy_bullet.health.emplace(Health{.max_hp = 1});
+  enemy_bullet.sprite.emplace(
+      Sprite{.frame_data = asset_manager.textures["bullet"]});
+  auto col_width = enemy_bullet.sprite->frame_data.frame1.w;
+  auto col_height = enemy_bullet.sprite->frame_data.frame1.h;
+
+  enemy_bullet.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
+                                         .rect{col_width, col_height}});
+  enemy_bullet.velocity.emplace(Velocity{.speed = Down() * 2.0f});
+  enemy_bullet.bitmask.emplace(Bitmask{
+      .layer = GameLayer::Projectile,
+      .mask = GameLayer::Player | GameLayer::Wall,
+  });
+  enemy_bullet.transform.emplace(
+      Transform{.position = entity.transform->position, .direction = Down()});
+  enemy_bullet.transform->position.y += entity.sprite->frame_data.frame1.h / 2;
+
+  // Adding a death timer for the entity
+  // enemy_bullet.time_death.emplace(TimedDeath{.ticker{.max_ticks = 1000}});
+}
+
 void ShootingSystem::Update(GameState &game_state,
                             AssetManager &asset_manager) {
 
@@ -227,32 +261,7 @@ void ShootingSystem::Update(GameState &game_state,
     // raycast downward to check if aliens have a clear line of sight
     // if they do have, fire at random.
     if (entity.alien_info.has_value()) {
-
-      if (ray_cast_hits_alien(game_state, entity)) {
-        continue;
-      }
-
-      auto &enemy_bullet = game_state.CreateEntity();
-      enemy_bullet.is_active = true;
-
-      enemy_bullet.sprite.emplace(
-          Sprite{.frame_data = asset_manager.textures["bullet"]});
-      auto col_width = enemy_bullet.sprite->frame_data.frame1.w;
-      auto col_height = enemy_bullet.sprite->frame_data.frame1.h;
-
-      enemy_bullet.collider.emplace(Collider{.rect{col_width, col_height}});
-      enemy_bullet.velocity.emplace(Velocity{.speed = Down() * 2.0f});
-      enemy_bullet.bitmask.emplace(Bitmask{
-          .layer = GameLayer::Projectile,
-          .mask = GameLayer::Player,
-      });
-      enemy_bullet.transform.emplace(Transform{
-          .position = entity.transform->position, .direction = Down()});
-      enemy_bullet.transform->position.y +=
-          entity.sprite->frame_data.frame1.h / 2;
-
-      // Adding a death timer for the entity
-      enemy_bullet.time_death.emplace(TimedDeath{.ticker{.max_ticks = 1000}});
+      update_alien_shooting(game_state, entity, asset_manager);
     }
   }
 }

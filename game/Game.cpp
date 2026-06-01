@@ -47,33 +47,83 @@ struct config {
   float game_margins = 140.0f;
 };
 
-void Game::initializeGame() {
+void Game::initializeGame(EntityFactory &factory) {
 
   // Initialize the assets first
   asset_manager_.Initialize(graphics_, game_state_);
 
-  // create the factory
-  auto factory =
-      EntityFactory(game_state_, asset_manager_, window_width_, window_height_);
-
   // factory creates entites that use the assets
   factory.createGameWalls();
+  factory.createBarrier({.x = 128.0f, .y = 186.0f});
   factory.createPlayer();
   factory.createAlienFormation(Zero());
   factory.createMysteryShipSpawner();
 }
 
+void Game::run_menu() {
+
+  asset_manager_.loadFont();
+  asset_manager_.createMenuTextures(graphics_, game_state_);
+
+  // Keep player in the menu while they havent' pressed space
+  while (start_menu_running) {
+    while (SDL_PollEvent(&event_)) {
+      if (event_.type == SDL_EVENT_QUIT) {
+        start_menu_running = false;
+        is_running = false;
+      }
+      if (event_.type == SDL_EVENT_KEY_DOWN) {
+        if (event_.key.key == SDLK_SPACE) {
+          start_menu_running = false;
+        }
+      }
+    }
+
+    // clear the renderer and present start screen
+    SDL_SetRenderDrawColor(graphics_.getRenderer(), 0, 0, 0, 255);
+    SDL_RenderClear(graphics_.getRenderer());
+
+    if (game_state_.menu_title_texture != nullptr) {
+      float title_w = (float)game_state_.menu_title_texture->w * 2.0f;
+      float title_h = (float)game_state_.menu_title_texture->h * 2.0f;
+      SDL_FRect title_rect{(window_width_ - title_w) / 2.0f,
+                           window_height_ / 3.0f, title_w, title_h};
+      SDL_RenderTexture(graphics_.getRenderer(), game_state_.menu_title_texture,
+                        NULL, &title_rect);
+    }
+
+    if (game_state_.menu_prompt_texture != nullptr) {
+      float prompt_w = (float)game_state_.menu_prompt_texture->w * 2.0f;
+      float prompt_h = (float)game_state_.menu_prompt_texture->h * 2.0f;
+      SDL_FRect prompt_rect{(window_width_ - prompt_w) / 2.0f,
+                            window_height_ * 2.0f / 3.0f, prompt_w, prompt_h};
+      SDL_RenderTexture(graphics_.getRenderer(),
+                        game_state_.menu_prompt_texture, NULL, &prompt_rect);
+    }
+
+    SDL_RenderPresent(graphics_.getRenderer());
+  }
+
+  // clean up
+  SDL_DestroyTexture(game_state_.menu_title_texture);
+  SDL_DestroyTexture(game_state_.menu_prompt_texture);
+  game_state_.menu_title_texture = nullptr;
+  game_state_.menu_prompt_texture = nullptr;
+}
+
 void Game::run() {
 
-  initializeGame();
-
-  SDL_Event event;
-  SDL_zero(event);
+  run_menu();
 
   // FIX: Either make this a private member of Game or figure out a better way
   // to create it.
   auto entity_factory =
       EntityFactory(game_state_, asset_manager_, window_width_, window_height_);
+
+  initializeGame(entity_factory);
+
+  SDL_Event event;
+  SDL_zero(event);
 
   while (is_running) {
     // It is important to realize that the input_system actually relies on
@@ -99,15 +149,15 @@ void Game::run() {
       //===================================
       shooting_system_.Update(game_state_, asset_manager_);
     }
+    ui_system_.Update(graphics_, game_state_, asset_manager_);
+    //=========================================================================
+    // mystery_ship_system_.Update(game_state_, asset_manager_, is_running);
+    //==================================================================
+    round_system_.Update(game_state_, render_system_, entity_factory,
+                         asset_manager_, graphics_.getRenderer(), is_running);
     //========================== Consume Events =============================
     event_system_.ProcessEvents(game_state_);
     //========================================================================
-    ui_system_.Update(graphics_, game_state_, asset_manager_);
-    //=========================================================================
-    mystery_ship_system_.Update(game_state_, asset_manager_, is_running);
-    //==================================================================
-    round_system_.Update(game_state_, render_system_, entity_factory,
-                         graphics_.getRenderer());
     //============================ Render =====================================
     render_system_.Update(game_state_, graphics_.getRenderer());
   }

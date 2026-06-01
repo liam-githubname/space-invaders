@@ -13,6 +13,7 @@ struct Config {
   int columns = 11; // 11 aliens per row (authentic to original)
   Vec2 first_alien_position = Vec2{.x = 24.0f, .y = 40.0f};
   Vec2 player_spawn_position = Vec2{.x = 112.0f, .y = 208.0f};
+  Vec2 barrier1_position = Vec2{.x = 0.0f, .y = 0.0f};
 };
 
 class EntityFactory {
@@ -20,6 +21,8 @@ public:
   EntityFactory(GameState &game_state, AssetManager &asset_manager,
                 float window_width, float window_height);
   void createPlayer();
+  void createBarrier(Vec2 position);
+  void createBarriers();
   void createGameWalls();
   void createAlien(AlienType species, Vec2 position);
   void createAlienFormation(Vec2 position);

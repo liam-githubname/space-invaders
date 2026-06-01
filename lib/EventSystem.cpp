@@ -29,22 +29,8 @@
 #include <cstdlib>
 #include <ranges>
 
-void update_alien_for_death(Entity &alien) {
-  if (!alien.alien_info.has_value()) {
-    SDL_Log(
-        "Update alien for death passed entity without alien_info component");
-    return;
-  }
-  alien.bitmask.reset();
-  alien.velocity.reset();
-  alien.collider.reset();
-  if (alien.death_sprite.has_value()) {
-    alien.sprite.emplace(alien.death_sprite.value());
-    alien.alien_info->death_ticker.emplace(Ticker{.max_ticks = 45});
-  }
-}
-
-bool is_formation_alien(Entity &entity) {
+// FIX: Duplicate code need to remove testing refactor REMOVE REMOVE REMOVE
+bool is_formation_alien_one(Entity &entity) {
   if (!entity.alien_info.has_value()) {
     return false;
   }
@@ -81,66 +67,44 @@ void EventSystem::HandleCollisionPayload(const CollisionPayload &payload,
   } // WARN: There is a c++ function called find_if that I could use to have
   // The dereferenced entity pointer should hold a entity reference
   WallCollisionHandler(*entity_a, *entity_b, game_state);
-  PlayerBulletCollisionHandler(*entity_a, *entity_b, game_state);
+  BulletCollisionHandler(*entity_a, *entity_b, game_state);
 
   // ==========================================================================
 }
 
-void EventSystem::PlayerBulletCollisionHandler(Entity &entity_a,
-                                               Entity &entity_b,
-                                               GameState &game_state) {
+void EventSystem::BulletCollisionHandler(Entity &entity_a, Entity &entity_b,
+                                         GameState &game_state) {
   // Shouldn't theoretically be possible but useful nonetheless
 
-  if ((entity_a.bitmask->layer & entity_b.bitmask->mask) == GameLayer::None) {
-    return;
-  }
-  if ((entity_b.bitmask->layer & entity_a.bitmask->mask) == GameLayer::None) {
-    return;
-  }
+  // if ((entity_a.bitmask->layer & entity_b.bitmask->mask) == GameLayer::None)
+  // {
+  //   SDL_Log("(entity_a.bitmask->layer & entity_b.bitmask->mask)");
+  //   return;
+  // }
+  // if ((entity_b.bitmask->layer & entity_a.bitmask->mask) == GameLayer::None)
+  // {
+  //   SDL_Log("(entity_b.bitmask->layer & entity_a.bitmask->mask)");
+  //   return;
+  // }
   // If it's not a bullet then leave.
   if ((entity_a.bitmask->layer != GameLayer::Projectile) &&
       (entity_b.bitmask->layer != GameLayer::Projectile)) {
+    SDL_Log("BulletCollisionHandler is exiting");
     return;
   }
 
-  // Destroy the bullet.
-  if (entity_a.bitmask->layer == GameLayer::Projectile) {
-    game_state.DestroyEntity(entity_a.id);
-    game_state.bullet_is_active = false;
-  } else {
-    game_state.DestroyEntity(entity_b.id);
-    game_state.bullet_is_active = false;
+  // I'm adding a health component. I'm hoping that I can remove some of this
+  // nesting by using a generic health component. Destroy the bullet.
+
+  // TODO: remove duplication
+  // NOTE: This reduces the health of the entity
+  if (entity_a.health.has_value()) {
+    entity_a.health->hp--;
   }
 
-  // If the other entity is an enemy destroy the enemy.
-  if (entity_a.bitmask->layer == GameLayer::Enemy &&
-      entity_a.alien_info.has_value()) {
-
-    update_alien_for_death(entity_a);
-
-    game_state.score += entity_a.alien_info->score;
-    game_state.score_update = true;
-
-    if (is_formation_alien(entity_a)) {
-      game_state.number_of_aliens--;
-    }
-
-    // FIX: Look into making this only a check of alien_info.
-    // Otherwise replace it with a function.
-  } else if (entity_b.bitmask->layer == GameLayer::Enemy &&
-             entity_b.alien_info.has_value()) {
-
-    update_alien_for_death(entity_b);
-
-    game_state.score += entity_b.alien_info->score;
-    game_state.score_update = true;
-
-    if (is_formation_alien(entity_b)) {
-      game_state.number_of_aliens--;
-    }
+  if (entity_b.health.has_value()) {
+    entity_b.health->hp--;
   }
-
-  return;
 }
 
 // NOTE: I know it's not pretty but I'm running out of time.
@@ -206,31 +170,12 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b,
   // So I went looking to see if C++ had the ability to filter a vector with a
   // lambda and then to iterate over it and it does!
   // Create a Predicate (lambda expression)
-  // auto is_formation_alien = [](Entity &entity) {
-  //   if (!entity.alien_info.has_value()) {
-  //     return false;
-  //   }
-  //   switch (entity.alien_info->type) {
-  //   case AlienType::Squid:
-  //     return true;
-  //     break;
-  //   case AlienType::Crab:
-  //     return true;
-  //     break;
-  //   case AlienType::Octopus:
-  //     return true;
-  //     break;
-  //   default:
-  //     return false;
-  //   }
-  // };
+  if (is_formation_alien_one(entity)) {
 
-  if (is_formation_alien(entity)) {
-
-    if (wall.wall_info->side == WallSide::Top ||
-        wall.wall_info->side == WallSide::Bottom) {
-      game_state.DestroyEntity(entity.id);
-    }
+    // if (wall.wall_info->side == WallSide::Top ||
+    //     wall.wall_info->side == WallSide::Bottom) {
+    //   game_state.DestroyEntity(entity.id);
+    // }
 
     auto new_direction_sign =
         (wall.wall_info->side == WallSide::Right) ? -1.0f : 1.0f;
@@ -243,7 +188,7 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b,
 
     // Then you create a std::view by using your predicate as the filter
     for (auto &enemy :
-         game_state.entities | std::views::filter(is_formation_alien)) {
+         game_state.entities | std::views::filter(is_formation_alien_one)) {
 
       // Then you apply whatever you want to the members of the view.
       enemy.movement_mod.emplace(new_movement_intent);
@@ -255,7 +200,6 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b,
         .speed_assignment = Vec2{.x = 1.0f, .y = 0.0f},
         .suppress_velocity = true,
     };
-
     entity.movement_mod.emplace(player_movement_intent);
     entity.transform->position = wall_transform_update(which_wallside);
   }

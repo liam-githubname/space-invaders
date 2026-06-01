@@ -50,6 +50,10 @@ For the space invaders font
 # Gameplay
 ## Not completed
 - I need to add the little green barriers.
+- The barriers need to be deteriorated.
+- The enemy projectiles need to be able to hit the player.
+- The player needs to lose a life when it gets hit.
+- Game over screen.
 
 ## Completed
 - I need to have random alien spaceship go by.
@@ -77,6 +81,18 @@ For the space invaders font
   1. Aliens need to know their place in line and know the status of all the aliens around them (some convoluted tracker or algorithm).
   - I had already built a raycasting system that should act as a perfect drop in system that could be used!
   - I was able to apply my raycasting system to the aliens, giving them vision and by proxy a very rudimentary AI!
+
+# Updates:
+## Things that should probably be in RoundSystem::Update()
+- the alien breaching past the player's defenses, it's in MysteryShip right now
+- Enemy bullet spawning? Currently in ShootingSystem
+- The MysteryShip System should just be a part of the RoundSystem
+- Alien death timer ticker: Currently in RenderSystem
+## Maybe update?
+- Alien speed and timing: Currently in MovementSystem;
+- Alien Death and Scoring: Currently in EventSystem::PlayerBulletCollisionHandler.
+- Formation and wall hit logic: in EventSystem::WallCollisionHandler.
+
 
 # Example [:^1]
 ## The "Firing a Weapon" Pipeline

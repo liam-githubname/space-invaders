@@ -73,6 +73,11 @@ struct Ticker {
   int max_ticks = 0;
 };
 
+struct Health {
+  int max_hp = 5;
+  int hp = max_hp;
+};
+
 struct MysteryTicker {
   int tick_count = 0;
 };
@@ -113,6 +118,10 @@ struct TimedDeath {
   Ticker ticker;
 };
 
+struct ParentEntityClass {
+  bool was_player;
+};
+
 enum class AlienType { Squid, Ship, Crab, Octopus };
 // TODO: see if I can make the score dedicated to the AlienType
 struct Alien {
@@ -147,6 +156,8 @@ struct Entity {
   std::optional<AlterMovement> movement_mod;
   std::optional<MysteryTicker> mystery_ticker;
   std::optional<TimedDeath> time_death;
+  std::optional<Health> health;
+  std::optional<ParentEntityClass> parent;
 
   // WARN: This stuff shouldn't be here but I don't really have a fix right now.
   // space_invaders stuff
@@ -174,6 +185,8 @@ public:
   SDL_Texture *score_board_texture = nullptr;
   SDL_Texture *live_text_texture = nullptr;
   SDL_Texture *lives_texture = nullptr;
+  SDL_Texture *menu_title_texture = nullptr;
+  SDL_Texture *menu_prompt_texture = nullptr;
   int number_of_aliens = 55;
   int total_number_of_aliens = 55;
   int number_of_lives = 5;

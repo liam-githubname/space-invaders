@@ -19,8 +19,8 @@ public:
   void WallCollisionHandler(Entity &entity_a, Entity &entity_b,
                             GameState &game_state);
 
-  void PlayerBulletCollisionHandler(Entity &entity_a, Entity &entity_b,
-                                    GameState &game_state);
+  void BulletCollisionHandler(Entity &entity_a, Entity &entity_b,
+                              GameState &game_state);
   void HandleDeathPayload() { SDL_Log("handleDeathPayload"); };
   void HandleScorePayload(const ScorePayload &payload, GameState &game_state);
   // void HandleHitPayload() { SDL_Log("handleHiyPayload"); };

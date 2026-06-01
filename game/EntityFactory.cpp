@@ -16,6 +16,7 @@ void EntityFactory::createPlayer() {
       .layer = GameLayer::Player,
       .mask = GameLayer::Wall | GameLayer::Enemy,
   });
+  player.health.emplace(Health{.max_hp = 3});
   player.is_active = true;
   player.velocity.emplace(Velocity{.speed = player_movement_speed});
   player.transform.emplace(Transform{
@@ -27,6 +28,73 @@ void EntityFactory::createPlayer() {
                                    .rect{player.sprite->frame_data.frame1.w,
                                          player.sprite->frame_data.frame1.h}});
   player.player_input.emplace(PlayerInput{.move = Zero(), .is_firing = false});
+}
+
+Entity &create_barrier_part_by_key(GameState &game_state_,
+                                   AssetManager &asset_manager,
+                                   std::string asset_key) {
+
+  auto &barrier_part = game_state_.CreateEntity();
+
+  barrier_part.is_active = true;
+  barrier_part.sprite.emplace(
+      Sprite{.frame_data = asset_manager.textures[asset_key]});
+
+  // Added a health component
+  barrier_part.health.emplace(Health{.max_hp = 4});
+
+  barrier_part.bitmask.emplace(
+      Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Projectile});
+
+  auto collider_width = barrier_part.sprite->frame_data.frame1.w;
+  auto collider_height = barrier_part.sprite->frame_data.frame1.h;
+
+  barrier_part.collider.emplace(
+      Collider{.rect{collider_width, collider_height}});
+
+  return barrier_part;
+};
+
+void EntityFactory::createBarrier(Vec2 position) {
+  auto &barrier_part1 =
+      create_barrier_part_by_key(game_state_, asset_manager, "barrier1");
+  barrier_part1.transform.emplace(Transform{.position = position});
+
+  auto &barrier_part2 =
+      create_barrier_part_by_key(game_state_, asset_manager, "barrier2");
+  barrier_part2.transform.emplace(
+      Transform{.position.x = barrier_part1.transform->position.x,
+                .position.y = barrier_part1.transform->position.y +
+                              barrier_part1.collider->rect.height});
+
+  auto &barrier_part3 =
+      create_barrier_part_by_key(game_state_, asset_manager, "barrier3");
+  barrier_part3.transform.emplace(
+      Transform{.position.x = barrier_part1.transform->position.x +
+                              barrier_part1.collider->rect.width,
+                .position.y = barrier_part1.transform->position.y});
+
+  auto &barrier_part4 =
+      create_barrier_part_by_key(game_state_, asset_manager, "barrier4");
+  barrier_part4.transform.emplace(Transform{
+      .position.x = barrier_part3.transform->position.x,
+      .position.y = barrier_part3.transform->position.y +
+                    barrier_part3.collider->rect.height - 4.0f,
+  });
+  auto &barrier_part5 =
+      create_barrier_part_by_key(game_state_, asset_manager, "barrier5");
+  barrier_part5.transform.emplace(Transform{
+      .position.x = barrier_part3.transform->position.x +
+                    barrier_part3.collider->rect.width,
+      .position.y = barrier_part3.transform->position.y,
+  });
+  auto &barrier_part6 =
+      create_barrier_part_by_key(game_state_, asset_manager, "barrier6");
+  barrier_part6.transform.emplace(Transform{
+      .position.x = barrier_part5.transform->position.x,
+      .position.y = barrier_part5.transform->position.y +
+                    barrier_part5.collider->rect.height,
+  });
 }
 
 void EntityFactory::createGameWalls() {
@@ -53,7 +121,7 @@ void EntityFactory::createGameWalls() {
   auto &bottom_wall = game_state_.CreateEntity();
   bottom_wall.bitmask.emplace(Bitmask{
       .layer = GameLayer::Wall,
-      .mask = GameLayer::Player,
+      .mask = GameLayer::Player | GameLayer::Projectile,
   });
   bottom_wall.wall_info.emplace(WallSide::Bottom);
   bottom_wall.is_active = true;
@@ -143,6 +211,9 @@ void EntityFactory::createAlien(AlienType species, Vec2 position) {
 
   // TODO: remove magic numbers
   alien.velocity.emplace(Velocity{.speed = {2.0f}});
+
+  // WARN: experimental health component;
+  alien.health.emplace(Health{.max_hp = 1});
 
   alien.transform.emplace(Transform{position, Down()});
 

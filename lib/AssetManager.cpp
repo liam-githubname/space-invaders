@@ -48,9 +48,30 @@ void AssetManager::loadTexture(GraphicsModule &graphics,
   textures["bullet"] = SpriteData{
       .frame1 = SDL_FRect{.x = 55.0f, .y = 53.0f, .w = 1.0f, .h = 4.0f},
   };
+  textures["barrier1"] = SpriteData{
+      .frame1{.x = 46.0f, .y = 31.0f, .w = 7.0f, .h = 8.0f},
+  };
+  textures["barrier2"] = SpriteData{
+      .frame1{.x = 46.0f, .y = 39.0f, .w = 7.0f, .h = 8.0f},
+  };
+  textures["barrier3"] = SpriteData{
+      .frame1{.x = 53.0f, .y = 31.0f, .w = 7.0f, .h = 8.0f},
+  };
+  textures["barrier4"] = SpriteData{
+      .frame1{.x = 53.0f, .y = 39.0f, .w = 7.0f, .h = 4.0f},
+  };
+  textures["barrier5"] = SpriteData{
+      .frame1{.x = 60.0f, .y = 31.0f, .w = 8.0f, .h = 8.0f},
+  };
+  textures["barrier6"] = SpriteData{
+      .frame1{.x = 60.0f, .y = 39.0f, .w = 8.0f, .h = 8.0f},
+  };
 }
 
 void AssetManager::loadFont() {
+  if (font_) {
+    TTF_CloseFont(font_);
+  }
   auto *font = TTF_OpenFont(font_path_.c_str(), 8);
   if (!font) {
     SDL_Log("Failed to load font: %s", SDL_GetError());
@@ -151,6 +172,27 @@ void AssetManager::createLivesCounter(GraphicsModule &graphics,
 
   game_state.lives_texture = lives_texture;
   SDL_SetTextureScaleMode(game_state.live_text_texture, SDL_SCALEMODE_PIXELART);
+}
+
+void AssetManager::createMenuTextures(GraphicsModule &graphics,
+                                      GameState &game_state) {
+  SDL_Surface *title_surface =
+      TTF_RenderText_Blended(font_, "SPACE INVADERS", 0,
+                             SDL_Color{.r = 255, .g = 255, .b = 255, .a = 255});
+  game_state.menu_title_texture =
+      SDL_CreateTextureFromSurface(graphics.getRenderer(), title_surface);
+  SDL_SetTextureScaleMode(game_state.menu_title_texture,
+                          SDL_SCALEMODE_PIXELART);
+  SDL_DestroySurface(title_surface);
+
+  SDL_Surface *prompt_surface =
+      TTF_RenderText_Blended(font_, "PRESS SPACE TO START", 0,
+                             SDL_Color{.r = 255, .g = 255, .b = 255, .a = 255});
+  game_state.menu_prompt_texture =
+      SDL_CreateTextureFromSurface(graphics.getRenderer(), prompt_surface);
+  SDL_SetTextureScaleMode(game_state.menu_prompt_texture,
+                          SDL_SCALEMODE_PIXELART);
+  SDL_DestroySurface(prompt_surface);
 }
 
 void AssetManager::Initialize(GraphicsModule &graphics, GameState &game_state) {
