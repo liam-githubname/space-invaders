@@ -16,3 +16,6 @@ compile_commands.json
 .cache/
 .vscode/
 .idea/
+
+# README draft doc
+README_DRAFT.md

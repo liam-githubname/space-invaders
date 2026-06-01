@@ -74,27 +74,11 @@ void EventSystem::HandleCollisionPayload(const CollisionPayload &payload,
 
 void EventSystem::BulletCollisionHandler(Entity &entity_a, Entity &entity_b,
                                          GameState &game_state) {
-  // Shouldn't theoretically be possible but useful nonetheless
-
-  // if ((entity_a.bitmask->layer & entity_b.bitmask->mask) == GameLayer::None)
-  // {
-  //   SDL_Log("(entity_a.bitmask->layer & entity_b.bitmask->mask)");
-  //   return;
-  // }
-  // if ((entity_b.bitmask->layer & entity_a.bitmask->mask) == GameLayer::None)
-  // {
-  //   SDL_Log("(entity_b.bitmask->layer & entity_a.bitmask->mask)");
-  //   return;
-  // }
   // If it's not a bullet then leave.
   if ((entity_a.bitmask->layer != GameLayer::Projectile) &&
       (entity_b.bitmask->layer != GameLayer::Projectile)) {
-    SDL_Log("BulletCollisionHandler is exiting");
     return;
   }
-
-  // I'm adding a health component. I'm hoping that I can remove some of this
-  // nesting by using a generic health component. Destroy the bullet.
 
   // TODO: remove duplication
   // NOTE: This reduces the health of the entity
