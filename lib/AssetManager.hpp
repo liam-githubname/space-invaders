@@ -33,6 +33,7 @@ public:
   void createLiveText(GraphicsModule &graphics, GameState &game_state);
   void createLivesCounter(GraphicsModule &graphics, GameState &game_state);
   void createMenuTextures(GraphicsModule &graphics, GameState &game_state);
+  void createGameOverTextures(GraphicsModule &graphics, GameState &game_state);
   void loadFont();
   void Initialize(GraphicsModule &graphics, GameState &game_state);
   TTF_Font *font_ = nullptr;

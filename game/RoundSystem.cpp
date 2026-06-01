@@ -165,7 +165,7 @@ void UpdateMysteryShipSpawner(GameState &game_state,
   spawner->mystery_ticker->tick_count++;
 }
 
-void update_game_lives(GameState &game_state) {
+void update_game_lives(GameState &game_state, int hp_bonus, bool &is_running) {
 
   auto player =
       std::find_if(game_state.entities.begin(), game_state.entities.end(),
@@ -174,7 +174,16 @@ void update_game_lives(GameState &game_state) {
                              GameLayer::Player);
                    });
 
-  game_state.number_of_lives = player->health->hp;
+  player->health->hp += hp_bonus;
+
+  if (game_state.number_of_lives != player->health->hp) {
+    game_state.number_of_lives = player->health->hp;
+    game_state.lives_update = true;
+  }
+
+  if (game_state.number_of_lives <= 0) {
+    is_running = false;
+  }
 }
 
 void RoundSystem::Update(GameState &game_state, RenderSystem &render_system,
@@ -193,6 +202,8 @@ void RoundSystem::Update(GameState &game_state, RenderSystem &render_system,
 
     entity_factory.createAlienFormation(new_round_offset_position_);
 
+    update_game_lives(game_state, 1, is_running);
+
     new_round_flag_ = false;
   }
 
@@ -203,7 +214,7 @@ void RoundSystem::Update(GameState &game_state, RenderSystem &render_system,
 
   update_zero_health_entities(game_state);
 
-  update_game_lives(game_state);
+  update_game_lives(game_state, 0, is_running);
 
   if (have_aliens_breached(game_state)) {
     is_running = false;

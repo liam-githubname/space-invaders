@@ -187,6 +187,8 @@ public:
   SDL_Texture *lives_texture = nullptr;
   SDL_Texture *menu_title_texture = nullptr;
   SDL_Texture *menu_prompt_texture = nullptr;
+  SDL_Texture *game_over_title_texture = nullptr;
+  SDL_Texture *game_over_prompt_texture = nullptr;
   int number_of_aliens = 55;
   int total_number_of_aliens = 55;
   int number_of_lives = 5;

@@ -11,9 +11,9 @@ enum class AlienType;
 struct Config {
   int rows = 5;     // 5 rows of aliens
   int columns = 11; // 11 aliens per row (authentic to original)
-  Vec2 first_alien_position = Vec2{.x = 24.0f, .y = 40.0f};
+  Vec2 first_alien_position = Vec2{.x = 48.0f, .y = 40.0f};
   Vec2 player_spawn_position = Vec2{.x = 112.0f, .y = 208.0f};
-  Vec2 barrier1_position = Vec2{.x = 0.0f, .y = 0.0f};
+  Vec2 barrier_position = Vec2{.x = 32.0f, .y = 184.0f};
 };
 
 class EntityFactory {

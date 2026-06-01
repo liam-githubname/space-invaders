@@ -54,10 +54,56 @@ void Game::initializeGame(EntityFactory &factory) {
 
   // factory creates entites that use the assets
   factory.createGameWalls();
-  factory.createBarrier({.x = 128.0f, .y = 186.0f});
+  factory.createBarriers();
   factory.createPlayer();
   factory.createAlienFormation(Zero());
   factory.createMysteryShipSpawner();
+}
+
+void Game::run_game_over() {
+  asset_manager_.createGameOverTextures(graphics_, game_state_);
+  while (game_over_running) {
+    while (SDL_PollEvent(&event_)) {
+      if (event_.type == SDL_EVENT_QUIT) {
+        game_over_running = false;
+      }
+      if (event_.type == SDL_EVENT_KEY_DOWN) {
+        if (event_.key.key == SDLK_SPACE) {
+          game_over_running = false;
+        }
+      }
+    }
+
+    // clear the renderer and present start screen
+    SDL_SetRenderDrawColor(graphics_.getRenderer(), 0, 0, 0, 255);
+    SDL_RenderClear(graphics_.getRenderer());
+
+    if (game_state_.game_over_title_texture != nullptr) {
+      float title_w = (float)game_state_.game_over_title_texture->w * 2.0f;
+      float title_h = (float)game_state_.game_over_title_texture->h * 2.0f;
+      SDL_FRect title_rect{(window_width_ - title_w) / 2.0f,
+                           window_height_ / 3.0f, title_w, title_h};
+      SDL_RenderTexture(graphics_.getRenderer(),
+                        game_state_.game_over_title_texture, NULL, &title_rect);
+    }
+
+    if (game_state_.game_over_prompt_texture != nullptr) {
+      float prompt_w = (float)game_state_.game_over_prompt_texture->w * 2.0f;
+      float prompt_h = (float)game_state_.game_over_prompt_texture->h * 2.0f;
+      SDL_FRect prompt_rect{(window_width_ - prompt_w) / 2.0f,
+                            window_height_ * 2.0f / 3.0f, prompt_w, prompt_h};
+      SDL_RenderTexture(graphics_.getRenderer(),
+                        game_state_.game_over_prompt_texture, NULL,
+                        &prompt_rect);
+    }
+
+    SDL_RenderPresent(graphics_.getRenderer());
+  }
+  // clean up
+  SDL_DestroyTexture(game_state_.game_over_title_texture);
+  SDL_DestroyTexture(game_state_.game_over_prompt_texture);
+  game_state_.game_over_title_texture = nullptr;
+  game_state_.game_over_prompt_texture = nullptr;
 }
 
 void Game::run_menu() {
@@ -115,8 +161,8 @@ void Game::run() {
 
   run_menu();
 
-  // FIX: Either make this a private member of Game or figure out a better way
-  // to create it.
+  // FIX: Either make this a private member of Game or figure out a better
+  // way to create it.
   auto entity_factory =
       EntityFactory(game_state_, asset_manager_, window_width_, window_height_);
 
@@ -129,8 +175,10 @@ void Game::run() {
     // It is important to realize that the input_system actually relies on
     // this call to SDL_PollEvent to update the keyboard state array
     while (SDL_PollEvent(&event)) {
-      if (event.type == SDL_EVENT_QUIT)
+      if (event.type == SDL_EVENT_QUIT) {
         Game::is_running = false;
+        Game::game_over_running = false;
+      }
     }
 
     time_step_.Tick();
@@ -155,11 +203,16 @@ void Game::run() {
     //==================================================================
     round_system_.Update(game_state_, render_system_, entity_factory,
                          asset_manager_, graphics_.getRenderer(), is_running);
-    //========================== Consume Events =============================
+    //========================== Consume Events
+    //=============================
     event_system_.ProcessEvents(game_state_);
     //========================================================================
-    //============================ Render =====================================
+    //============================ Render
+    //=====================================
     render_system_.Update(game_state_, graphics_.getRenderer());
   }
+
+  run_game_over();
+
   return;
 }

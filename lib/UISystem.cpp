@@ -9,4 +9,7 @@ void UISystem::Update(GraphicsModule &graphics, GameState &game_state,
   if (game_state.score_update) {
     asset_manager.createScoreNumber(graphics, game_state);
   }
+  if (game_state.lives_update) {
+    asset_manager.createLivesCounter(graphics, game_state);
+  }
 }

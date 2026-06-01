@@ -97,6 +97,14 @@ void EntityFactory::createBarrier(Vec2 position) {
   });
 }
 
+void EntityFactory::createBarriers() {
+  for (int i = 0; i < 4; i++) {
+    auto start_pos = config.barrier_position;
+    start_pos.x += i * 56;
+    createBarrier(start_pos);
+  }
+}
+
 void EntityFactory::createGameWalls() {
   // FIX: spaghetti code nightmare fix later
 

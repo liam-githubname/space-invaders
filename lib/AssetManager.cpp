@@ -3,6 +3,7 @@
 #include "GraphicsModule.hpp"
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include <string>
 
 void AssetManager::loadTexture(GraphicsModule &graphics,
                                GameState &game_state) {
@@ -172,12 +173,14 @@ void AssetManager::createLivesCounter(GraphicsModule &graphics,
 
   game_state.lives_texture = lives_texture;
   SDL_SetTextureScaleMode(game_state.live_text_texture, SDL_SCALEMODE_PIXELART);
+
+  game_state.lives_update = false;
 }
 
 void AssetManager::createMenuTextures(GraphicsModule &graphics,
                                       GameState &game_state) {
   SDL_Surface *title_surface =
-      TTF_RenderText_Blended(font_, "SPACE INVADERS", 0,
+      TTF_RenderText_Blended(font_, "(NOT) SPACE INVADERS", 0,
                              SDL_Color{.r = 255, .g = 255, .b = 255, .a = 255});
   game_state.menu_title_texture =
       SDL_CreateTextureFromSurface(graphics.getRenderer(), title_surface);
@@ -191,6 +194,27 @@ void AssetManager::createMenuTextures(GraphicsModule &graphics,
   game_state.menu_prompt_texture =
       SDL_CreateTextureFromSurface(graphics.getRenderer(), prompt_surface);
   SDL_SetTextureScaleMode(game_state.menu_prompt_texture,
+                          SDL_SCALEMODE_PIXELART);
+  SDL_DestroySurface(prompt_surface);
+}
+
+void AssetManager::createGameOverTextures(GraphicsModule &graphics,
+                                          GameState &game_state) {
+  SDL_Surface *title_surface = TTF_RenderText_Blended(
+      font_, "Game over", 0, SDL_Color{.r = 255, .g = 255, .b = 255, .a = 255});
+  game_state.game_over_title_texture =
+      SDL_CreateTextureFromSurface(graphics.getRenderer(), title_surface);
+  SDL_SetTextureScaleMode(game_state.game_over_title_texture,
+                          SDL_SCALEMODE_PIXELART);
+  SDL_DestroySurface(title_surface);
+
+  auto score = "score " + std::to_string(game_state.score);
+  SDL_Surface *prompt_surface =
+      TTF_RenderText_Blended(font_, score.c_str(), 0,
+                             SDL_Color{.r = 255, .g = 255, .b = 255, .a = 255});
+  game_state.game_over_prompt_texture =
+      SDL_CreateTextureFromSurface(graphics.getRenderer(), prompt_surface);
+  SDL_SetTextureScaleMode(game_state.game_over_prompt_texture,
                           SDL_SCALEMODE_PIXELART);
   SDL_DestroySurface(prompt_surface);
 }

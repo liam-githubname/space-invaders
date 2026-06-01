@@ -24,6 +24,7 @@ public:
                                                  int width, int height);
   void run();
   void run_menu();
+  void run_game_over();
   // Copy semantic is being deleted
   Game(const Game &) = delete;
   Game &operator=(const Game &) = delete;
@@ -65,6 +66,7 @@ private:
   // Miscellaneous
   bool is_running = true;
   bool start_menu_running = true;
+  bool game_over_running = true;
 
   float dt = 1.0f / 60.0f;
   float window_width_;
