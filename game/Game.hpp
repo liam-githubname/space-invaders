@@ -10,7 +10,6 @@
 #include "GraphicsModule.hpp"
 #include "InputSystem.hpp"
 #include "MovementSystem.hpp"
-#include "MysteryShipSystem.hpp"
 #include "RenderSystem.hpp"
 #include "RoundSystem.hpp"
 #include "ShootingSystem.hpp"
@@ -59,7 +58,6 @@ private:
   AssetManager asset_manager_;
   UISystem ui_system_;
   RoundSystem round_system_;
-  MysteryShipSystem mystery_ship_system_;
 
   void initializeLibrarySystems(std::string_view title);
 
@@ -68,7 +66,6 @@ private:
   bool start_menu_running = true;
   bool game_over_running = true;
 
-  float dt = 1.0f / 60.0f;
   float window_width_;
   float window_height_;
 

@@ -96,7 +96,7 @@ inline void clearConsole() {
   std::cout << "\033[2J\033[H" << std::endl;
 }
 
-inline int zero_or_one() {
+static inline int zero_or_one() {
 
   std::random_device rd;
   // Mersenne Twister engine
@@ -108,13 +108,13 @@ inline int zero_or_one() {
   return intDist(generator);
 }
 
-inline int one_to_1k() {
+static inline int one_in_x(int x) {
 
   std::random_device rd;
   // Mersenne Twister engine
   std::mt19937 generator(rd());
   // Give me an integer evenly distributed between 1 and 100
-  std::uniform_int_distribution<int> intDist(1, 1000);
+  std::uniform_int_distribution<int> intDist(1, x);
 
   // pass the generator into the distribution
   return intDist(generator);

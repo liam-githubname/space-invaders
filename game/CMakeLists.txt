@@ -3,7 +3,6 @@
 add_library(space-invaders-game
   Game.cpp
   EntityFactory.cpp
-  MysteryShipSystem.cpp
   RoundSystem.cpp
 )
 

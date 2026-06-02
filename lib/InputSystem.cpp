@@ -8,6 +8,7 @@
 // 6. Input checking for mouse events?
 // ========================================================================
 #include "InputSystem.hpp"
+#include "GameConfig.hpp"
 #include "GameState.hpp"
 #include "Util.hpp"
 #include <SDL3/SDL.h>
@@ -69,7 +70,8 @@ void update_player_input(const bool *keyboard_state, GameState &game_state) {
 // TODO: implement
 void update_alien_input(GameState &game_state, Entity &entity) {
   if (entity.gun.has_value()) {
-    entity.gun->fire_flag = (one_to_1k() == 1) ? true : false;
+    entity.gun->fire_flag =
+        (one_in_x(GameConfig::ALIEN_FIRE_CHANCE_1IN) == 1) ? true : false;
   }
 }
 

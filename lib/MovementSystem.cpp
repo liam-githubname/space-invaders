@@ -6,6 +6,7 @@
 // 2. Normalize diagonal movement?
 // ============================================================================
 #include "MovementSystem.hpp"
+#include "GameConfig.hpp"
 #include "GameState.hpp"
 #include <SDL3/SDL_log.h>
 
@@ -29,11 +30,10 @@ void MovementSystem::Update(GameState &game_state, float current_frame_time) {
       game_state.total_number_of_aliens - game_state.number_of_aliens;
   auto alien_speed_multiplier = number_of_aliens_alive;
 
-  // FIX: There are magic numbers here, Maybe extract it to somewhere or
-  // something else?
   auto has_been_alien_step_time =
       ((current_frame_time - last_time) >
-       (500000000ULL) - alien_speed_multiplier * 6000000);
+       GameConfig::ALIEN_STEP_BASE_NS -
+           alien_speed_multiplier * GameConfig::ALIEN_STEP_PER_KILL_NS);
 
   for (auto &entity : game_state.entities) {
     // Guard against dead entities.

@@ -1,6 +1,7 @@
 #include "EntityFactory.hpp"
 #include "AssetManager.hpp"
 #include "Bitmask.hpp"
+#include "GameConfig.hpp"
 #include "GameState.hpp"
 #include "Util.hpp"
 #include <optional>
@@ -9,24 +10,26 @@
 void EntityFactory::createPlayer() {
   // FIX: spaghetti code nightmare fix later
 
-  auto player_movement_speed = Vec2{1.0f, 0.0f};
-
   Entity &player = game_state_.CreateEntity();
+  player.is_active = true;
+
   player.bitmask.emplace(Bitmask{
       .layer = GameLayer::Player,
       .mask = GameLayer::Wall | GameLayer::Enemy,
   });
-  player.health.emplace(Health{.max_hp = 3});
-  player.is_active = true;
-  player.velocity.emplace(Velocity{.speed = player_movement_speed});
+  player.health.emplace(Health{GameConfig::PLAYER_MAX_HP});
+  player.velocity.emplace(GameConfig::PLAYER_SPEED);
   player.transform.emplace(Transform{
-      config.player_spawn_position,
-      Up(),
+      GameConfig::PLAYER_SPAWN,
+      GameConfig::PLAYER_DIRECTION,
   });
+
   player.sprite.emplace(Sprite{.frame_data = asset_manager.textures["canon"]});
+
   player.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
                                    .rect{player.sprite->frame_data.frame1.w,
                                          player.sprite->frame_data.frame1.h}});
+
   player.player_input.emplace(PlayerInput{.move = Zero(), .is_firing = false});
 }
 
@@ -41,7 +44,8 @@ Entity &create_barrier_part_by_key(GameState &game_state_,
       Sprite{.frame_data = asset_manager.textures[asset_key]});
 
   // Added a health component
-  barrier_part.health.emplace(Health{.max_hp = 4});
+  barrier_part.health.emplace(
+      Health{.max_hp = GameConfig::BARRIER_PART_MAX_HP});
 
   barrier_part.bitmask.emplace(
       Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Projectile});
@@ -79,7 +83,8 @@ void EntityFactory::createBarrier(Vec2 position) {
   barrier_part4.transform.emplace(Transform{
       .position.x = barrier_part3.transform->position.x,
       .position.y = barrier_part3.transform->position.y +
-                    barrier_part3.collider->rect.height - 4.0f,
+                    barrier_part3.collider->rect.height -
+                    GameConfig::BARRIER_PART4_OFFSET_Y,
   });
   auto &barrier_part5 =
       create_barrier_part_by_key(game_state_, asset_manager, "barrier5");
@@ -98,18 +103,15 @@ void EntityFactory::createBarrier(Vec2 position) {
 }
 
 void EntityFactory::createBarriers() {
-  for (int i = 0; i < 4; i++) {
-    auto start_pos = config.barrier_position;
-    start_pos.x += i * 56;
+  for (int i = 0; i < GameConfig::BARRIER_COUNT; i++) {
+    auto start_pos = GameConfig::BARRIER_START;
+    start_pos.x += i * GameConfig::BARRIER_SPACING_X;
     createBarrier(start_pos);
   }
 }
 
 void EntityFactory::createGameWalls() {
   // FIX: spaghetti code nightmare fix later
-
-  float left_right_wall_offset = 1.5f;
-  float wall_size = 1.0f;
 
   auto &top_wall = game_state_.CreateEntity();
   top_wall.is_active = true;
@@ -122,8 +124,9 @@ void EntityFactory::createGameWalls() {
   top_wall.wall_info.emplace(WallSide::Top);
   top_wall.transform.emplace(Transform{Vec2{window_width_ / 2, 0.0f}, Zero()});
 
-  top_wall.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
-                                     .rect{(float)window_width_, wall_size}});
+  top_wall.collider.emplace(
+      Collider{.shape = ColliderShape::Rectangle,
+               .rect{(float)window_width_, GameConfig::WALL_THICKNESS}});
 
   // Bottom wall
   auto &bottom_wall = game_state_.CreateEntity();
@@ -134,12 +137,13 @@ void EntityFactory::createGameWalls() {
   bottom_wall.wall_info.emplace(WallSide::Bottom);
   bottom_wall.is_active = true;
   bottom_wall.transform.emplace(Transform{
-      Vec2{window_width_ / 2, (float)window_height_ - 0.5f},
+      Vec2{window_width_ / 2,
+           (float)window_height_ - GameConfig::WALL_BOTTOM_OFFSET},
       Zero(),
   });
   bottom_wall.collider.emplace(Collider{
       .shape = ColliderShape::Rectangle,
-      .rect{(float)window_width_, wall_size},
+      .rect{(float)window_width_, GameConfig::WALL_THICKNESS},
   });
   // Left wall
   auto &left_wall = game_state_.CreateEntity();
@@ -149,12 +153,12 @@ void EntityFactory::createGameWalls() {
   left_wall.wall_info.emplace(WallSide::Left);
   left_wall.is_active = true;
   left_wall.transform.emplace(Transform{
-      Vec2{left_right_wall_offset, window_height_ / 2},
+      Vec2{GameConfig::WALL_LR_OFFSET, window_height_ / 2},
       Zero(),
   });
   left_wall.collider.emplace(Collider{
       .shape = ColliderShape::Rectangle,
-      .rect{wall_size, (float)window_height_},
+      .rect{GameConfig::WALL_THICKNESS, (float)window_height_},
   });
   // Right wall
   auto &right_wall = game_state_.CreateEntity();
@@ -165,13 +169,13 @@ void EntityFactory::createGameWalls() {
   right_wall.wall_info.emplace(WallSide::Right);
   right_wall.is_active = true;
   right_wall.transform.emplace(Transform{
-      Vec2{(float)window_width_ - left_right_wall_offset,
+      Vec2{(float)window_width_ - GameConfig::WALL_LR_OFFSET,
            window_height_ / 2.0f},
       Zero(),
   });
   right_wall.collider.emplace(Collider{
       .shape = ColliderShape::Rectangle,
-      .rect{wall_size, (float)window_height_},
+      .rect{GameConfig::WALL_THICKNESS, (float)window_height_},
   });
 }
 
@@ -194,13 +198,13 @@ void EntityFactory::createAlien(AlienType species, Vec2 position) {
   auto species_to_score = [](AlienType species) {
     switch (species) {
     case AlienType::Squid:
-      return 30;
+      return GameConfig::SCORE_SQUID;
     case AlienType::Crab:
-      return 20;
+      return GameConfig::SCORE_CRAB;
     case AlienType::Octopus:
-      return 10;
+      return GameConfig::SCORE_OCTOPUS;
     case AlienType::Ship:
-      return 150;
+      return GameConfig::SCORE_SHIP;
     default:
       return 0;
     }
@@ -217,11 +221,10 @@ void EntityFactory::createAlien(AlienType species, Vec2 position) {
   alien.alien_info.emplace(
       Alien{.type = species, .score = species_to_score(species)});
 
-  // TODO: remove magic numbers
-  alien.velocity.emplace(Velocity{.speed = {2.0f}});
+  alien.velocity.emplace(GameConfig::ALIEN_SPEED);
 
   // WARN: experimental health component;
-  alien.health.emplace(Health{.max_hp = 1});
+  alien.health.emplace(Health{.max_hp = GameConfig::ALIEN_MAX_HP});
 
   alien.transform.emplace(Transform{position, Down()});
 
@@ -247,15 +250,13 @@ void EntityFactory::createAlien(AlienType species, Vec2 position) {
 void EntityFactory::createAlienFormation(Vec2 position_update) {
   // Authentic Space Invaders layout: 5 rows x 11 columns
   // Horizontal spacing: 16px (gives ~4-8px gap depending on sprite width)
-  // Vertical spacing: 15px (8px sprite + 7px gap as requested)
+  // Vertical spacing: 15px
   // Row 0: Squid (top)
   // Rows 1-2: Crab (middle)
   // Rows 3-4: Octopus (bottom)
 
-  config.first_alien_position += position_update;
-
-  for (int row = 0; row < config.rows; row++) {
-    for (int col = 0; col < config.columns; col++) {
+  for (int row = 0; row < GameConfig::FORMATION_ROWS; row++) {
+    for (int col = 0; col < GameConfig::FORMATION_COLS; col++) {
       AlienType species;
       switch (row) {
       case 0:
@@ -270,8 +271,10 @@ void EntityFactory::createAlienFormation(Vec2 position_update) {
         break;
       }
 
-      float x = config.first_alien_position.x + col * 16.0f;
-      float y = config.first_alien_position.y + row * 15.0f;
+      float x =
+          GameConfig::FORMATION_START_X + col * GameConfig::FORMATION_STRIDE_X;
+      float y =
+          GameConfig::FORMATION_START_Y + row * GameConfig::FORMATION_STRIDE_Y;
 
       createAlien(species, Vec2{x, y});
     }

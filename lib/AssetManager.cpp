@@ -1,4 +1,5 @@
 #include "AssetManager.hpp"
+#include "GameConfig.hpp"
 #include "GameState.hpp"
 #include "GraphicsModule.hpp"
 #include <SDL3_image/SDL_image.h>
@@ -73,7 +74,7 @@ void AssetManager::loadFont() {
   if (font_) {
     TTF_CloseFont(font_);
   }
-  auto *font = TTF_OpenFont(font_path_.c_str(), 8);
+  auto *font = TTF_OpenFont(font_path_.c_str(), GameConfig::FONT_SIZE_PT);
   if (!font) {
     SDL_Log("Failed to load font: %s", SDL_GetError());
   }
@@ -130,9 +131,11 @@ void AssetManager::createLivesCounter(GraphicsModule &graphics,
                                       GameState &game_state) {
 
   SDL_DestroyTexture(game_state.lives_texture);
-  float width = 120.0f;
-  int number_of_rows = game_state.number_of_lives / 4 + 1;
-  float height = (float)number_of_rows * 14.0f;
+
+  float width = GameConfig::LIVES_PANEL_WIDTH;
+  int number_of_rows =
+      (game_state.number_of_lives / GameConfig::LIVES_PER_ROW) + 1;
+  float height = (float)number_of_rows * GameConfig::LIVES_PANEL_ROW_H;
 
   // create a texture that should fit all of the lives
   SDL_Texture *lives_texture =
@@ -153,9 +156,11 @@ void AssetManager::createLivesCounter(GraphicsModule &graphics,
   const auto &player_sprite = textures["canon"];
   for (int i = 0; i < game_state.number_of_lives; i++) {
 
-    auto column_offset = (i % 4) * (player_sprite.frame1.w + 2.0f);
+    auto column_offset = (i % GameConfig::LIVES_PER_ROW) *
+                         (player_sprite.frame1.w + GameConfig::LIVES_COL_GAP);
 
-    auto row_offset = (i / 4) * (player_sprite.frame1.h + 1.0f);
+    auto row_offset = (i / GameConfig::LIVES_PER_ROW) *
+                      (player_sprite.frame1.h + GameConfig::LIVES_ROW_GAP);
 
     auto dstRect = SDL_FRect{.x = column_offset,
                              .y = row_offset,

@@ -1,5 +1,6 @@
 #include "RenderSystem.hpp"
 #include "Bitmask.hpp"
+#include "GameConfig.hpp"
 #include "GameState.hpp"
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
@@ -48,8 +49,6 @@ void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
         entity.alien_info->death_ticker.has_value()) {
 
       auto max_ticks = entity.alien_info->death_ticker->max_ticks;
-      // FIX: Magic number, 40 ticks feels like a good amount of cycles for the
-      // death sprites to be visible.
       if (entity.alien_info->death_ticker->tick_count < max_ticks) {
         entity.alien_info->death_ticker->tick_count++;
       } else {
@@ -85,7 +84,9 @@ void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
   //  loop.
 
   if (game_state.score_board_texture != nullptr) {
-    SDL_FRect score_title_rect{5, 1, (float)game_state.score_board_texture->w,
+    SDL_FRect score_title_rect{GameConfig::UI_SCORE_TITLE_X,
+                               GameConfig::UI_HUD_Y,
+                               (float)game_state.score_board_texture->w,
                                (float)game_state.score_board_texture->h};
     SDL_RenderTexture(renderer, game_state.score_board_texture, NULL,
                       &score_title_rect);
@@ -93,20 +94,23 @@ void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
 
   if (game_state.score_texture != nullptr) {
 
-    SDL_FRect score_rect{40, 1, (float)game_state.score_texture->w,
+    SDL_FRect score_rect{GameConfig::UI_SCORE_NUM_X, GameConfig::UI_HUD_Y,
+                         (float)game_state.score_texture->w,
                          (float)game_state.score_texture->h};
     SDL_RenderTexture(renderer, game_state.score_texture, NULL, &score_rect);
   }
 
   if (game_state.live_text_texture != nullptr) {
-    SDL_FRect score_rect{120, 1, (float)game_state.live_text_texture->w,
+    SDL_FRect score_rect{GameConfig::UI_LIVES_TEXT_X, GameConfig::UI_HUD_Y,
+                         (float)game_state.live_text_texture->w,
                          (float)game_state.live_text_texture->h};
     SDL_RenderTexture(renderer, game_state.live_text_texture, NULL,
                       &score_rect);
   }
 
   if (game_state.lives_texture != nullptr) {
-    SDL_FRect score_rect{155, 1, (float)game_state.lives_texture->w,
+    SDL_FRect score_rect{GameConfig::UI_LIVES_ICON_X, GameConfig::UI_HUD_Y,
+                         (float)game_state.lives_texture->w,
                          (float)game_state.lives_texture->h};
     SDL_RenderTexture(renderer, game_state.lives_texture, NULL, &score_rect);
   }

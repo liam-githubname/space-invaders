@@ -14,6 +14,7 @@
 #include "AssetManager.hpp"
 #include "Bitmask.hpp"
 #include "Events.hpp"
+#include "GameConfig.hpp"
 #include "GameState.hpp"
 #include "Raycast.hpp"
 #include "Util.hpp"
@@ -39,17 +40,18 @@ void update_player_shooting(GameState &game_state, AssetManager &asset_manager,
     auto col_width = player_bullet.sprite->frame_data.frame1.w;
     auto col_height = player_bullet.sprite->frame_data.frame1.h;
 
-    player_bullet.health.emplace(Health{.max_hp = 1});
+    player_bullet.health.emplace(Health{.max_hp = GameConfig::BULLET_MAX_HP});
     player_bullet.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
                                             .rect{col_width, col_height}});
-    player_bullet.velocity.emplace(Velocity{.speed = Up() * 3.0f});
+    player_bullet.velocity.emplace(
+        Velocity{.speed = GameConfig::PLAYER_BULLET_SPEED});
     player_bullet.bitmask.emplace(Bitmask{
         .layer = GameLayer::Projectile,
         .mask = GameLayer::Wall | GameLayer::Enemy,
     });
     player_bullet.transform.emplace(
         Transform{.position = player.transform->position, .direction = Up()});
-    player_bullet.transform->position.y += -7.0f;
+    player_bullet.transform->position.y += GameConfig::PLAYER_BULLET_OFFSET_Y;
 
     game_state.bullet_is_active = true;
   }
@@ -214,7 +216,7 @@ void update_alien_shooting(GameState &game_state, Entity &entity,
   auto &enemy_bullet = game_state.CreateEntity();
   enemy_bullet.is_active = true;
 
-  enemy_bullet.health.emplace(Health{.max_hp = 1});
+  enemy_bullet.health.emplace(Health{.max_hp = GameConfig::BULLET_MAX_HP});
   enemy_bullet.sprite.emplace(
       Sprite{.frame_data = asset_manager.textures["bullet"]});
   auto col_width = enemy_bullet.sprite->frame_data.frame1.w;
@@ -222,7 +224,8 @@ void update_alien_shooting(GameState &game_state, Entity &entity,
 
   enemy_bullet.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
                                          .rect{col_width, col_height}});
-  enemy_bullet.velocity.emplace(Velocity{.speed = Down() * 2.0f});
+  enemy_bullet.velocity.emplace(
+      Velocity{.speed = GameConfig::ENEMY_BULLET_SPEED});
   enemy_bullet.bitmask.emplace(Bitmask{
       .layer = GameLayer::Projectile,
       .mask = GameLayer::Player | GameLayer::Wall,

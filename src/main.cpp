@@ -14,10 +14,12 @@
 // ============================================================================
 
 #include "Game.hpp"
+#include "GameConfig.hpp"
 #include <SDL3_image/SDL_image.h>
 
 int main(int argc, char *argv[]) {
-  auto game = Game::create("Space Invaders", 256, 224);
+  auto game = Game::create("Space Invaders", GameConfig::WINDOW_WIDTH,
+                           GameConfig::WINDOW_HEIGHT);
   game->run();
   return 0;
 }

@@ -3,6 +3,7 @@
 #include "AssetManager.hpp"
 #include "EntityFactory.hpp"
 #include "EventSystem.hpp"
+#include "GameConfig.hpp"
 #include "GameState.hpp"
 #include "RenderSystem.hpp"
 #include "SDL3/SDL_render.h"
@@ -36,7 +37,7 @@ bool have_aliens_breached(GameState &game_state) {
     if (!entity.transform) {
       continue;
     }
-    if (entity.transform->position.y >= 204.0f) {
+    if (entity.transform->position.y >= GameConfig::ALIEN_BREACH_Y) {
       has_breached = true;
     }
   }
@@ -60,7 +61,8 @@ void update_alien_for_death(Entity &alien) {
   alien.collider.reset();
   if (alien.death_sprite.has_value()) {
     alien.sprite.emplace(alien.death_sprite.value());
-    alien.alien_info->death_ticker.emplace(Ticker{.max_ticks = 45});
+    alien.alien_info->death_ticker.emplace(
+        Ticker{.max_ticks = GameConfig::ALIEN_DEATH_TICKS});
   }
 }
 
@@ -104,8 +106,8 @@ void UpdateMysteryShipSpawner(GameState &game_state,
     return;
   }
 
-  // if the spawner has waited 1536 ticks spawn ufo
-  if (spawner->mystery_ticker->tick_count > 4400) {
+  if (spawner->mystery_ticker->tick_count >
+      GameConfig::MYSTERY_SHIP_SPAWN_TICKS) {
     // spawn the ship entity to zero.
     spawner->mystery_ticker->tick_count = 0;
 
@@ -127,9 +129,10 @@ void UpdateMysteryShipSpawner(GameState &game_state,
 
     new_ufo->is_active = true;
 
-    new_ufo->alien_info.emplace(Alien{.type = AlienType::Ship, .score = 200});
+    new_ufo->alien_info.emplace(Alien{.type = AlienType::Ship,
+                                      .score = GameConfig::MYSTERY_SHIP_SCORE});
 
-    new_ufo->health.emplace(Health{.max_hp = 1});
+    new_ufo->health.emplace(Health{.max_hp = GameConfig::MYSTERY_SHIP_MAX_HP});
 
     new_ufo->bitmask.emplace(
         Bitmask{.layer = GameLayer::Enemy, .mask = GameLayer::Projectile});
@@ -150,14 +153,14 @@ void UpdateMysteryShipSpawner(GameState &game_state,
     // decide which side it spawns on.
     auto side_multiplier = zero_or_one();
 
-    // FIX: Magic number, window width, but I need to create a way to pass
-    // that value.
-    new_ufo->transform.emplace(
-        Transform{.position = Vec2{.x = 256.0f * side_multiplier, .y = 25.0f}});
+    new_ufo->transform.emplace(Transform{
+        .position = Vec2{.x = (float)GameConfig::WINDOW_WIDTH * side_multiplier,
+                         .y = GameConfig::MYSTERY_SHIP_Y}});
 
     auto direction = (side_multiplier == 0) ? Right() : Left();
 
-    new_ufo->velocity.emplace(Velocity{.speed = direction * 0.75f});
+    new_ufo->velocity.emplace(
+        Velocity{.speed = direction * GameConfig::MYSTERY_SHIP_SPEED});
 
     return;
   }
@@ -165,7 +168,7 @@ void UpdateMysteryShipSpawner(GameState &game_state,
   spawner->mystery_ticker->tick_count++;
 }
 
-void update_game_lives(GameState &game_state, int hp_bonus, bool &is_running) {
+void update_game_lives(GameState &game_state, int hp_bonus) {
 
   auto player =
       std::find_if(game_state.entities.begin(), game_state.entities.end(),
@@ -180,7 +183,9 @@ void update_game_lives(GameState &game_state, int hp_bonus, bool &is_running) {
     game_state.number_of_lives = player->health->hp;
     game_state.lives_update = true;
   }
+}
 
+void is_player_alive(GameState &game_state, bool &is_running) {
   if (game_state.number_of_lives <= 0) {
     is_running = false;
   }
@@ -191,30 +196,32 @@ void RoundSystem::Update(GameState &game_state, RenderSystem &render_system,
                          AssetManager &asset_manager, SDL_Renderer *renderer,
                          bool &is_running) {
 
+  // Begin new Round code
   if (new_round_flag_ == true) {
 
-    // FIX: This is a magic operation, the rare evolution of a magic number!
     int i = 0;
-    while (i < 100) {
+    while (i < GameConfig::ROUND_TRANSITION_RENDERS) {
       render_system.Update(game_state, renderer);
       i++;
     }
 
     entity_factory.createAlienFormation(new_round_offset_position_);
 
-    update_game_lives(game_state, 1, is_running);
+    update_game_lives(game_state, GameConfig::LIVES_BONUS_PER_ROUND);
 
     new_round_flag_ = false;
   }
 
+  // set the flag to start a new round next frame
   if (game_state.number_of_aliens == 0) {
     new_round_flag_ = true;
-    game_state.number_of_aliens = 55;
+    game_state.number_of_aliens = GameConfig::ALIENS_PER_ROUND;
   }
 
+  // This is what needs to run every frame
   update_zero_health_entities(game_state);
-
-  update_game_lives(game_state, 0, is_running);
+  update_game_lives(game_state, 0);
+  is_player_alive(game_state, is_running);
 
   if (have_aliens_breached(game_state)) {
     is_running = false;
