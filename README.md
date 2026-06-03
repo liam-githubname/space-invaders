@@ -247,38 +247,15 @@ The list of things I am happy with is shorter than the list of things I am not, 
 - **The early SRP/DRY commitment paid for itself in Phase 5.** The `Entity` struct from `811e18c` (Phase 1) was the same shape I refactored 4 weeks later in `74ffd0a`. The cost of getting it roughly right early was small; the cost of retrofitting would have been enormous.
 - **The bitmask layer is small, well-named, and a one-line change to extend.** Adding a new entity type is a constructor edit, not a switch statement.
 - **The raycast module is a drop-in primitive.** Used for player bullets, then for alien line-of-sight, with no changes to the module itself. The best architectural decisions are the ones that pay off without anyone trying.
-- **The `Health` component generalizes a class of interaction.** Player, aliens, mystery ship, and barriers all use the same `--hp` code path. Adding a destructible crate would be a one-component change.
-- **The engine/game directory split works as a forcing function.** I changed my mind about a duplicate `MovementSystem` and deleted it after one commit. The boundary made the wrong decision easy to spot.
-- **The `Overload` pattern is the right tool for `std::variant` dispatch.** No virtual function, no `dynamic_cast`, and the source is cited in the comment.
-- **`Timestep` is small and boring and does one thing.** The kind of code reviewers are happy to see.
-- **The naming commit (snake_case + PascalCase) is small, late, and worth it.** I do not need to think about it now.
-
----
-### Things that should probably be in `RoundSystem::Update()`
-
-- The alien breaching past the player's defenses (currently in `MysteryShipSystem`, will be in `RoundSystem` after the deletion).
-
-- Enemy bullet spawning (currently in `ShootingSystem`).
-
-- The mystery-ship spawner.
-
-- The alien death timer ticker (currently in `RenderSystem`, will be in `DeathSystem` after the move).
-
-### Maybe update?
-
-- **Alien speed and timing** — currently in `MovementSystem`. Reasonable, but the alien-step formula is a magic value pulled from `GameConfig`; would prefer a "step every N frames per alien alive" formula in the `Alien` component itself.
-- **Alien death and scoring** — currently in `EventSystem::PlayerBulletCollisionHandler`. Should be in `DeathSystem` (death) and a dedicated `ScoringSystem` (scoring). Right now the scoring payload is half-wired.
-- **Formation and wall-hit logic** — currently in `EventSystem::WallCollisionHandler`. Should be in a `FormationSystem` or absorbed into `MovementSystem` as a `Collision`-derived intent. The engine should not know that walls cause a formation to *descend*; it should only know that the entity needs to change direction.
-
----
+- **The `Health` component generalizes a class of interaction.** Player, aliens, mystery ship, and barriers all use the same `--hp` code path. 
+- **`Timestep` is small and boring and does one thing.**
+- **The naming commit (snake_case + PascalCase).** I do not need to think about it now.
 
 ## Closing
 
-A portfolio project is supposed to be the thing that shows what you can do. I think what I can do, based on the eight weeks of git log, is: pick a problem I don't know how to solve, fail at it in public, write down what I learned, and try again the next day. The 46 commits have the rhythm of a person working alone in the evening, and the rhythm is the point.
+A portfolio project is supposed to be the thing that shows what you can do. This shows that I can take a jump right into problem space full of unknown unknowns and start making some of those unknowns known!
 
-The whole repo is at `github.com/<your-handle>/space-invaders`. The `lib/` directory is the engine. The `game/` directory is the game. The `assets/` directory has the sprite sheet. There are no tests, which I am aware of, and I am working on it.
-
-If you're reading this as a grad school admissions committee: I would like to study how software systems are designed, and I think the best way to demonstrate that I should is to design some.
+If you're reading this as a grad school admissions committee: I would like to learn how to be a good programmer, and I would love to do that by learning how to make good videogames!
 
 If you're reading this as a developer: the most useful thing in this article is the bitmask refactor. The most useful thing in the codebase is `lib/Raycast.hpp`. The most useful thing in the commit log is `d71ad8b`.
 
