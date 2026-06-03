@@ -9,11 +9,10 @@
 I wanted to work on a project that was going to help me learn more than just a language or a library. I wanted to learn about how implementing clean code decisions would ease the comprehension debt that occurs as a project scales up.
 
 I had a few goals for this project: 
-> - Implement an ECS (Entity-Component System).
-> - Learn about game-engine architecture.
-> - Learn about game scheduling (as in flow through.)
-> - Focus on Clean Code decisions, SRP (Single Responsibility Principle), and DRY (Don't Repeat Yourself).
-> - Dust off my low-level programming skills. 
+> - Implement an ECS (Entity-Component System). : I accidentally implemented a Composition system instead. More on that later!
+> - Learn about game architecture. : Absolutely learned a lot about game architecture!
+> - Focus on Clean Code decisions, SRP (Single Responsibility Principle), and DRY (Don't Repeat Yourself). : I did my best to build good clean code into the code base!
+> - Dust off my low-level programming skills. : Got magnitudes better at knowing what the compiler wants.
 
 About halfway through I decided that I was going to write up the timeline of the project, firstly so I didn't forget all those good lessons I learned along the way, and secondly as a better way to understand what code decisions I was making, and why I was making them. ~8 weeks, 46 commits, one C++/SDL3 project, and a lot of commits titled things like *"I think I fixed the movement actually."*
 
@@ -31,21 +30,24 @@ The sprites are from https://www.spriters-resource.com/arcade/spaceinv/.
 
 ---
 
-## Phase 0 — Pre-ECS scaffolding (`3e974fc` → `4744750`, Apr 9)
+## Phase 0 — Pre-scaffolding (`3e974fc` → `4744750`, Apr 9)
 
 > **Commits:** *"changing file structure"* → *"added more targets"* → *"added a module, ran into bug"*
 
 I was started from basically zero, a few years ago I had taken a perusal through SDL2's window creation but hadn't done anything meaningful with it. This meant I had to learn how SDL liked to do things! I also had to learn the library's handles.
+
 I started with everything in `main()`. Window creation, the SDL RAII wrapper, the timestep struct. Then created the first of the library systems, the GraphicsModule.
 
 > *"In C++, when an object is moved (using the default move constructor), its smart pointers are transferred to the new object, and the temporary object's pointers are set to `nullptr`. If we unconditionally call `SDL_QuitSubSystem` in the destructor, the destruction of the temporary object will prematurely shut down the entire SDL Video Subsystem, destroying our window instantly!"*
 
 This bug was pretty nasty, and a result of my pretty lacking understanding of how the clang optimizes things.
+
 Because work needed to be done on the SDL structures that the GraphicsModule wrapped, I had to create an initializer. This returns a call to a constructor, which creates a temporary unnamed value that holds pointers for the SDL structures. `C++` compiler sees that we are returning an unnamed `GraphicsModule` constructor, so it decides to 'move' the contents of the object instead of copying them. When the unnamed GraphicsModule that had it's contents moved, falls out of scope the destructor is called. This is where the bug was. The destructor killed off the SDL systems no matter what. The fix? Add a simple guard clause to make sure the pointer's were filled.
+
 
 ---
 
-## Phase 1 — The toy ECS (`811e18c` → `0d02086`, Apr 15)
+## Phase 1 — The Entity System (`811e18c` → `0d02086`, Apr 15)
 
 > **Commits:** *"Began developing a toy Entity Component System"* → *"added input system"* → *"added gitignore"* → *"removed cmake build files"*
 
@@ -63,9 +65,9 @@ struct Entity    { uint32_t id; bool is_active;
 
 A `GameState` class that owned a `std::vector<Entity>`. An `InputSystem` that wrote to a `PlayerInput` struct every frame. And a `.gitignore`, because I was committing my build files.
 
-I did not yet realize the architectural question this commit was going to ask me: **ECS wants you to iterate *components*, not entities.** I was thinking in terms of *"the player"*, *"the walls"*, *"the bullet"*, and I didn't realize the mistake until a refactor would be unrealistic. The truth is that this mistake let me learn a lot of modern `C++` idiosyncrasies that I wouldn't have seen otherwise, if I had to find a silver lining to my misinterpretation.
+I did not yet realize the architectural question this commit was going to ask me: **ECS wants you to iterate *components*, not entities.** I was thinking in terms of *"the player"*, *"the walls"*, *"the bullet"*, and I didn't realize the mistake until a refactor would be unrealistic. The truth is that this mistake let me learn a lot of modern `C++` idiosyncrasies that I wouldn't have seen otherwise, if I had to find a silver lining!
 
-I read about ECS's from a couple of blog posts, none of which made me realize that I had implemented it backwards. Most ECSs iterate over components which have the id of the entity they are associated with. I instead had the entity hold actual components as whole pieces of memory.
+==I flipped the ECS==, This meant that I was iterating through a central vector of entities and looking for components attached to it. This is a far more Object Oriented approach, which didn't give me the benefit of cache coherency. 
 
 ---
 
@@ -91,7 +93,7 @@ The third was the first *visible thing* the project ever produced: a window with
 > **Commits:** *"created an event system to maintain SRP, (using god event processor tho)"* → *"New: Event type header, EventQueue header"* → *"Linker Error I didn't catch"* → *"centered entity transforms in logic, fixed collision logic bugs, updated EventSystem processes, Input system supports multidirectional input"*
 
  I realized that if the collision system was supposed to know about types of collisions that a "robust" solution would have to have logic for all possible interactions even if they shouldn't happen. My discrete structures, told me that this was a combinatorics problem I didn't want to solve.
- The `CollisionSystem` had to know about every *kind* of entity, and every kind of collision between them, and what to do about each. This was an SRP violation. I decided to separate out detection from reaction: `CollisionSystem` would just push a `CollisionPayload` to an event queue, and a `ProcessEvents` function would visit the payloads and call the right handler. **What I didn't realize at the time, was an Event system combined with ECS is an anti-pattern**.
+ The `CollisionSystem` had to know about every *kind* of entity, and every kind of collision between them, and what to do about each. This was an SRP violation. I decided to separate out detection from reaction: `CollisionSystem` would just push a `CollisionPayload` to an event queue, and a `ProcessEvents` function would visit the payloads and call the right handler. **What I didn't realize at the time, was an Event system combined with what I already had was sort of an antipattern**.
 
 ---
 
@@ -149,7 +151,7 @@ Here is where I realized the *anti-pattern* I was talking about earlier existed.
 What happened: I created a `game/` subdirectory to hold Space Invaders–specific code (`Game.cpp`, `EntityFactory.cpp`, `GameRules.cpp`, `PlayerControlSystem.cpp`). The first instinct was to *also* fork the `MovementSystem` from `lib/` into a `SpaceInvadersMovementSystem` in `game/`, because the alien step tempo didn't fit the generic one. The fork lasted **less than two days** before I deleted it.
 
 I was trying to build a reusable engine, but every "engine" decision I made was actually a Space Invaders rule wearing a trenchcoat. Here I had to make a decision about whether or not to try and fully decouple game logic from the library systems. 
-- One, by now I knew that the backwards way I implemented the ECS meant that I already couldn't operate over components separately, so component interactions had to be backed in the entire systems that had to iterate every entity to find the proper components to work on.
+- One, by now I knew that the backwards way I tried to implement ECS meant that I already couldn't operate over components separately, so component interactions had to be backed in the entire systems that had to iterate every entity to find the proper components to work on.
 - Every new kind of system was at least a new $O(n)$ loop.
 
 ### Why the movement system was too rigid
@@ -252,31 +254,14 @@ The list of things I am happy with is shorter than the list of things I am not, 
 - **The naming commit (snake_case + PascalCase) is small, late, and worth it.** I do not need to think about it now.
 
 ---
-
-## The drop-in moment: the "firing a weapon" pipeline
-
-I want to close with the mental model I wish I had at the start of the project. This is the pipeline a "weapon fired" event should travel through in an ECS, and how my code roughly does it. **The Input System is a *messenger* — it doesn't decide anything. The Weapon System is a *brain* — it has the context (cooldown, ammo, barrel position) to spawn a bullet. The Event System is a *broadcast* — it doesn't know how guns work, it just tells the world that a shot happened, and the Audio System, Particle System, and Camera System each react. The Animation System runs *before* the Renderer and updates the player's sprite frame; the Renderer is dumb and just draws whatever the sprite says to draw.** [^1]
-
-1. **The Input System (the messenger).** Reads the mouse/keyboard/controller. Finds the player entity and sets `is_firing = true` on its `PlayerInput` component. **Crucial detail: the Input System does *not* emit a `WeaponFiredEvent`.** It simply reflects state.
-2. **The Combat/Weapon System (the brains).** A dedicated system (e.g. `WeaponSystem`) iterates over entities with both a `PlayerInput` and a `Gun` component. It checks: `is_firing` true? Cooldown at zero? Ammo > 0? If all conditions are met, this system handles the logic. It subtracts ammo, resets the cooldown timer, and directly spawns the bullet entity. **Why not an event for spawning? In ECS, creating an entity is just adding data to the world's vectors. The Weapon System has the context (barrel position, aim direction) to just create the projectile right there. Routing that through an event queue adds unnecessary overhead for a core gameplay mechanic.**
-3. **Emitting the event (the broadcast).** Immediately after spawning the bullet, the Weapon System emits a `WeaponFiredEvent` to the queue.
-4. **Event processing (the "juice").** Now the event queue earns its keep. The `WeaponFiredEvent` is picked up by secondary systems that don't need to know the heavy logic of how a gun works, but need to react to the fact that it fired: the **Audio System** plays a "bang" at the player's location; the **Particle System** spawns a muzzle-flash entity; the **Camera System** applies a small screen-shake.
-5. **The Animation System (the visual state).** To keep things decoupled, the `RenderSystem` is "dumb" — it only draws shapes, sprites, or meshes. The Animation System runs *before* the Renderer. It looks at the `PlayerInput` (`is_firing == true`) and updates the player's `SpriteComponent` to the "firing" frame. The Renderer then just blindly draws whatever the sprite says to draw.
-
-The reason this is in the article is that it is the answer to the question I asked at the start of the project — *"should the input system update components or only emit events?"* — and the answer is: **both, but for different reasons.** State goes in components; discrete one-off events go on the queue. The input system is hybrid, not event-only, and that is correct.
-
-### The mental model for the event queue
-
-> *While continuous state belongs in the components (moving, aiming, charging a weapon), the event queue is perfect for discrete one-off events (UI/State changes, WeaponFiredEvent, OpenInventoryEvent).*
-
-That is the one-line version of the rule I want to remember for the next project.
-
----
 ### Things that should probably be in `RoundSystem::Update()`
 
 - The alien breaching past the player's defenses (currently in `MysteryShipSystem`, will be in `RoundSystem` after the deletion).
+
 - Enemy bullet spawning (currently in `ShootingSystem`).
+
 - The mystery-ship spawner.
+
 - The alien death timer ticker (currently in `RenderSystem`, will be in `DeathSystem` after the move).
 
 ### Maybe update?
