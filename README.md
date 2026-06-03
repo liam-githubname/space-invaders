@@ -108,11 +108,11 @@ The two raycasting algorithms that come up first in any search are **DDA (Digita
 > *In computer graphics, the slab method is an algorithm used to solve the ray-box intersection problem in case of an axis-aligned bounding box (AABB), i.e. to determine the intersection points between a ray and the box. Due to its efficient nature, that can allow for a branch-free implementation, it is widely used in computer graphics applications.* — Wikipedia
 
 The slab method computes the "slab" — the interval on the ray's `t` parameter where the ray is inside the AABB on each axis — and intersects the two axis intervals. No grid, no integer stepping, just floating-point math. It is also the *easiest* of the three to read, once you stop trying to be clever about the degenerate case where the ray runs parallel to an axis.
-<img width="800" alt="Screen Recording 2026-04-21 at 12 55 12 PM" src="https://github.com/user-attachments/assets/1ce7869d-5778-46b5-9c98-e933f069c0df" />
+<img width="1000" alt="Screen Recording 2026-04-21 at 12 55 12 PM" src="https://github.com/user-attachments/assets/1ce7869d-5778-46b5-9c98-e933f069c0df" />
 
 ### Implementing raycasting
 By the time I was implementing raycasting, I hadn't quite decided what I was going to do with it. I was building space invaders (or asteroids, I kind of hadn't decided yet). Which I couldn't tell a direct usage for yet, but I knew I wanted to write raycasting myself. It's the cornerstone of video game ai and computer graphics. All I knew is that I had to write one. This ended up being one of the best early decision I made as I eventually had a problem where I needed the aliens to able to see what was in front of them.
-<img width="800" height="885" alt="Screen Recording 2026-06-02 at 4 13 27 PM" src="https://github.com/user-attachments/assets/b5a7751f-049f-4552-87e6-3bf87e122419" />
+<img width="1000" height="885" alt="Screen Recording 2026-06-02 at 4 13 27 PM" src="https://github.com/user-attachments/assets/b5a7751f-049f-4552-87e6-3bf87e122419" />
 
 ---
 
