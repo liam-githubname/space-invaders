@@ -18,8 +18,7 @@
 #include <SDL3_image/SDL_image.h>
 
 int main(int argc, char *argv[]) {
-  auto game = Game::create("Space Invaders", GameConfig::WINDOW_WIDTH,
-                           GameConfig::WINDOW_HEIGHT);
+  auto game = Game::create("Space Invaders", GameConfig::WINDOW_WIDTH, GameConfig::WINDOW_HEIGHT);
   game->run();
   return 0;
 }

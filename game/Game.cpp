@@ -13,23 +13,19 @@
 #include <expected>
 
 Game::Game(GraphicsModule &&graphics, float window_width, float window_height)
-    : graphics_(std::move(graphics)), input_system_(InputSystem::create()),
-      game_state_(GameState()), is_running(true), window_width_(window_width),
-      window_height_(window_height) {
+    : graphics_(std::move(graphics)), input_system_(InputSystem::create()), game_state_(GameState()), is_running(true),
+      window_width_(window_width), window_height_(window_height) {
   /*
    * Members with default constructors will auto-initialize.
    */
 }
 
-std::expected<Game, std::string> Game::create(std::string_view title, int width,
-                                              int height) {
-
+std::expected<Game, std::string> Game::create(std::string_view title, int width, int height) {
   // This is resource Acquisition plus the GraphicsModule object is wrapped
   // in an expected type.
   auto sdl_graphics_result = GraphicsModule::create(title, width, height);
   if (!sdl_graphics_result) {
-    SDL_Log("SDL Graphics failed to start: %s",
-            sdl_graphics_result.error().c_str());
+    SDL_Log("SDL Graphics failed to start: %s", sdl_graphics_result.error().c_str());
     return std::unexpected(sdl_graphics_result.error());
   }
 
@@ -37,15 +33,13 @@ std::expected<Game, std::string> Game::create(std::string_view title, int width,
   // This unwraps the Graphics Module
   // The program needs to take ownership of the module
   // We have to use std::move because we removed the copy constructor.
-  Game game(std::move(sdl_graphics_result.value()), (float)width,
-            (float)height);
+  Game game(std::move(sdl_graphics_result.value()), (float)width, (float)height);
 
   return game;
   ;
 }
 
 void Game::initializeGame(EntityFactory &factory) {
-
   // Initialize the assets first
   asset_manager_.Initialize(graphics_, game_state_);
 
@@ -76,28 +70,19 @@ void Game::run_game_over() {
     SDL_RenderClear(graphics_.getRenderer());
 
     if (game_state_.game_over_title_texture != nullptr) {
-      float title_w = (float)game_state_.game_over_title_texture->w *
-                      GameConfig::MENU_TITLE_SCALE;
-      float title_h = (float)game_state_.game_over_title_texture->h *
-                      GameConfig::MENU_TITLE_SCALE;
-      SDL_FRect title_rect{(window_width_ - title_w) / 2.0f,
-                           window_height_ * GameConfig::MENU_TITLE_FRAC_Y,
-                           title_w, title_h};
-      SDL_RenderTexture(graphics_.getRenderer(),
-                        game_state_.game_over_title_texture, NULL, &title_rect);
+      float title_w = (float)game_state_.game_over_title_texture->w * GameConfig::MENU_TITLE_SCALE;
+      float title_h = (float)game_state_.game_over_title_texture->h * GameConfig::MENU_TITLE_SCALE;
+      SDL_FRect title_rect{(window_width_ - title_w) / 2.0f, window_height_ * GameConfig::MENU_TITLE_FRAC_Y, title_w,
+                           title_h};
+      SDL_RenderTexture(graphics_.getRenderer(), game_state_.game_over_title_texture, NULL, &title_rect);
     }
 
     if (game_state_.game_over_prompt_texture != nullptr) {
-      float prompt_w = (float)game_state_.game_over_prompt_texture->w *
-                       GameConfig::MENU_TITLE_SCALE;
-      float prompt_h = (float)game_state_.game_over_prompt_texture->h *
-                       GameConfig::MENU_TITLE_SCALE;
-      SDL_FRect prompt_rect{(window_width_ - prompt_w) / 2.0f,
-                            window_height_ * GameConfig::MENU_PROMPT_FRAC_Y,
+      float prompt_w = (float)game_state_.game_over_prompt_texture->w * GameConfig::MENU_TITLE_SCALE;
+      float prompt_h = (float)game_state_.game_over_prompt_texture->h * GameConfig::MENU_TITLE_SCALE;
+      SDL_FRect prompt_rect{(window_width_ - prompt_w) / 2.0f, window_height_ * GameConfig::MENU_PROMPT_FRAC_Y,
                             prompt_w, prompt_h};
-      SDL_RenderTexture(graphics_.getRenderer(),
-                        game_state_.game_over_prompt_texture, NULL,
-                        &prompt_rect);
+      SDL_RenderTexture(graphics_.getRenderer(), game_state_.game_over_prompt_texture, NULL, &prompt_rect);
     }
 
     SDL_RenderPresent(graphics_.getRenderer());
@@ -110,7 +95,6 @@ void Game::run_game_over() {
 }
 
 void Game::run_menu() {
-
   asset_manager_.loadFont();
   asset_manager_.createMenuTextures(graphics_, game_state_);
 
@@ -133,27 +117,19 @@ void Game::run_menu() {
     SDL_RenderClear(graphics_.getRenderer());
 
     if (game_state_.menu_title_texture != nullptr) {
-      float title_w = (float)game_state_.menu_title_texture->w *
-                      GameConfig::MENU_TITLE_SCALE;
-      float title_h = (float)game_state_.menu_title_texture->h *
-                      GameConfig::MENU_TITLE_SCALE;
-      SDL_FRect title_rect{(window_width_ - title_w) / 2.0f,
-                           window_height_ * GameConfig::MENU_TITLE_FRAC_Y,
-                           title_w, title_h};
-      SDL_RenderTexture(graphics_.getRenderer(), game_state_.menu_title_texture,
-                        NULL, &title_rect);
+      float title_w = (float)game_state_.menu_title_texture->w * GameConfig::MENU_TITLE_SCALE;
+      float title_h = (float)game_state_.menu_title_texture->h * GameConfig::MENU_TITLE_SCALE;
+      SDL_FRect title_rect{(window_width_ - title_w) / 2.0f, window_height_ * GameConfig::MENU_TITLE_FRAC_Y, title_w,
+                           title_h};
+      SDL_RenderTexture(graphics_.getRenderer(), game_state_.menu_title_texture, NULL, &title_rect);
     }
 
     if (game_state_.menu_prompt_texture != nullptr) {
-      float prompt_w = (float)game_state_.menu_prompt_texture->w *
-                       GameConfig::MENU_TITLE_SCALE;
-      float prompt_h = (float)game_state_.menu_prompt_texture->h *
-                       GameConfig::MENU_TITLE_SCALE;
-      SDL_FRect prompt_rect{(window_width_ - prompt_w) / 2.0f,
-                            window_height_ * GameConfig::MENU_PROMPT_FRAC_Y,
+      float prompt_w = (float)game_state_.menu_prompt_texture->w * GameConfig::MENU_TITLE_SCALE;
+      float prompt_h = (float)game_state_.menu_prompt_texture->h * GameConfig::MENU_TITLE_SCALE;
+      SDL_FRect prompt_rect{(window_width_ - prompt_w) / 2.0f, window_height_ * GameConfig::MENU_PROMPT_FRAC_Y,
                             prompt_w, prompt_h};
-      SDL_RenderTexture(graphics_.getRenderer(),
-                        game_state_.menu_prompt_texture, NULL, &prompt_rect);
+      SDL_RenderTexture(graphics_.getRenderer(), game_state_.menu_prompt_texture, NULL, &prompt_rect);
     }
 
     SDL_RenderPresent(graphics_.getRenderer());
@@ -167,13 +143,11 @@ void Game::run_menu() {
 }
 
 void Game::run() {
-
   run_menu();
 
   // FIX: Either make this a private member of Game or figure out a better
   // way to create it.
-  auto entity_factory =
-      EntityFactory(game_state_, asset_manager_, window_width_, window_height_);
+  auto entity_factory = EntityFactory(game_state_, asset_manager_, window_width_, window_height_);
 
   initializeGame(entity_factory);
 
@@ -193,31 +167,15 @@ void Game::run() {
     time_step_.Tick();
 
     while (time_step_.consumeStep()) {
-      //========================== Input & Logic
-      //==============================
       input_system_.Update(game_state_);
-      //========================== Movement
-      //===================================
       movement_system_.Update(game_state_, TimeStep::GetCurrentTime());
-      //========================== Collision
-      //==================================
       collision_system_.Update(game_state_);
-      //========================== Shooting
-      //===================================
       shooting_system_.Update(game_state_, asset_manager_);
     }
     ui_system_.Update(graphics_, game_state_, asset_manager_);
-    //=========================================================================
-    // mystery_ship_system_.Update(game_state_, asset_manager_, is_running);
-    //==================================================================
-    round_system_.Update(game_state_, render_system_, entity_factory,
-                         asset_manager_, graphics_.getRenderer(), is_running);
-    //========================== Consume Events
-    //=============================
+    round_system_.Update(game_state_, render_system_, entity_factory, asset_manager_, graphics_.getRenderer(),
+                         is_running);
     event_system_.ProcessEvents(game_state_);
-    //========================================================================
-    //============================ Render
-    //=====================================
     render_system_.Update(game_state_, graphics_.getRenderer());
   }
 

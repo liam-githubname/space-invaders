@@ -34,9 +34,7 @@ struct TimeStep {
     }
     return false;
   }
-  float GetAlpha() {
-    return (float)accumulator / (float)target_deltatime_nanoseconds;
-  }
+  float GetAlpha() { return (float)accumulator / (float)target_deltatime_nanoseconds; }
   static float GetCurrentTime() { return SDL_GetTicksNS(); }
 };
 //=============TIMESTEP_STRUCT_FOR_DETERMINISTIC_BEHAVIOR======================

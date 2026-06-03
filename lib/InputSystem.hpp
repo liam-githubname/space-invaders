@@ -6,7 +6,6 @@
 class GameState;
 // Do I want remove the copy constructor of this class as well?
 class InputSystem {
-
 public:
   // This is that public initializer
   static InputSystem create();

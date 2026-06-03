@@ -16,12 +16,24 @@ struct Vec2 {
   float x, y;
 };
 
-inline static constexpr Vec2 Zero() { return {0.0f, 0.0f}; }
-inline static constexpr Vec2 Up() { return {0.0f, -1.0f}; }
-inline static constexpr Vec2 Down() { return {0.0f, 1.0f}; }
-inline static constexpr Vec2 Left() { return {-1.0f, 0.0f}; }
-inline static constexpr Vec2 Right() { return {1.0f, 0.0f}; }
-inline static constexpr Vec2 One() { return {1.0f, 1.0f}; }
+inline static constexpr Vec2 Zero() {
+  return {0.0f, 0.0f};
+}
+inline static constexpr Vec2 Up() {
+  return {0.0f, -1.0f};
+}
+inline static constexpr Vec2 Down() {
+  return {0.0f, 1.0f};
+}
+inline static constexpr Vec2 Left() {
+  return {-1.0f, 0.0f};
+}
+inline static constexpr Vec2 Right() {
+  return {1.0f, 0.0f};
+}
+inline static constexpr Vec2 One() {
+  return {1.0f, 1.0f};
+}
 
 inline Vec2 operator*(const Vec2 a, const Vec2 b) {
   return Vec2{.x = a.x * b.x, .y = a.y * b.y};
@@ -86,10 +98,10 @@ inline Vec2 &operator+=(Vec2 &a, const float b) {
 // Overload takes multiple lambdas and glues them together into one object that
 // inherits all their operator() functions.
 // This is used in Events.hpp only as of 2026-05-17 21:05
-template <typename... Ts> struct Overload : Ts... {
+template<typename... Ts> struct Overload : Ts... {
   using Ts::operator()...;
 };
-template <typename... Ts> Overload(Ts...) -> Overload<Ts...>;
+template<typename... Ts> Overload(Ts...) -> Overload<Ts...>;
 
 inline void clearConsole() {
   // \033[2J clears the screen, \033[H moves cursor to top-left
@@ -97,7 +109,6 @@ inline void clearConsole() {
 }
 
 static inline int zero_or_one() {
-
   std::random_device rd;
   // Mersenne Twister engine
   std::mt19937 generator(rd());
@@ -109,7 +120,6 @@ static inline int zero_or_one() {
 }
 
 static inline int one_in_x(int x) {
-
   std::random_device rd;
   // Mersenne Twister engine
   std::mt19937 generator(rd());

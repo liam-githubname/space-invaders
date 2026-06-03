@@ -10,8 +10,7 @@ enum class AlienType;
 
 class EntityFactory {
 public:
-  EntityFactory(GameState &game_state, AssetManager &asset_manager,
-                float window_width, float window_height);
+  EntityFactory(GameState &game_state, AssetManager &asset_manager, float window_width, float window_height);
   void createPlayer();
   void createBarrier(Vec2 position);
   void createBarriers();

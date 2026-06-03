@@ -19,8 +19,7 @@
 // I think I want to do the same thing that I did with GraphicsModule
 class Game {
 public:
-  static std::expected<Game, std::string> create(std::string_view title,
-                                                 int width, int height);
+  static std::expected<Game, std::string> create(std::string_view title, int width, int height);
   void run();
   void run_menu();
   void run_game_over();

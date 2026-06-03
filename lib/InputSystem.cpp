@@ -45,9 +45,8 @@ void update_player_input(const bool *keyboard_state, GameState &game_state) {
   }
 
   // This is another way to search through something.
-  auto player_entity = std::find_if(
-      game_state.entities.begin(), game_state.entities.end(),
-      [](Entity &entity) { return entity.player_input.has_value(); });
+  auto player_entity = std::find_if(game_state.entities.begin(), game_state.entities.end(),
+                                    [](Entity &entity) { return entity.player_input.has_value(); });
   // This lambda expression is a good example for explanation.
   // 1. The [] capture clause - tells compiler that a lambda is beginning
   // It also passes outside variables that the lambda is allowed to see.
@@ -70,14 +69,12 @@ void update_player_input(const bool *keyboard_state, GameState &game_state) {
 // TODO: implement
 void update_alien_input(GameState &game_state, Entity &entity) {
   if (entity.gun.has_value()) {
-    entity.gun->fire_flag =
-        (one_in_x(GameConfig::ALIEN_FIRE_CHANCE_1IN) == 1) ? true : false;
+    entity.gun->fire_flag = (one_in_x(GameConfig::ALIEN_FIRE_CHANCE_1IN) == 1) ? true : false;
   }
 }
 
 // Private Constructor
-InputSystem::InputSystem(const bool *keyboard_state)
-    : keyboard_state(keyboard_state) {}
+InputSystem::InputSystem(const bool *keyboard_state) : keyboard_state(keyboard_state) {}
 
 void InputSystem::Update(GameState &game_state) {
   update_player_input(keyboard_state, game_state);

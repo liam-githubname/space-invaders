@@ -49,6 +49,5 @@ struct HitPayload {
 // seem to be a good option. This type alias Event causes every event to be size
 // of the largest payload. I think there might be a more memory efficient way of
 // doing this with anonymous unions?
-using Event =
-    std::variant<CollisionPayload, DeathPayload, ScorePayload, HitPayload>;
+using Event = std::variant<CollisionPayload, DeathPayload, ScorePayload, HitPayload>;
 //  ^ #of times I forgot about this: 1

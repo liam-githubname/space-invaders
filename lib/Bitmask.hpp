@@ -15,21 +15,16 @@ enum class GameLayer : uint32_t {
 };
 
 inline GameLayer operator|(const GameLayer a, const GameLayer b) {
-
-  return static_cast<GameLayer>(static_cast<uint32_t>(a) |
-                                static_cast<uint32_t>(b));
+  return static_cast<GameLayer>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
 }
 inline GameLayer operator&(const GameLayer a, const GameLayer b) {
-
-  return static_cast<GameLayer>(static_cast<uint32_t>(a) &
-                                static_cast<uint32_t>(b));
+  return static_cast<GameLayer>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b));
 }
 inline GameLayer operator~(const GameLayer a) {
   return static_cast<GameLayer>(~static_cast<uint32_t>(a));
 }
 inline GameLayer operator^(const GameLayer a, const GameLayer b) {
-  return static_cast<GameLayer>(static_cast<uint32_t>(a) ^
-                                static_cast<uint32_t>(b));
+  return static_cast<GameLayer>(static_cast<uint32_t>(a) ^ static_cast<uint32_t>(b));
 }
 inline GameLayer &operator|=(GameLayer &a, const GameLayer b) {
   a = a | b;

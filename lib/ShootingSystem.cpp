@@ -21,36 +21,28 @@
 #include <cstdint>
 #include <optional>
 
-void update_player_shooting(GameState &game_state, AssetManager &asset_manager,
-                            Entity &player) {
-
+void update_player_shooting(GameState &game_state, AssetManager &asset_manager, Entity &player) {
   if (game_state.bullet_is_active) {
     return;
   }
   // Player shooting logic
-  if (player.bitmask->layer == GameLayer::Player &&
-      player.player_input->is_firing) {
-
+  if (player.bitmask->layer == GameLayer::Player && player.player_input->is_firing) {
     auto &player_bullet = game_state.CreateEntity();
     player_bullet.is_active = true;
     player_bullet.parent.emplace(ParentEntityClass{.was_player = true});
 
-    player_bullet.sprite.emplace(
-        Sprite{.frame_data = asset_manager.textures["bullet"]});
+    player_bullet.sprite.emplace(Sprite{.frame_data = asset_manager.textures["bullet"]});
     auto col_width = player_bullet.sprite->frame_data.frame1.w;
     auto col_height = player_bullet.sprite->frame_data.frame1.h;
 
     player_bullet.health.emplace(Health{.max_hp = GameConfig::BULLET_MAX_HP});
-    player_bullet.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
-                                            .rect{col_width, col_height}});
-    player_bullet.velocity.emplace(
-        Velocity{.speed = GameConfig::PLAYER_BULLET_SPEED});
+    player_bullet.collider.emplace(Collider{.shape = ColliderShape::Rectangle, .rect{col_width, col_height}});
+    player_bullet.velocity.emplace(Velocity{.speed = GameConfig::PLAYER_BULLET_SPEED});
     player_bullet.bitmask.emplace(Bitmask{
-        .layer = GameLayer::Projectile,
-        .mask = GameLayer::Wall | GameLayer::Enemy,
+      .layer = GameLayer::Projectile,
+      .mask = GameLayer::Wall | GameLayer::Enemy,
     });
-    player_bullet.transform.emplace(
-        Transform{.position = player.transform->position, .direction = Up()});
+    player_bullet.transform.emplace(Transform{.position = player.transform->position, .direction = Up()});
     player_bullet.transform->position.y += GameConfig::PLAYER_BULLET_OFFSET_Y;
 
     game_state.bullet_is_active = true;
@@ -58,7 +50,6 @@ void update_player_shooting(GameState &game_state, AssetManager &asset_manager,
 }
 
 bool ray_cast_hits_alien(GameState &game_state, Entity &entity) {
-
   uint32_t hit_entity_id = -1;
   // The raycasting portion of the shooting system
   if (!entity.gun.has_value() || !entity.gun->fire_flag)
@@ -69,13 +60,10 @@ bool ray_cast_hits_alien(GameState &game_state, Entity &entity) {
   float shortest_distance = INFINITY;
 
   // Raycast
-  Raycast::Ray ray{.origin = Vec2{entity.transform->position.x,
-                                  entity.transform->position.y},
-                   .direction = Vec2{entity.transform->direction.x,
-                                     entity.transform->direction.y}};
+  Raycast::Ray ray{.origin = Vec2{entity.transform->position.x, entity.transform->position.y},
+                   .direction = Vec2{entity.transform->direction.x, entity.transform->direction.y}};
 
   for (auto &other_entity : game_state.entities) {
-
     // Skip if it's looking at itself
     if (entity.id == other_entity.id) {
       continue;
@@ -88,18 +76,13 @@ bool ray_cast_hits_alien(GameState &game_state, Entity &entity) {
     // }
 
     if (other_entity.collider->shape == ColliderShape::Rectangle) {
-      float min_x = other_entity.transform->position.x -
-                    other_entity.collider->rect.width / 2;
-      float max_x = other_entity.transform->position.x +
-                    other_entity.collider->rect.width / 2;
-      float min_y = other_entity.transform->position.y -
-                    other_entity.collider->rect.height / 2;
-      float max_y = other_entity.transform->position.y +
-                    other_entity.collider->rect.height / 2;
+      float min_x = other_entity.transform->position.x - other_entity.collider->rect.width / 2;
+      float max_x = other_entity.transform->position.x + other_entity.collider->rect.width / 2;
+      float min_y = other_entity.transform->position.y - other_entity.collider->rect.height / 2;
+      float max_y = other_entity.transform->position.y + other_entity.collider->rect.height / 2;
 
       // NOTE: This is the first time I'm returning an optional like this.
-      std::optional<float> distance =
-          Raycast::RayAgainstAABB(ray, min_x, min_y, max_x, max_y);
+      std::optional<float> distance = Raycast::RayAgainstAABB(ray, min_x, min_y, max_x, max_y);
 
       // I just learned that you don't need .has_value()
       // the optional has a built-in operator bool().
@@ -120,8 +103,7 @@ bool ray_cast_hits_alien(GameState &game_state, Entity &entity) {
         shortest_distance = distance.value();
         // hit_entity_id = other_entity.id;
         // SDL_Log("shortest distance %f", shortest_distance);
-        is_shortest_hit_alien =
-            (other_entity.alien_info.has_value()) ? true : false;
+        is_shortest_hit_alien = (other_entity.alien_info.has_value()) ? true : false;
       }
     }
     // TODO: #3 Check Circle colliders.
@@ -130,7 +112,6 @@ bool ray_cast_hits_alien(GameState &game_state, Entity &entity) {
 }
 
 uint32_t raycast(GameState &game_state, Entity &entity) {
-
   uint32_t hit_entity_id = -1;
   // The raycasting portion of the shooting system
   if (!entity.gun.has_value() || !entity.gun->fire_flag)
@@ -139,36 +120,27 @@ uint32_t raycast(GameState &game_state, Entity &entity) {
   float shortest_distance = INFINITY;
 
   // Raycast
-  Raycast::Ray ray{.origin = Vec2{entity.transform->position.x,
-                                  entity.transform->position.y},
-                   .direction = Vec2{entity.transform->direction.x,
-                                     entity.transform->direction.y}};
+  Raycast::Ray ray{.origin = Vec2{entity.transform->position.x, entity.transform->position.y},
+                   .direction = Vec2{entity.transform->direction.x, entity.transform->direction.y}};
 
   for (auto &other_entity : game_state.entities) {
-
     // Skip if it's looking at itself
     if (entity.id == other_entity.id) {
       continue;
     }
     // skip if the caster isn't concerned with other entity's layer.
-    if ((entity.bitmask->mask & other_entity.bitmask->layer) ==
-        GameLayer::None) {
+    if ((entity.bitmask->mask & other_entity.bitmask->layer) == GameLayer::None) {
       continue;
     }
 
     if (other_entity.collider->shape == ColliderShape::Rectangle) {
-      float min_x = other_entity.transform->position.x -
-                    other_entity.collider->rect.width / 2;
-      float max_x = other_entity.transform->position.x +
-                    other_entity.collider->rect.width / 2;
-      float min_y = other_entity.transform->position.y -
-                    other_entity.collider->rect.height / 2;
-      float max_y = other_entity.transform->position.y +
-                    other_entity.collider->rect.height / 2;
+      float min_x = other_entity.transform->position.x - other_entity.collider->rect.width / 2;
+      float max_x = other_entity.transform->position.x + other_entity.collider->rect.width / 2;
+      float min_y = other_entity.transform->position.y - other_entity.collider->rect.height / 2;
+      float max_y = other_entity.transform->position.y + other_entity.collider->rect.height / 2;
 
       // NOTE: This is the first time I'm returning an optional like this.
-      std::optional<float> distance =
-          Raycast::RayAgainstAABB(ray, min_x, min_y, max_x, max_y);
+      std::optional<float> distance = Raycast::RayAgainstAABB(ray, min_x, min_y, max_x, max_y);
 
       // I just learned that you don't need .has_value()
       // the optional has a built-in operator bool().
@@ -199,16 +171,14 @@ uint32_t raycast(GameState &game_state, Entity &entity) {
   if (shortest_distance < entity.gun->distance) {
     //  WARN: These might be moving away from SRP, I'll have to rethink this
     game_state.event_queue.PushEvent(HitPayload{
-        .entity_a_id = entity.id,
-        .entity_b_id = hit_entity_id,
+      .entity_a_id = entity.id,
+      .entity_b_id = hit_entity_id,
     });
   }
   return hit_entity_id;
 }
 
-void update_alien_shooting(GameState &game_state, Entity &entity,
-                           AssetManager &asset_manager) {
-
+void update_alien_shooting(GameState &game_state, Entity &entity, AssetManager &asset_manager) {
   if (ray_cast_hits_alien(game_state, entity)) {
     return;
   }
@@ -217,30 +187,24 @@ void update_alien_shooting(GameState &game_state, Entity &entity,
   enemy_bullet.is_active = true;
 
   enemy_bullet.health.emplace(Health{.max_hp = GameConfig::BULLET_MAX_HP});
-  enemy_bullet.sprite.emplace(
-      Sprite{.frame_data = asset_manager.textures["bullet"]});
+  enemy_bullet.sprite.emplace(Sprite{.frame_data = asset_manager.textures["bullet"]});
   auto col_width = enemy_bullet.sprite->frame_data.frame1.w;
   auto col_height = enemy_bullet.sprite->frame_data.frame1.h;
 
-  enemy_bullet.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
-                                         .rect{col_width, col_height}});
-  enemy_bullet.velocity.emplace(
-      Velocity{.speed = GameConfig::ENEMY_BULLET_SPEED});
+  enemy_bullet.collider.emplace(Collider{.shape = ColliderShape::Rectangle, .rect{col_width, col_height}});
+  enemy_bullet.velocity.emplace(Velocity{.speed = GameConfig::ENEMY_BULLET_SPEED});
   enemy_bullet.bitmask.emplace(Bitmask{
-      .layer = GameLayer::Projectile,
-      .mask = GameLayer::Player | GameLayer::Wall,
+    .layer = GameLayer::Projectile,
+    .mask = GameLayer::Player | GameLayer::Wall,
   });
-  enemy_bullet.transform.emplace(
-      Transform{.position = entity.transform->position, .direction = Down()});
+  enemy_bullet.transform.emplace(Transform{.position = entity.transform->position, .direction = Down()});
   enemy_bullet.transform->position.y += entity.sprite->frame_data.frame1.h / 2;
 
   // Adding a death timer for the entity
   // enemy_bullet.time_death.emplace(TimedDeath{.ticker{.max_ticks = 1000}});
 }
 
-void ShootingSystem::Update(GameState &game_state,
-                            AssetManager &asset_manager) {
-
+void ShootingSystem::Update(GameState &game_state, AssetManager &asset_manager) {
   for (auto &entity : game_state.entities) {
     // early guards
     if (!entity.is_active)
@@ -251,8 +215,7 @@ void ShootingSystem::Update(GameState &game_state,
     // FIX: I feel like it doens't make much sense being here
     if (entity.time_death.has_value()) {
       entity.time_death->ticker.tick_count++;
-      if (entity.time_death->ticker.tick_count >
-          entity.time_death->ticker.max_ticks) {
+      if (entity.time_death->ticker.tick_count > entity.time_death->ticker.max_ticks) {
         game_state.DestroyEntity(entity.id);
       }
     }

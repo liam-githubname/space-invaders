@@ -7,9 +7,8 @@ class GameState;
 struct SDL_Renderer;
 class RoundSystem {
 public:
-  void Update(GameState &game_state, RenderSystem &render_system,
-              EntityFactory &entity_factory, AssetManager &asset_manager,
-              SDL_Renderer *renderer, bool &is_running);
+  void Update(GameState &game_state, RenderSystem &render_system, EntityFactory &entity_factory,
+              AssetManager &asset_manager, SDL_Renderer *renderer, bool &is_running);
 
 private:
   Vec2 new_round_offset_position_ = Vec2{.x = 0.0f, .y = 8.0f};

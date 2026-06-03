@@ -27,7 +27,6 @@ class GameState;
 // This looks through all entity pairs that have colliders and are active to see
 // if they have a collision.
 void CollisionSystem::Update(GameState &game_state) {
-
   for (int i = 0; i < game_state.entities.size(); i++) {
     Entity &entity_a = game_state.entities[i];
     if (!entity_a.collider.has_value() || !entity_a.is_active) {
@@ -50,10 +49,8 @@ void CollisionSystem::Update(GameState &game_state) {
       // is program logic, then game logic needs to work around CollisionSystems
       // rules. For example, when the player dies their mask should be set to
       // None, because they shouldn't be able to collide by anything anymore.
-      if ((entity_a.bitmask->layer & entity_b.bitmask->mask) ==
-              GameLayer::None &&
-          (entity_b.bitmask->layer & entity_a.bitmask->mask) ==
-              GameLayer::None) {
+      if ((entity_a.bitmask->layer & entity_b.bitmask->mask) == GameLayer::None &&
+          (entity_b.bitmask->layer & entity_a.bitmask->mask) == GameLayer::None) {
         continue;
       }
 
@@ -64,18 +61,15 @@ void CollisionSystem::Update(GameState &game_state) {
       }
 
       // Circle -> Circle
-      if (entity_a.collider->shape == ColliderShape::Circle &&
-          entity_b.collider->shape == ColliderShape::Circle) {
+      if (entity_a.collider->shape == ColliderShape::Circle && entity_b.collider->shape == ColliderShape::Circle) {
         is_colliding = IsCircleToCircleColliding(entity_a, entity_b);
       }
 
       // Rectnagle -> Circle || Circle -> Rectangle
-      if (entity_a.collider->shape == ColliderShape::Rectangle &&
-          entity_b.collider->shape == ColliderShape::Circle) {
+      if (entity_a.collider->shape == ColliderShape::Rectangle && entity_b.collider->shape == ColliderShape::Circle) {
         is_colliding = IsRectToCircleColliding(entity_a, entity_b);
       }
-      if (entity_a.collider->shape == ColliderShape::Circle &&
-          entity_b.collider->shape == ColliderShape::Rectangle) {
+      if (entity_a.collider->shape == ColliderShape::Circle && entity_b.collider->shape == ColliderShape::Rectangle) {
         is_colliding = IsRectToCircleColliding(entity_b, entity_a);
       }
 
@@ -85,74 +79,51 @@ void CollisionSystem::Update(GameState &game_state) {
 
       // Designated Initializer syntax is fantastic
       game_state.event_queue.PushEvent(CollisionPayload{
-          .entity_a_id = entity_a.id,
-          .entity_b_id = entity_b.id,
+        .entity_a_id = entity_a.id,
+        .entity_b_id = entity_b.id,
       });
     }
   }
 }
 
 // TODO: #5
-bool CollisionSystem::IsRectToRectColliding(const Entity &entity_a,
-                                            const Entity &entity_b) {
+bool CollisionSystem::IsRectToRectColliding(const Entity &entity_a, const Entity &entity_b) {
+  auto a_left = entity_a.transform->position.x - entity_a.collider->rect.width / 2;
+  auto a_right = entity_a.transform->position.x + entity_a.collider->rect.width / 2;
+  auto a_top = entity_a.transform->position.y - entity_a.collider->rect.height / 2;
+  auto a_bottom = entity_a.transform->position.y + entity_a.collider->rect.height / 2;
+  auto b_left = entity_b.transform->position.x - entity_b.collider->rect.width / 2;
+  auto b_right = entity_b.transform->position.x + entity_b.collider->rect.width / 2;
+  auto b_top = entity_b.transform->position.y - entity_b.collider->rect.height / 2;
+  auto b_bottom = entity_b.transform->position.y + entity_b.collider->rect.height / 2;
 
-  auto a_left =
-      entity_a.transform->position.x - entity_a.collider->rect.width / 2;
-  auto a_right =
-      entity_a.transform->position.x + entity_a.collider->rect.width / 2;
-  auto a_top =
-      entity_a.transform->position.y - entity_a.collider->rect.height / 2;
-  auto a_bottom =
-      entity_a.transform->position.y + entity_a.collider->rect.height / 2;
-  auto b_left =
-      entity_b.transform->position.x - entity_b.collider->rect.width / 2;
-  auto b_right =
-      entity_b.transform->position.x + entity_b.collider->rect.width / 2;
-  auto b_top =
-      entity_b.transform->position.y - entity_b.collider->rect.height / 2;
-  auto b_bottom =
-      entity_b.transform->position.y + entity_b.collider->rect.height / 2;
-
-  if (a_right <= b_left || a_bottom <= b_top || a_left >= b_right ||
-      a_top >= b_bottom) {
+  if (a_right <= b_left || a_bottom <= b_top || a_left >= b_right || a_top >= b_bottom) {
     return false;
   }
   return true;
 }
 
-bool CollisionSystem::IsCircleToCircleColliding(const Entity &entity_a,
-                                                const Entity &entity_b) {
-  float center_to_center_dist = std::hypot(
-      std::abs(entity_a.transform->position.x - entity_b.transform->position.x),
-      std::abs(entity_a.transform->position.y -
-               entity_b.transform->position.y));
+bool CollisionSystem::IsCircleToCircleColliding(const Entity &entity_a, const Entity &entity_b) {
+  float center_to_center_dist = std::hypot(std::abs(entity_a.transform->position.x - entity_b.transform->position.x),
+                                           std::abs(entity_a.transform->position.y - entity_b.transform->position.y));
 
-  float maximum_distance_apart =
-      entity_a.collider->circle.radius + entity_b.collider->circle.radius;
+  float maximum_distance_apart = entity_a.collider->circle.radius + entity_b.collider->circle.radius;
 
   return (center_to_center_dist <= maximum_distance_apart) ? true : false;
 }
 
-bool CollisionSystem::IsRectToCircleColliding(const Entity &rectangle_entity,
-                                              const Entity &circle_entity) {
-
+bool CollisionSystem::IsRectToCircleColliding(const Entity &rectangle_entity, const Entity &circle_entity) {
   float closest_point_of_rectangle_x =
-      std::clamp(circle_entity.transform->position.x,
-                 rectangle_entity.transform->position.x -
-                     rectangle_entity.collider->rect.width / 2,
-                 rectangle_entity.transform->position.x +
-                     rectangle_entity.collider->rect.width / 2);
+    std::clamp(circle_entity.transform->position.x,
+               rectangle_entity.transform->position.x - rectangle_entity.collider->rect.width / 2,
+               rectangle_entity.transform->position.x + rectangle_entity.collider->rect.width / 2);
   float closest_point_of_rectangle_y =
-      std::clamp(circle_entity.transform->position.y,
-                 rectangle_entity.transform->position.y -
-                     rectangle_entity.collider->rect.height / 2,
-                 rectangle_entity.transform->position.y +
-                     rectangle_entity.collider->rect.height / 2);
+    std::clamp(circle_entity.transform->position.y,
+               rectangle_entity.transform->position.y - rectangle_entity.collider->rect.height / 2,
+               rectangle_entity.transform->position.y + rectangle_entity.collider->rect.height / 2);
 
-  float distance = std::hypot(std::abs(closest_point_of_rectangle_x -
-                                       circle_entity.transform->position.x),
-                              std::abs(closest_point_of_rectangle_y -
-                                       circle_entity.transform->position.y));
+  float distance = std::hypot(std::abs(closest_point_of_rectangle_x - circle_entity.transform->position.x),
+                              std::abs(closest_point_of_rectangle_y - circle_entity.transform->position.y));
 
   if (distance <= circle_entity.collider->circle.radius) {
     return true;

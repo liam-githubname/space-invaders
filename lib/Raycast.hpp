@@ -23,11 +23,8 @@ struct Ray {
 };
 
 // 4. I want to update the names to reflect their return value.
-inline std::optional<float> RayAgainstAABB(Ray ray, float entity_min_x,
-                                           float entity_min_y,
-                                           float entity_max_x,
+inline std::optional<float> RayAgainstAABB(Ray ray, float entity_min_x, float entity_min_y, float entity_max_x,
                                            float entity_max_y) {
-
   // SDL_Log("In RayAgainstAABB");
   // 1. Get the minimum and maximum coordinates for the rectangle entity.
   // Passed to the function.
@@ -66,29 +63,23 @@ inline std::optional<float> RayAgainstAABB(Ray ray, float entity_min_x,
   // SDL_Log("%f, %f", latest_time_floor, earliest_time_ceiling);
 
   // 5. Check if ray is inside slab intersection.
-  return (latest_time_floor <= earliest_time_ceiling &&
-          earliest_time_ceiling >= 0)
-             ? std::optional<float>(latest_time_floor)
-             : std::nullopt;
+  return (latest_time_floor <= earliest_time_ceiling && earliest_time_ceiling >= 0)
+           ? std::optional<float>(latest_time_floor)
+           : std::nullopt;
 }
 
 // Apply the same fixes to RayAgainstCircle, currently could divide by zero on
 // axis aligned raycasting.
-inline std::optional<float> RayAgainstCircle(Ray ray, float center_x,
-                                             float center_y, float radius) {
-
+inline std::optional<float> RayAgainstCircle(Ray ray, float center_x, float center_y, float radius) {
   float magnitude = std::hypot(ray.direction.x, ray.direction.y);
   ray.direction.x = ray.direction.x / magnitude;
   ray.direction.y = ray.direction.y / magnitude;
 
-  float a =
-      ray.direction.x * ray.direction.x + ray.direction.y * ray.direction.y;
+  float a = ray.direction.x * ray.direction.x + ray.direction.y * ray.direction.y;
 
-  float b = 2 * (ray.direction.x * (ray.origin.x - center_x) +
-                 ray.direction.y * (ray.origin.y - center_y));
+  float b = 2 * (ray.direction.x * (ray.origin.x - center_x) + ray.direction.y * (ray.origin.y - center_y));
   float c = (ray.origin.x - center_x) * (ray.origin.x - center_x) +
-            (ray.origin.y - center_y) * (ray.origin.y - center_y) -
-            radius * radius;
+            (ray.origin.y - center_y) * (ray.origin.y - center_y) - radius * radius;
 
   float d = (b * b) - (4 * a * c);
 

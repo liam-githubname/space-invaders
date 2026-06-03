@@ -17,14 +17,14 @@ bool is_formation_alien(Entity &entity) {
     return false;
   }
   switch (entity.alien_info->type) {
-  case AlienType::Squid:
-    return true;
-  case AlienType::Crab:
-    return true;
-  case AlienType::Octopus:
-    return true;
-  default:
-    return false;
+    case AlienType::Squid:
+      return true;
+    case AlienType::Crab:
+      return true;
+    case AlienType::Octopus:
+      return true;
+    default:
+      return false;
   }
 }
 
@@ -45,14 +45,12 @@ bool have_aliens_breached(GameState &game_state) {
 }
 
 auto health_is_zero = [](Entity &entity) {
-  return (entity.is_active && entity.health.has_value() &&
-          entity.health->hp <= 0);
+  return (entity.is_active && entity.health.has_value() && entity.health->hp <= 0);
 };
 
 void update_alien_for_death(Entity &alien) {
   if (!alien.alien_info.has_value()) {
-    SDL_Log(
-        "Update alien for death passed entity without alien_info component");
+    SDL_Log("Update alien for death passed entity without alien_info component");
     return;
   }
   alien.bitmask.reset();
@@ -61,15 +59,12 @@ void update_alien_for_death(Entity &alien) {
   alien.collider.reset();
   if (alien.death_sprite.has_value()) {
     alien.sprite.emplace(alien.death_sprite.value());
-    alien.alien_info->death_ticker.emplace(
-        Ticker{.max_ticks = GameConfig::ALIEN_DEATH_TICKS});
+    alien.alien_info->death_ticker.emplace(Ticker{.max_ticks = GameConfig::ALIEN_DEATH_TICKS});
   }
 }
 
 void update_zero_health_entities(GameState &game_state) {
-  for (auto &dead_entity :
-       game_state.entities | std::views::filter(health_is_zero)) {
-
+  for (auto &dead_entity : game_state.entities | std::views::filter(health_is_zero)) {
     // This feels jank but probably bullet proof (no pun intended)
     if (dead_entity.parent.has_value() && dead_entity.parent->was_player) {
       game_state.bullet_is_active = false;
@@ -92,13 +87,10 @@ void update_zero_health_entities(GameState &game_state) {
   };
 }
 
-void UpdateMysteryShipSpawner(GameState &game_state,
-                              AssetManager &asset_manager) {
-
+void UpdateMysteryShipSpawner(GameState &game_state, AssetManager &asset_manager) {
   // Find the spawner
-  auto spawner = std::find_if(
-      game_state.entities.begin(), game_state.entities.end(),
-      [&](Entity &entity) { return entity.mystery_ticker.has_value(); });
+  auto spawner = std::find_if(game_state.entities.begin(), game_state.entities.end(),
+                              [&](Entity &entity) { return entity.mystery_ticker.has_value(); });
 
   // if spawner doens't exist leave
   if (spawner == game_state.entities.end()) {
@@ -106,19 +98,15 @@ void UpdateMysteryShipSpawner(GameState &game_state,
     return;
   }
 
-  if (spawner->mystery_ticker->tick_count >
-      GameConfig::MYSTERY_SHIP_SPAWN_TICKS) {
+  if (spawner->mystery_ticker->tick_count > GameConfig::MYSTERY_SHIP_SPAWN_TICKS) {
     // spawn the ship entity to zero.
     spawner->mystery_ticker->tick_count = 0;
 
-    auto old_ufo =
-        std::find_if(game_state.entities.begin(), game_state.entities.end(),
-                     [&](Entity &entity) {
-                       // stops a bad access and then returns on whether or
-                       // not it's a ship.
-                       return entity.alien_info.has_value() &&
-                              entity.alien_info->type == AlienType::Ship;
-                     });
+    auto old_ufo = std::find_if(game_state.entities.begin(), game_state.entities.end(), [&](Entity &entity) {
+      // stops a bad access and then returns on whether or
+      // not it's a ship.
+      return entity.alien_info.has_value() && entity.alien_info->type == AlienType::Ship;
+    });
     // If old_ufo isn't found.
     if (old_ufo != game_state.entities.end()) {
       game_state.DestroyEntity(old_ufo->id);
@@ -129,38 +117,31 @@ void UpdateMysteryShipSpawner(GameState &game_state,
 
     new_ufo->is_active = true;
 
-    new_ufo->alien_info.emplace(Alien{.type = AlienType::Ship,
-                                      .score = GameConfig::MYSTERY_SHIP_SCORE});
+    new_ufo->alien_info.emplace(Alien{.type = AlienType::Ship, .score = GameConfig::MYSTERY_SHIP_SCORE});
 
     new_ufo->health.emplace(Health{.max_hp = GameConfig::MYSTERY_SHIP_MAX_HP});
 
-    new_ufo->bitmask.emplace(
-        Bitmask{.layer = GameLayer::Enemy, .mask = GameLayer::Projectile});
+    new_ufo->bitmask.emplace(Bitmask{.layer = GameLayer::Enemy, .mask = GameLayer::Projectile});
 
-    new_ufo->sprite.emplace(
-        Sprite{.frame_data = asset_manager.textures["spaceship"]});
+    new_ufo->sprite.emplace(Sprite{.frame_data = asset_manager.textures["spaceship"]});
 
-    new_ufo->death_sprite.emplace(
-        Sprite{.frame_data = asset_manager.textures["spaceship-death"]});
+    new_ufo->death_sprite.emplace(Sprite{.frame_data = asset_manager.textures["spaceship-death"]});
 
     auto sprite_width = new_ufo->sprite->frame_data.frame1.w;
 
     auto sprite_height = new_ufo->sprite->frame_data.frame1.h;
 
-    new_ufo->collider.emplace(Collider{.shape = ColliderShape::Rectangle,
-                                       .rect{sprite_width, sprite_height}});
+    new_ufo->collider.emplace(Collider{.shape = ColliderShape::Rectangle, .rect{sprite_width, sprite_height}});
 
     // decide which side it spawns on.
     auto side_multiplier = zero_or_one();
 
     new_ufo->transform.emplace(Transform{
-        .position = Vec2{.x = (float)GameConfig::WINDOW_WIDTH * side_multiplier,
-                         .y = GameConfig::MYSTERY_SHIP_Y}});
+      .position = Vec2{.x = (float)GameConfig::WINDOW_WIDTH * side_multiplier, .y = GameConfig::MYSTERY_SHIP_Y}});
 
     auto direction = (side_multiplier == 0) ? Right() : Left();
 
-    new_ufo->velocity.emplace(
-        Velocity{.speed = direction * GameConfig::MYSTERY_SHIP_SPEED});
+    new_ufo->velocity.emplace(Velocity{.speed = direction * GameConfig::MYSTERY_SHIP_SPEED});
 
     return;
   }
@@ -169,13 +150,9 @@ void UpdateMysteryShipSpawner(GameState &game_state,
 }
 
 void update_game_lives(GameState &game_state, int hp_bonus) {
-
-  auto player =
-      std::find_if(game_state.entities.begin(), game_state.entities.end(),
-                   [](Entity &entity) {
-                     return ((entity.bitmask->layer & GameLayer::Player) ==
-                             GameLayer::Player);
-                   });
+  auto player = std::find_if(game_state.entities.begin(), game_state.entities.end(), [](Entity &entity) {
+    return ((entity.bitmask->layer & GameLayer::Player) == GameLayer::Player);
+  });
 
   player->health->hp += hp_bonus;
 
@@ -191,14 +168,10 @@ void is_player_alive(GameState &game_state, bool &is_running) {
   }
 }
 
-void RoundSystem::Update(GameState &game_state, RenderSystem &render_system,
-                         EntityFactory &entity_factory,
-                         AssetManager &asset_manager, SDL_Renderer *renderer,
-                         bool &is_running) {
-
+void RoundSystem::Update(GameState &game_state, RenderSystem &render_system, EntityFactory &entity_factory,
+                         AssetManager &asset_manager, SDL_Renderer *renderer, bool &is_running) {
   // Begin new Round code
   if (new_round_flag_ == true) {
-
     int i = 0;
     while (i < GameConfig::ROUND_TRANSITION_RENDERS) {
       render_system.Update(game_state, renderer);

@@ -7,6 +7,5 @@ class AssetManager;
 class UISystem {
 private:
 public:
-  void Update(GraphicsModule &graphics, GameState &game_state,
-              AssetManager &asset_manager);
+  void Update(GraphicsModule &graphics, GameState &game_state, AssetManager &asset_manager);
 };

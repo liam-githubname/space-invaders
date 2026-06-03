@@ -99,8 +99,7 @@ struct SDLContext {
 };
 
 struct EngineCore {
-  SDLContext
-      context; // Ensures that SDL_Quit is called when EngineCore is destroyed.
+  SDLContext context; // Ensures that SDL_Quit is called when EngineCore is destroyed.
   WindowPtr window;
   RendererPtr renderer;
 };
