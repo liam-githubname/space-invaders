@@ -38,27 +38,27 @@ inline std::optional<float> RayAgainstAABB(Ray ray, float entity_min_x, float en
 
   // Use the Euclidean norm to transform the direction into a standard
   // comparable format. This lets me check the actual distance in game.
-  auto magnitude = std::hypot(ray.direction.x, ray.direction.y);
+  float magnitude = std::hypot(ray.direction.x, ray.direction.y);
   ray.direction.x = ray.direction.x / magnitude;
   ray.direction.y = ray.direction.y / magnitude;
 
   // Calculate the inverse so we don't have to divide by 0.0.
-  auto inverse_direction_x = 1.0f / ray.direction.x;
-  auto inverse_direction_y = 1.0f / ray.direction.y;
+  float inverse_direction_x = 1.0f / ray.direction.x;
+  float inverse_direction_y = 1.0f / ray.direction.y;
 
-  auto time_x_1 = (entity_min_x - ray.origin.x) * inverse_direction_x;
-  auto time_x_2 = (entity_max_x - ray.origin.x) * inverse_direction_x;
-  auto time_x_floor = std::min(time_x_1, time_x_2);
-  auto time_x_ceiling = std::max(time_x_1, time_x_2);
+  float time_x_1 = (entity_min_x - ray.origin.x) * inverse_direction_x;
+  float time_x_2 = (entity_max_x - ray.origin.x) * inverse_direction_x;
+  float time_x_floor = std::min(time_x_1, time_x_2);
+  float time_x_ceiling = std::max(time_x_1, time_x_2);
 
-  auto time_y_1 = (entity_min_y - ray.origin.y) * inverse_direction_y;
-  auto time_y_2 = (entity_max_y - ray.origin.y) * inverse_direction_y;
-  auto time_y_floor = std::min(time_y_1, time_y_2);
-  auto time_y_ceiling = std::max(time_y_1, time_y_2);
+  float time_y_1 = (entity_min_y - ray.origin.y) * inverse_direction_y;
+  float time_y_2 = (entity_max_y - ray.origin.y) * inverse_direction_y;
+  float time_y_floor = std::min(time_y_1, time_y_2);
+  float time_y_ceiling = std::max(time_y_1, time_y_2);
 
   // 4. Combine the slabs.
-  auto latest_time_floor = std::max(time_x_floor, time_y_floor);
-  auto earliest_time_ceiling = std::min(time_x_ceiling, time_y_ceiling);
+  float latest_time_floor = std::max(time_x_floor, time_y_floor);
+  float earliest_time_ceiling = std::min(time_x_ceiling, time_y_ceiling);
 
   // SDL_Log("%f, %f", latest_time_floor, earliest_time_ceiling);
 

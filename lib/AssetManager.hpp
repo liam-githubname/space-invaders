@@ -24,18 +24,18 @@ using TexturePtr = std::unique_ptr<SDL_Texture, SDLTextureDeleter>;
 
 class AssetManager {
 public:
-  void loadTexture(GraphicsModule &graphics, GameState &game_state);
+  void loadTexture(const GraphicsModule &graphics, GameState &game_state);
   SDL_FRect GetTexture() const;
   bool HasTexture(const std::string &key) const;
   std::unordered_map<std::string, SpriteData> textures;
-  void createScoreText(GraphicsModule &graphics, GameState &game_state);
-  void createScoreNumber(GraphicsModule &graphics, GameState &game_state);
-  void createLiveText(GraphicsModule &graphics, GameState &game_state);
-  void createLivesCounter(GraphicsModule &graphics, GameState &game_state);
-  void createMenuTextures(GraphicsModule &graphics, GameState &game_state);
-  void createGameOverTextures(GraphicsModule &graphics, GameState &game_state);
+  void createScoreText(const GraphicsModule &graphics, GameState &game_state);
+  void createScoreNumber(const GraphicsModule &graphics, GameState &game_state) const;
+  void createLiveText(const GraphicsModule &graphics, GameState &game_state) const;
+  void createLivesCounter(const GraphicsModule &graphics, GameState &game_state) const;
+  void createMenuTextures(const GraphicsModule &graphics, GameState &game_state);
+  void createGameOverTextures(const GraphicsModule &graphics, GameState &game_state);
   void loadFont();
-  void Initialize(GraphicsModule &graphics, GameState &game_state);
+  void Initialize(const GraphicsModule &graphics, GameState &game_state);
   TTF_Font *font_ = nullptr;
 
 private:

@@ -8,11 +8,9 @@ public:
   void Update(GameState &game_state);
 
 private:
-  bool check_rectangle_to_rectangle(const Entity entity_a, const Entity entity_b);
+  bool IsRectToRectColliding(const Entity &entity_a, const Entity &entity_b) const;
 
-  bool IsRectToRectColliding(const Entity &entity_a, const Entity &entity_b);
+  bool IsRectToCircleColliding(const Entity &rectangle_entity, const Entity &circle_entity) const;
 
-  bool IsRectToCircleColliding(const Entity &rectangle_entity, const Entity &circle_entity);
-
-  bool IsCircleToCircleColliding(const Entity &entity_a, const Entity &entity_b);
+  bool IsCircleToCircleColliding(const Entity &entity_a, const Entity &entity_b) const;
 };

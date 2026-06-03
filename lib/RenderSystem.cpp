@@ -20,27 +20,27 @@ void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
 
   // NOTE: I am not making entity a reference because it doesn't need to affect
   // it.
-  for (auto &entity : game_state.entities) {
+  for (Entity &entity : game_state.entities) {
     // NOTE: DEBUG Layer won't work with this
     if (!entity.is_active || !entity.sprite.has_value())
       continue;
 
     // calculate the position the sprite needs to be in.
-    const auto destination = SDL_FRect{.x = entity.transform->position.x - entity.sprite->frame_data.frame1.w / 2,
-                                       .y = entity.transform->position.y - entity.sprite->frame_data.frame1.h / 2,
-                                       .w = entity.sprite->frame_data.frame1.w,
-                                       .h = entity.sprite->frame_data.frame1.h};
+    const SDL_FRect destination = SDL_FRect{.x = entity.transform->position.x - entity.sprite->frame_data.frame1.w / 2,
+                                            .y = entity.transform->position.y - entity.sprite->frame_data.frame1.h / 2,
+                                            .w = entity.sprite->frame_data.frame1.w,
+                                            .h = entity.sprite->frame_data.frame1.h};
 
     // I don't like that the sprite component has a different syntax to access
     // frame1 and frame2 fields
-    auto &sprite_coordinates =
+    const SDL_FRect &sprite_coordinates =
       (entity.sprite->step_1) ? entity.sprite->frame_data.frame1 : entity.sprite->frame_data.frame2.value();
 
     SDL_RenderTexture(renderer, game_state.textures.sprite_sheet.get(), &sprite_coordinates, &destination);
 
     // FIX: I hate this double nest
     if (entity.alien_info.has_value() && entity.alien_info->death_ticker.has_value()) {
-      auto max_ticks = entity.alien_info->death_ticker->max_ticks;
+      const int max_ticks = entity.alien_info->death_ticker->max_ticks;
       if (entity.alien_info->death_ticker->tick_count < max_ticks) {
         entity.alien_info->death_ticker->tick_count++;
       } else {
@@ -75,26 +75,27 @@ void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
   //  loop.
 
   if (game_state.score_board_texture != nullptr) {
-    SDL_FRect score_title_rect{GameConfig::UI_SCORE_TITLE_X, GameConfig::UI_HUD_Y,
-                               (float)game_state.score_board_texture->w, (float)game_state.score_board_texture->h};
+    const SDL_FRect score_title_rect{GameConfig::UI_SCORE_TITLE_X, GameConfig::UI_HUD_Y,
+                                     (float)game_state.score_board_texture->w,
+                                     (float)game_state.score_board_texture->h};
     SDL_RenderTexture(renderer, game_state.score_board_texture, NULL, &score_title_rect);
   }
 
   if (game_state.score_texture != nullptr) {
-    SDL_FRect score_rect{GameConfig::UI_SCORE_NUM_X, GameConfig::UI_HUD_Y, (float)game_state.score_texture->w,
-                         (float)game_state.score_texture->h};
+    const SDL_FRect score_rect{GameConfig::UI_SCORE_NUM_X, GameConfig::UI_HUD_Y, (float)game_state.score_texture->w,
+                               (float)game_state.score_texture->h};
     SDL_RenderTexture(renderer, game_state.score_texture, NULL, &score_rect);
   }
 
   if (game_state.live_text_texture != nullptr) {
-    SDL_FRect score_rect{GameConfig::UI_LIVES_TEXT_X, GameConfig::UI_HUD_Y, (float)game_state.live_text_texture->w,
-                         (float)game_state.live_text_texture->h};
+    const SDL_FRect score_rect{GameConfig::UI_LIVES_TEXT_X, GameConfig::UI_HUD_Y,
+                               (float)game_state.live_text_texture->w, (float)game_state.live_text_texture->h};
     SDL_RenderTexture(renderer, game_state.live_text_texture, NULL, &score_rect);
   }
 
   if (game_state.lives_texture != nullptr) {
-    SDL_FRect score_rect{GameConfig::UI_LIVES_ICON_X, GameConfig::UI_HUD_Y, (float)game_state.lives_texture->w,
-                         (float)game_state.lives_texture->h};
+    const SDL_FRect score_rect{GameConfig::UI_LIVES_ICON_X, GameConfig::UI_HUD_Y, (float)game_state.lives_texture->w,
+                               (float)game_state.lives_texture->h};
     SDL_RenderTexture(renderer, game_state.lives_texture, NULL, &score_rect);
   }
 
@@ -102,11 +103,11 @@ void RenderSystem::Update(GameState &game_state, SDL_Renderer *renderer) {
   SDL_RenderPresent(renderer);
 }
 
-void RenderSystem::drawRectangle(SDL_Renderer *renderer, Entity entity) {
+void RenderSystem::drawRectangle(SDL_Renderer *renderer, const Entity &entity) const {
   // This was the first time I used this syntax instinctually
-  SDL_FRect player_rect{entity.transform->position.x - entity.collider->rect.width / 2,
-                        entity.transform->position.y - entity.collider->rect.height / 2, entity.collider->rect.width,
-                        entity.collider->rect.height};
+  const SDL_FRect player_rect{entity.transform->position.x - entity.collider->rect.width / 2,
+                              entity.transform->position.y - entity.collider->rect.height / 2,
+                              entity.collider->rect.width, entity.collider->rect.height};
   // SDL_FRect player_center{entity.transform->position.x,
   //                         entity.transform->position.y, 5.0, 5.0};
   SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
@@ -115,10 +116,10 @@ void RenderSystem::drawRectangle(SDL_Renderer *renderer, Entity entity) {
   // SDL_RenderFillRect(renderer, &player_center);
 }
 
-void RenderSystem::drawWall(SDL_Renderer *renderer, Entity wall) {
-  SDL_FRect wall_rect{wall.transform->position.x - wall.collider->rect.width / 2,
-                      wall.transform->position.y - wall.collider->rect.height / 2, wall.collider->rect.width,
-                      wall.collider->rect.height};
+void RenderSystem::drawWall(SDL_Renderer *renderer, const Entity &wall) const {
+  const SDL_FRect wall_rect{wall.transform->position.x - wall.collider->rect.width / 2,
+                            wall.transform->position.y - wall.collider->rect.height / 2, wall.collider->rect.width,
+                            wall.collider->rect.height};
   // SDL_FRect wall_center{
   //     wall.transform->position.x - wall.collider->rect.width / 2,
   //     wall.transform->position.y - wall.collider->rect.height / 2, 2.0, 2.0};
@@ -128,12 +129,12 @@ void RenderSystem::drawWall(SDL_Renderer *renderer, Entity wall) {
   // SDL_RenderFillRect(renderer, &wall_center);
 }
 
-void RenderSystem::drawFire(SDL_Renderer *renderer, Entity entity) {
+void RenderSystem::drawFire(SDL_Renderer *renderer, const Entity &entity) const {
   if (!entity.gun->fire_flag)
     return;
 
-  auto endpointx = entity.transform->position.x + entity.transform->direction.x * entity.gun->distance;
-  auto endpointy = entity.transform->position.y + entity.transform->direction.y * entity.gun->distance;
+  const float endpointx = entity.transform->position.x + entity.transform->direction.x * entity.gun->distance;
+  const float endpointy = entity.transform->position.y + entity.transform->direction.y * entity.gun->distance;
 
   SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
   SDL_RenderLine(renderer, entity.transform->position.x, entity.transform->position.y, endpointx, endpointy);

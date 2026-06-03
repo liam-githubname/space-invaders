@@ -13,12 +13,12 @@ class GameState;
 
 class EventSystem {
 public:
-  void ProcessEvents(GameState &game_state);
-  void HandleCollisionPayload(const CollisionPayload &payload, GameState &game_state);
-  void WallCollisionHandler(Entity &entity_a, Entity &entity_b, GameState &game_state);
+  void ProcessEvents(GameState &game_state) const;
+  void HandleCollisionPayload(const CollisionPayload &payload, GameState &game_state) const;
+  void WallCollisionHandler(Entity &entity_a, Entity &entity_b, GameState &game_state) const;
 
-  void BulletCollisionHandler(Entity &entity_a, Entity &entity_b, GameState &game_state);
-  void HandleDeathPayload() { SDL_Log("handleDeathPayload"); };
-  void HandleScorePayload(const ScorePayload &payload, GameState &game_state);
-  // void HandleHitPayload() { SDL_Log("handleHiyPayload"); };
+  void BulletCollisionHandler(Entity &entity_a, Entity &entity_b) const;
+  void HandleDeathPayload() const { SDL_Log("handleDeathPayload"); };
+  void HandleScorePayload(const ScorePayload &payload, GameState &game_state) const;
+  // void HandleHitPayload() const { SDL_Log("handleHiyPayload"); };
 };

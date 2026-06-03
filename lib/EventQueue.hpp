@@ -19,9 +19,9 @@ private:
   std::vector<Event> event_queue;
 
 public:
-  // const std::vect...
-  // The const means that callers can read and iterate, but can't modify
-  const std::vector<Event> &GetEvents() { return event_queue; };
+  // The const on the return type means callers can read and iterate, but can't modify.
+  // The trailing const on the method means this is callable on a const EventQueue.
+  const std::vector<Event> &GetEvents() const { return event_queue; };
   void PushEvent(Event new_event) { event_queue.push_back(new_event); };
   void ClearEventQueue() { event_queue.clear(); };
 };

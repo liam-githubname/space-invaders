@@ -11,15 +11,15 @@ public:
   void Update(GameState &game_state, SDL_Renderer *renderer);
 
 private:
-  void drawCircle(SDL_Renderer renderer, Entity entity);
-  void drawRectangle(SDL_Renderer *renderer, Entity player_entity);
-  void drawTriangle(SDL_Renderer renderer, Entity entity);
-  void drawAsteroid(SDL_Renderer renderer, Entity entity);
-  void drawScore(SDL_Renderer renderer, Entity entity);
-  void drawLives(SDL_Renderer renderer, Entity entity);
-  void renderBackground(SDL_Renderer renderer, Entity background);
-  void drawWall(SDL_Renderer *renderer, Entity wall);
-  void drawFire(SDL_Renderer *renderer, Entity entity);
+  void drawCircle(SDL_Renderer *renderer, const Entity &entity) const;
+  void drawRectangle(SDL_Renderer *renderer, const Entity &player_entity) const;
+  void drawTriangle(SDL_Renderer *renderer, const Entity &entity) const;
+  void drawAsteroid(SDL_Renderer *renderer, const Entity &entity) const;
+  void drawScore(SDL_Renderer *renderer, const Entity &entity) const;
+  void drawLives(SDL_Renderer *renderer, const Entity &entity) const;
+  void renderBackground(SDL_Renderer *renderer, const Entity &background) const;
+  void drawWall(SDL_Renderer *renderer, const Entity &wall) const;
+  void drawFire(SDL_Renderer *renderer, const Entity &entity) const;
 };
 // const int CIRCLE_DRAW_SIDES = 32;
 // const int CIRCLE_DRAW_SIDES_LEN = (CIRCLE_DRAW_SIDES + 1);
@@ -53,7 +53,7 @@ private:
 //
 // struct Splash {
 //   Circle ripple;
-//   void expandRipple() { ripple.radius += 2.0f; };
+//   void expandRipple() { ripple.radius += 2.5f; };
 // };
 //
 // Splash createSplash() {

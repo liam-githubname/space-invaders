@@ -25,14 +25,14 @@ void MovementSystem::Update(GameState &game_state, float current_frame_time) {
   // wall collision problem that I had. Only one alien could touch the wall at
   // any given moment.
 
-  auto number_of_aliens_alive = game_state.total_number_of_aliens - game_state.number_of_aliens;
-  auto alien_speed_multiplier = number_of_aliens_alive;
+  const int number_of_aliens_alive = game_state.total_number_of_aliens - game_state.number_of_aliens;
+  const int alien_speed_multiplier = number_of_aliens_alive;
 
-  auto has_been_alien_step_time =
+  const bool has_been_alien_step_time =
     ((current_frame_time - last_time) >
      GameConfig::ALIEN_STEP_BASE_NS - alien_speed_multiplier * GameConfig::ALIEN_STEP_PER_KILL_NS);
 
-  for (auto &entity : game_state.entities) {
+  for (Entity &entity : game_state.entities) {
     // Guard against dead entities.
     if (!entity.is_active) {
       continue;
@@ -68,7 +68,7 @@ void MovementSystem::Update(GameState &game_state, float current_frame_time) {
       entity.movement_mod = {};
     }
 
-    auto new_entity_position = One();
+    Vec2 new_entity_position = One();
 
     if (entity.player_input) {
       new_entity_position *= entity.player_input->move;

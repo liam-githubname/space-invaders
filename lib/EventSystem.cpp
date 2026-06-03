@@ -30,7 +30,7 @@
 #include <ranges>
 
 // FIX: Duplicate code need to remove testing refactor REMOVE REMOVE REMOVE
-bool is_formation_alien_one(Entity &entity) {
+bool is_formation_alien_one(const Entity &entity) {
   if (!entity.alien_info.has_value()) {
     return false;
   }
@@ -48,14 +48,14 @@ bool is_formation_alien_one(Entity &entity) {
 
 class EventSystem;
 // This is the main use of this class here.
-void EventSystem::HandleCollisionPayload(const CollisionPayload &payload, GameState &game_state) {
+void EventSystem::HandleCollisionPayload(const CollisionPayload &payload, GameState &game_state) const {
   // Entity pointer holds the address of an entity
   Entity *entity_a = nullptr;
   Entity *entity_b = nullptr;
   // Handle Wall Collisions
   // ==================================================== Searches through the
   // entities to find the ones from the payload.
-  for (auto &entity : game_state.entities) {
+  for (Entity &entity : game_state.entities) {
     if (entity.id == payload.entity_a_id) {
       // The address of the entity reference or the address of the entity
       entity_a = &entity;
@@ -66,12 +66,12 @@ void EventSystem::HandleCollisionPayload(const CollisionPayload &payload, GameSt
   } // WARN: There is a c++ function called find_if that I could use to have
   // The dereferenced entity pointer should hold a entity reference
   WallCollisionHandler(*entity_a, *entity_b, game_state);
-  BulletCollisionHandler(*entity_a, *entity_b, game_state);
+  BulletCollisionHandler(*entity_a, *entity_b);
 
   // ==========================================================================
 }
 
-void EventSystem::BulletCollisionHandler(Entity &entity_a, Entity &entity_b, GameState &game_state) {
+void EventSystem::BulletCollisionHandler(Entity &entity_a, Entity &entity_b) const {
   // If it's not a bullet then leave.
   if ((entity_a.bitmask->layer != GameLayer::Projectile) && (entity_b.bitmask->layer != GameLayer::Projectile)) {
     return;
@@ -89,27 +89,23 @@ void EventSystem::BulletCollisionHandler(Entity &entity_a, Entity &entity_b, Gam
 }
 
 // NOTE: I know it's not pretty but I'm running out of time.
-void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b, GameState &game_state) {
+void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b, GameState &game_state) const {
   // Check to see if it's a wall and something with velocity.
-  bool a_velocity = entity_a.velocity.has_value();
-  bool b_velocity = entity_b.velocity.has_value();
-  bool a_wall = entity_a.wall_info.has_value();
-  bool b_wall = entity_b.wall_info.has_value();
+  const bool a_velocity = entity_a.velocity.has_value();
+  const bool b_velocity = entity_b.velocity.has_value();
+  const bool a_wall = entity_a.wall_info.has_value();
+  const bool b_wall = entity_b.wall_info.has_value();
   if (!(a_velocity && b_wall) && !(b_velocity && a_wall))
     return;
 
   // This is the easiest way to assign the player.
-  auto &entity = (a_velocity) ? entity_a : entity_b;
+  Entity &entity = (a_velocity) ? entity_a : entity_b;
   // This is redundant but a more elegant solution isn't coming to mind rn
-  auto &wall = (a_wall) ? entity_a : entity_b;
+  Entity &wall = (a_wall) ? entity_a : entity_b;
 
-  float wall_x, wall_y;
-  WallSide which_wallside;
-
-  wall_x = wall.transform->position.x;
-  wall_y = wall.transform->position.y;
-  which_wallside = wall.wall_info->side;
-  Vec2 transform_update;
+  const float wall_x = wall.transform->position.x;
+  const float wall_y = wall.transform->position.y;
+  const WallSide which_wallside = wall.wall_info->side;
 
   auto wall_transform_update = [&](WallSide wallside) {
     // I wasnt' addign the walls width? I think that's causing it to get stuck?
@@ -154,22 +150,22 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b, GameS
     //   game_state.DestroyEntity(entity.id);
     // }
 
-    auto new_direction_sign = (wall.wall_info->side == WallSide::Right) ? -1.0f : 1.0f;
+    const float new_direction_sign = (wall.wall_info->side == WallSide::Right) ? -1.0f : 1.0f;
 
-    auto new_movement_intent = AlterMovement{
+    const AlterMovement new_movement_intent = AlterMovement{
       .position_update = Vec2{.x = 0.0f, .y = 2.0f},
       .speed_assignment = Vec2{.x = new_direction_sign, .y = 0.0f},
       .suppress_velocity = false,
     };
 
     // Then you create a std::view by using your predicate as the filter
-    for (auto &enemy : game_state.entities | std::views::filter(is_formation_alien_one)) {
+    for (Entity &enemy : game_state.entities | std::views::filter(is_formation_alien_one)) {
       // Then you apply whatever you want to the members of the view.
       enemy.movement_mod.emplace(new_movement_intent);
     }
 
   } else {
-    auto player_movement_intent = AlterMovement{
+    const AlterMovement player_movement_intent = AlterMovement{
       .speed_assignment = Vec2{.x = 1.0f, .y = 0.0f},
       .suppress_velocity = true,
     };
@@ -178,12 +174,12 @@ void EventSystem::WallCollisionHandler(Entity &entity_a, Entity &entity_b, GameS
   }
 }
 
-void EventSystem::HandleScorePayload(const ScorePayload &payload, GameState &game_state) {
+void EventSystem::HandleScorePayload(const ScorePayload &payload, GameState &game_state) const {
   game_state.score += payload.points;
 }
 
-void EventSystem::ProcessEvents(GameState &game_state) {
-  for (auto &event : game_state.event_queue.GetEvents()) {
+void EventSystem::ProcessEvents(GameState &game_state) const {
+  for (const Event &event : game_state.event_queue.GetEvents()) {
     std::visit(Overload{
                  [&](const CollisionPayload payload) { HandleCollisionPayload(payload, game_state); },
                  [&](const DeathPayload payload) { SDL_Log("Consumed DeathPayload"); },

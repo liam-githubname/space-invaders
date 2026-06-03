@@ -10,7 +10,7 @@ public:
   // This is that public initializer
   static InputSystem create();
 
-  void Update(GameState &game_state);
+  void Update(GameState &game_state) const;
 
 private:
   const bool *keyboard_state;

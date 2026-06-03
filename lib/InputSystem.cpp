@@ -26,7 +26,7 @@ InputSystem InputSystem::create() {
 
 void update_player_input(const bool *keyboard_state, GameState &game_state) {
   Vec2 move{0.0f, 0.0f};
-  auto fire_input = false;
+  bool fire_input = false;
 
   if (keyboard_state[SDL_SCANCODE_W] || keyboard_state[SDL_SCANCODE_UP]) {
     move.y += -1.0f;
@@ -67,7 +67,7 @@ void update_player_input(const bool *keyboard_state, GameState &game_state) {
 }
 
 // TODO: implement
-void update_alien_input(GameState &game_state, Entity &entity) {
+void update_alien_input(Entity &entity) {
   if (entity.gun.has_value()) {
     entity.gun->fire_flag = (one_in_x(GameConfig::ALIEN_FIRE_CHANCE_1IN) == 1) ? true : false;
   }
@@ -76,12 +76,12 @@ void update_alien_input(GameState &game_state, Entity &entity) {
 // Private Constructor
 InputSystem::InputSystem(const bool *keyboard_state) : keyboard_state(keyboard_state) {}
 
-void InputSystem::Update(GameState &game_state) {
+void InputSystem::Update(GameState &game_state) const {
   update_player_input(keyboard_state, game_state);
 
-  for (auto &entity : game_state.entities) {
+  for (Entity &entity : game_state.entities) {
     if (entity.alien_info.has_value()) {
-      update_alien_input(game_state, entity);
+      update_alien_input(entity);
     }
   }
 }

@@ -12,11 +12,11 @@ class EntityFactory {
 public:
   EntityFactory(GameState &game_state, AssetManager &asset_manager, float window_width, float window_height);
   void createPlayer();
-  void createBarrier(Vec2 position);
+  void createBarrier(const Vec2 position);
   void createBarriers();
   void createGameWalls();
-  void createAlien(AlienType species, Vec2 position);
-  void createAlienFormation(Vec2 position);
+  void createAlien(AlienType species, const Vec2 position);
+  void createAlienFormation();
   void createMysteryShipSpawner();
 
 private:

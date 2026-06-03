@@ -18,7 +18,7 @@ void GameState::DestroyEntity(uint32_t target_id) {
   // WARN: I believe that &entity must be a reference otherwise it
   // would copy the value (bad for effieciency)
   // wouldn't update the value (because entity is a copy)
-  for (auto &entity : entities) {
+  for (Entity &entity : entities) {
     if (entity.id == target_id) {
       entity.is_active = false;
       break;

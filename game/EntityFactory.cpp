@@ -24,7 +24,7 @@ void EntityFactory::createPlayer() {
     GameConfig::PLAYER_DIRECTION,
   });
 
-  player.sprite.emplace(Sprite{.frame_data = asset_manager.textures["canon"]});
+  player.sprite.emplace(Sprite{.frame_data = asset_manager.textures.at("canon")});
 
   player.collider.emplace(Collider{.shape = ColliderShape::Rectangle,
                                    .rect{player.sprite->frame_data.frame1.w, player.sprite->frame_data.frame1.h}});
@@ -32,51 +32,51 @@ void EntityFactory::createPlayer() {
   player.player_input.emplace(PlayerInput{.move = Zero(), .is_firing = false});
 }
 
-Entity &create_barrier_part_by_key(GameState &game_state_, AssetManager &asset_manager, std::string asset_key) {
-  auto &barrier_part = game_state_.CreateEntity();
+Entity &create_barrier_part_by_key(GameState &game_state_, const AssetManager &asset_manager, std::string asset_key) {
+  Entity &barrier_part = game_state_.CreateEntity();
 
   barrier_part.is_active = true;
-  barrier_part.sprite.emplace(Sprite{.frame_data = asset_manager.textures[asset_key]});
+  barrier_part.sprite.emplace(Sprite{.frame_data = asset_manager.textures.at(asset_key)});
 
   // Added a health component
   barrier_part.health.emplace(Health{.max_hp = GameConfig::BARRIER_PART_MAX_HP});
 
   barrier_part.bitmask.emplace(Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Projectile});
 
-  auto collider_width = barrier_part.sprite->frame_data.frame1.w;
-  auto collider_height = barrier_part.sprite->frame_data.frame1.h;
+  const float collider_width = barrier_part.sprite->frame_data.frame1.w;
+  const float collider_height = barrier_part.sprite->frame_data.frame1.h;
 
   barrier_part.collider.emplace(Collider{.rect{collider_width, collider_height}});
 
   return barrier_part;
 };
 
-void EntityFactory::createBarrier(Vec2 position) {
-  auto &barrier_part1 = create_barrier_part_by_key(game_state_, asset_manager, "barrier1");
+void EntityFactory::createBarrier(const Vec2 position) {
+  Entity &barrier_part1 = create_barrier_part_by_key(game_state_, asset_manager, "barrier1");
   barrier_part1.transform.emplace(Transform{.position = position});
 
-  auto &barrier_part2 = create_barrier_part_by_key(game_state_, asset_manager, "barrier2");
+  Entity &barrier_part2 = create_barrier_part_by_key(game_state_, asset_manager, "barrier2");
   barrier_part2.transform.emplace(
     Transform{.position.x = barrier_part1.transform->position.x,
               .position.y = barrier_part1.transform->position.y + barrier_part1.collider->rect.height});
 
-  auto &barrier_part3 = create_barrier_part_by_key(game_state_, asset_manager, "barrier3");
+  Entity &barrier_part3 = create_barrier_part_by_key(game_state_, asset_manager, "barrier3");
   barrier_part3.transform.emplace(
     Transform{.position.x = barrier_part1.transform->position.x + barrier_part1.collider->rect.width,
               .position.y = barrier_part1.transform->position.y});
 
-  auto &barrier_part4 = create_barrier_part_by_key(game_state_, asset_manager, "barrier4");
+  Entity &barrier_part4 = create_barrier_part_by_key(game_state_, asset_manager, "barrier4");
   barrier_part4.transform.emplace(Transform{
     .position.x = barrier_part3.transform->position.x,
     .position.y =
       barrier_part3.transform->position.y + barrier_part3.collider->rect.height - GameConfig::BARRIER_PART4_OFFSET_Y,
   });
-  auto &barrier_part5 = create_barrier_part_by_key(game_state_, asset_manager, "barrier5");
+  Entity &barrier_part5 = create_barrier_part_by_key(game_state_, asset_manager, "barrier5");
   barrier_part5.transform.emplace(Transform{
     .position.x = barrier_part3.transform->position.x + barrier_part3.collider->rect.width,
     .position.y = barrier_part3.transform->position.y,
   });
-  auto &barrier_part6 = create_barrier_part_by_key(game_state_, asset_manager, "barrier6");
+  Entity &barrier_part6 = create_barrier_part_by_key(game_state_, asset_manager, "barrier6");
   barrier_part6.transform.emplace(Transform{
     .position.x = barrier_part5.transform->position.x,
     .position.y = barrier_part5.transform->position.y + barrier_part5.collider->rect.height,
@@ -85,7 +85,7 @@ void EntityFactory::createBarrier(Vec2 position) {
 
 void EntityFactory::createBarriers() {
   for (int i = 0; i < GameConfig::BARRIER_COUNT; i++) {
-    auto start_pos = GameConfig::BARRIER_START;
+    Vec2 start_pos = GameConfig::BARRIER_START;
     start_pos.x += i * GameConfig::BARRIER_SPACING_X;
     createBarrier(start_pos);
   }
@@ -94,7 +94,7 @@ void EntityFactory::createBarriers() {
 void EntityFactory::createGameWalls() {
   // FIX: spaghetti code nightmare fix later
 
-  auto &top_wall = game_state_.CreateEntity();
+  Entity &top_wall = game_state_.CreateEntity();
   top_wall.is_active = true;
   top_wall.bitmask.emplace(Bitmask{
     .layer = GameLayer::Wall,
@@ -108,7 +108,7 @@ void EntityFactory::createGameWalls() {
     Collider{.shape = ColliderShape::Rectangle, .rect{(float)window_width_, GameConfig::WALL_THICKNESS}});
 
   // Bottom wall
-  auto &bottom_wall = game_state_.CreateEntity();
+  Entity &bottom_wall = game_state_.CreateEntity();
   bottom_wall.bitmask.emplace(Bitmask{
     .layer = GameLayer::Wall,
     .mask = GameLayer::Player | GameLayer::Projectile,
@@ -124,7 +124,7 @@ void EntityFactory::createGameWalls() {
     .rect{(float)window_width_, GameConfig::WALL_THICKNESS},
   });
   // Left wall
-  auto &left_wall = game_state_.CreateEntity();
+  Entity &left_wall = game_state_.CreateEntity();
   left_wall.bitmask.emplace(Bitmask{.layer = GameLayer::Wall, .mask = GameLayer::Player | GameLayer::Projectile});
   left_wall.wall_info.emplace(WallSide::Left);
   left_wall.is_active = true;
@@ -137,7 +137,7 @@ void EntityFactory::createGameWalls() {
     .rect{GameConfig::WALL_THICKNESS, (float)window_height_},
   });
   // Right wall
-  auto &right_wall = game_state_.CreateEntity();
+  Entity &right_wall = game_state_.CreateEntity();
   right_wall.bitmask.emplace(Bitmask{
     .layer = GameLayer::Wall,
     .mask = GameLayer::Player,
@@ -154,7 +154,7 @@ void EntityFactory::createGameWalls() {
   });
 }
 
-void EntityFactory::createAlien(AlienType species, Vec2 position) {
+void EntityFactory::createAlien(AlienType species, const Vec2 position) {
   auto species_to_key = [](AlienType species) {
     switch (species) {
       case AlienType::Squid:
@@ -186,7 +186,7 @@ void EntityFactory::createAlien(AlienType species, Vec2 position) {
 
   // FIX: spaghetti code nightmare fix later
 
-  auto &alien = game_state_.CreateEntity();
+  Entity &alien = game_state_.CreateEntity();
 
   alien.bitmask.emplace(
     Bitmask{.layer = GameLayer::Enemy, .mask = GameLayer::Player | GameLayer::Wall | GameLayer::Projectile});
@@ -200,14 +200,14 @@ void EntityFactory::createAlien(AlienType species, Vec2 position) {
 
   alien.transform.emplace(Transform{position, Down()});
 
-  alien.sprite.emplace(Sprite{.frame_data = asset_manager.textures[species_to_key(species)]});
+  alien.sprite.emplace(Sprite{.frame_data = asset_manager.textures.at(species_to_key(species))});
 
   // Because it's cheap to hold just the explosion sprite in the entity, I'm
   // going to do that.
-  alien.death_sprite.emplace(Sprite{.frame_data = asset_manager.textures["explosion"]});
+  alien.death_sprite.emplace(Sprite{.frame_data = asset_manager.textures.at("explosion")});
 
-  auto sprite_width = alien.sprite->frame_data.frame1.w;
-  auto sprite_height = alien.sprite->frame_data.frame1.h;
+  const float sprite_width = alien.sprite->frame_data.frame1.w;
+  const float sprite_height = alien.sprite->frame_data.frame1.h;
 
   alien.collider.emplace(Collider{.shape = ColliderShape::Rectangle, .rect{sprite_width, sprite_height}});
 
@@ -216,7 +216,7 @@ void EntityFactory::createAlien(AlienType species, Vec2 position) {
   alien.is_active = true;
 }
 
-void EntityFactory::createAlienFormation(Vec2 position_update) {
+void EntityFactory::createAlienFormation() {
   // Authentic Space Invaders layout: 5 rows x 11 columns
   // Horizontal spacing: 16px (gives ~4-8px gap depending on sprite width)
   // Vertical spacing: 15px
@@ -240,8 +240,8 @@ void EntityFactory::createAlienFormation(Vec2 position_update) {
           break;
       }
 
-      float x = GameConfig::FORMATION_START_X + col * GameConfig::FORMATION_STRIDE_X;
-      float y = GameConfig::FORMATION_START_Y + row * GameConfig::FORMATION_STRIDE_Y;
+      const float x = GameConfig::FORMATION_START_X + col * GameConfig::FORMATION_STRIDE_X;
+      const float y = GameConfig::FORMATION_START_Y + row * GameConfig::FORMATION_STRIDE_Y;
 
       createAlien(species, Vec2{x, y});
     }
@@ -249,7 +249,7 @@ void EntityFactory::createAlienFormation(Vec2 position_update) {
 }
 
 void EntityFactory::createMysteryShipSpawner() {
-  auto &spawner = game_state_.CreateEntity();
+  Entity &spawner = game_state_.CreateEntity();
   spawner.mystery_ticker.emplace();
   spawner.bitmask.emplace();
 }

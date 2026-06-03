@@ -21,19 +21,19 @@
 #include <cstdint>
 #include <optional>
 
-void update_player_shooting(GameState &game_state, AssetManager &asset_manager, Entity &player) {
+void update_player_shooting(GameState &game_state, const AssetManager &asset_manager, const Entity &player) {
   if (game_state.bullet_is_active) {
     return;
   }
   // Player shooting logic
   if (player.bitmask->layer == GameLayer::Player && player.player_input->is_firing) {
-    auto &player_bullet = game_state.CreateEntity();
+    Entity &player_bullet = game_state.CreateEntity();
     player_bullet.is_active = true;
     player_bullet.parent.emplace(ParentEntityClass{.was_player = true});
 
-    player_bullet.sprite.emplace(Sprite{.frame_data = asset_manager.textures["bullet"]});
-    auto col_width = player_bullet.sprite->frame_data.frame1.w;
-    auto col_height = player_bullet.sprite->frame_data.frame1.h;
+    player_bullet.sprite.emplace(Sprite{.frame_data = asset_manager.textures.at("bullet")});
+    const float col_width = player_bullet.sprite->frame_data.frame1.w;
+    const float col_height = player_bullet.sprite->frame_data.frame1.h;
 
     player_bullet.health.emplace(Health{.max_hp = GameConfig::BULLET_MAX_HP});
     player_bullet.collider.emplace(Collider{.shape = ColliderShape::Rectangle, .rect{col_width, col_height}});
@@ -49,21 +49,20 @@ void update_player_shooting(GameState &game_state, AssetManager &asset_manager, 
   }
 }
 
-bool ray_cast_hits_alien(GameState &game_state, Entity &entity) {
-  uint32_t hit_entity_id = -1;
+bool ray_cast_hits_alien(const GameState &game_state, const Entity &entity) {
   // The raycasting portion of the shooting system
   if (!entity.gun.has_value() || !entity.gun->fire_flag)
     //
     return true;
 
-  auto is_shortest_hit_alien = false;
+  bool is_shortest_hit_alien = false;
   float shortest_distance = INFINITY;
 
   // Raycast
-  Raycast::Ray ray{.origin = Vec2{entity.transform->position.x, entity.transform->position.y},
-                   .direction = Vec2{entity.transform->direction.x, entity.transform->direction.y}};
+  const Raycast::Ray ray{.origin = Vec2{entity.transform->position.x, entity.transform->position.y},
+                         .direction = Vec2{entity.transform->direction.x, entity.transform->direction.y}};
 
-  for (auto &other_entity : game_state.entities) {
+  for (const Entity &other_entity : game_state.entities) {
     // Skip if it's looking at itself
     if (entity.id == other_entity.id) {
       continue;
@@ -111,7 +110,7 @@ bool ray_cast_hits_alien(GameState &game_state, Entity &entity) {
   return is_shortest_hit_alien;
 }
 
-uint32_t raycast(GameState &game_state, Entity &entity) {
+uint32_t raycast(GameState &game_state, const Entity &entity) {
   uint32_t hit_entity_id = -1;
   // The raycasting portion of the shooting system
   if (!entity.gun.has_value() || !entity.gun->fire_flag)
@@ -120,10 +119,10 @@ uint32_t raycast(GameState &game_state, Entity &entity) {
   float shortest_distance = INFINITY;
 
   // Raycast
-  Raycast::Ray ray{.origin = Vec2{entity.transform->position.x, entity.transform->position.y},
-                   .direction = Vec2{entity.transform->direction.x, entity.transform->direction.y}};
+  const Raycast::Ray ray{.origin = Vec2{entity.transform->position.x, entity.transform->position.y},
+                         .direction = Vec2{entity.transform->direction.x, entity.transform->direction.y}};
 
-  for (auto &other_entity : game_state.entities) {
+  for (const Entity &other_entity : game_state.entities) {
     // Skip if it's looking at itself
     if (entity.id == other_entity.id) {
       continue;
@@ -178,18 +177,18 @@ uint32_t raycast(GameState &game_state, Entity &entity) {
   return hit_entity_id;
 }
 
-void update_alien_shooting(GameState &game_state, Entity &entity, AssetManager &asset_manager) {
+void update_alien_shooting(GameState &game_state, const Entity &entity, const AssetManager &asset_manager) {
   if (ray_cast_hits_alien(game_state, entity)) {
     return;
   }
 
-  auto &enemy_bullet = game_state.CreateEntity();
+  Entity &enemy_bullet = game_state.CreateEntity();
   enemy_bullet.is_active = true;
 
   enemy_bullet.health.emplace(Health{.max_hp = GameConfig::BULLET_MAX_HP});
-  enemy_bullet.sprite.emplace(Sprite{.frame_data = asset_manager.textures["bullet"]});
-  auto col_width = enemy_bullet.sprite->frame_data.frame1.w;
-  auto col_height = enemy_bullet.sprite->frame_data.frame1.h;
+  enemy_bullet.sprite.emplace(Sprite{.frame_data = asset_manager.textures.at("bullet")});
+  const float col_width = enemy_bullet.sprite->frame_data.frame1.w;
+  const float col_height = enemy_bullet.sprite->frame_data.frame1.h;
 
   enemy_bullet.collider.emplace(Collider{.shape = ColliderShape::Rectangle, .rect{col_width, col_height}});
   enemy_bullet.velocity.emplace(Velocity{.speed = GameConfig::ENEMY_BULLET_SPEED});
@@ -204,8 +203,8 @@ void update_alien_shooting(GameState &game_state, Entity &entity, AssetManager &
   // enemy_bullet.time_death.emplace(TimedDeath{.ticker{.max_ticks = 1000}});
 }
 
-void ShootingSystem::Update(GameState &game_state, AssetManager &asset_manager) {
-  for (auto &entity : game_state.entities) {
+void ShootingSystem::Update(GameState &game_state, const AssetManager &asset_manager) {
+  for (Entity &entity : game_state.entities) {
     // early guards
     if (!entity.is_active)
       continue;

@@ -12,7 +12,7 @@
 #include "Util.hpp"
 #include <expected>
 
-Game::Game(GraphicsModule &&graphics, float window_width, float window_height)
+Game::Game(GraphicsModule &&graphics, const float window_width, const float window_height)
     : graphics_(std::move(graphics)), input_system_(InputSystem::create()), game_state_(GameState()), is_running(true),
       window_width_(window_width), window_height_(window_height) {
   /*
@@ -29,14 +29,13 @@ std::expected<Game, std::string> Game::create(std::string_view title, int width,
     return std::unexpected(sdl_graphics_result.error());
   }
 
-  auto input_system = InputSystem::create();
+  InputSystem input_system = InputSystem::create();
   // This unwraps the Graphics Module
   // The program needs to take ownership of the module
   // We have to use std::move because we removed the copy constructor.
   Game game(std::move(sdl_graphics_result.value()), (float)width, (float)height);
 
   return game;
-  ;
 }
 
 void Game::initializeGame(EntityFactory &factory) {
@@ -47,7 +46,7 @@ void Game::initializeGame(EntityFactory &factory) {
   factory.createGameWalls();
   factory.createBarriers();
   factory.createPlayer();
-  factory.createAlienFormation(Zero());
+  factory.createAlienFormation();
   factory.createMysteryShipSpawner();
 }
 
@@ -70,18 +69,18 @@ void Game::run_game_over() {
     SDL_RenderClear(graphics_.getRenderer());
 
     if (game_state_.game_over_title_texture != nullptr) {
-      float title_w = (float)game_state_.game_over_title_texture->w * GameConfig::MENU_TITLE_SCALE;
-      float title_h = (float)game_state_.game_over_title_texture->h * GameConfig::MENU_TITLE_SCALE;
-      SDL_FRect title_rect{(window_width_ - title_w) / 2.0f, window_height_ * GameConfig::MENU_TITLE_FRAC_Y, title_w,
-                           title_h};
+      const float title_w = (float)game_state_.game_over_title_texture->w * GameConfig::MENU_TITLE_SCALE;
+      const float title_h = (float)game_state_.game_over_title_texture->h * GameConfig::MENU_TITLE_SCALE;
+      const SDL_FRect title_rect{(window_width_ - title_w) / 2.0f, window_height_ * GameConfig::MENU_TITLE_FRAC_Y,
+                                 title_w, title_h};
       SDL_RenderTexture(graphics_.getRenderer(), game_state_.game_over_title_texture, NULL, &title_rect);
     }
 
     if (game_state_.game_over_prompt_texture != nullptr) {
-      float prompt_w = (float)game_state_.game_over_prompt_texture->w * GameConfig::MENU_TITLE_SCALE;
-      float prompt_h = (float)game_state_.game_over_prompt_texture->h * GameConfig::MENU_TITLE_SCALE;
-      SDL_FRect prompt_rect{(window_width_ - prompt_w) / 2.0f, window_height_ * GameConfig::MENU_PROMPT_FRAC_Y,
-                            prompt_w, prompt_h};
+      const float prompt_w = (float)game_state_.game_over_prompt_texture->w * GameConfig::MENU_TITLE_SCALE;
+      const float prompt_h = (float)game_state_.game_over_prompt_texture->h * GameConfig::MENU_TITLE_SCALE;
+      const SDL_FRect prompt_rect{(window_width_ - prompt_w) / 2.0f, window_height_ * GameConfig::MENU_PROMPT_FRAC_Y,
+                                  prompt_w, prompt_h};
       SDL_RenderTexture(graphics_.getRenderer(), game_state_.game_over_prompt_texture, NULL, &prompt_rect);
     }
 
@@ -117,18 +116,18 @@ void Game::run_menu() {
     SDL_RenderClear(graphics_.getRenderer());
 
     if (game_state_.menu_title_texture != nullptr) {
-      float title_w = (float)game_state_.menu_title_texture->w * GameConfig::MENU_TITLE_SCALE;
-      float title_h = (float)game_state_.menu_title_texture->h * GameConfig::MENU_TITLE_SCALE;
-      SDL_FRect title_rect{(window_width_ - title_w) / 2.0f, window_height_ * GameConfig::MENU_TITLE_FRAC_Y, title_w,
-                           title_h};
+      const float title_w = (float)game_state_.menu_title_texture->w * GameConfig::MENU_TITLE_SCALE;
+      const float title_h = (float)game_state_.menu_title_texture->h * GameConfig::MENU_TITLE_SCALE;
+      const SDL_FRect title_rect{(window_width_ - title_w) / 2.0f, window_height_ * GameConfig::MENU_TITLE_FRAC_Y,
+                                 title_w, title_h};
       SDL_RenderTexture(graphics_.getRenderer(), game_state_.menu_title_texture, NULL, &title_rect);
     }
 
     if (game_state_.menu_prompt_texture != nullptr) {
-      float prompt_w = (float)game_state_.menu_prompt_texture->w * GameConfig::MENU_TITLE_SCALE;
-      float prompt_h = (float)game_state_.menu_prompt_texture->h * GameConfig::MENU_TITLE_SCALE;
-      SDL_FRect prompt_rect{(window_width_ - prompt_w) / 2.0f, window_height_ * GameConfig::MENU_PROMPT_FRAC_Y,
-                            prompt_w, prompt_h};
+      const float prompt_w = (float)game_state_.menu_prompt_texture->w * GameConfig::MENU_TITLE_SCALE;
+      const float prompt_h = (float)game_state_.menu_prompt_texture->h * GameConfig::MENU_TITLE_SCALE;
+      const SDL_FRect prompt_rect{(window_width_ - prompt_w) / 2.0f, window_height_ * GameConfig::MENU_PROMPT_FRAC_Y,
+                                  prompt_w, prompt_h};
       SDL_RenderTexture(graphics_.getRenderer(), game_state_.menu_prompt_texture, NULL, &prompt_rect);
     }
 
@@ -147,7 +146,7 @@ void Game::run() {
 
   // FIX: Either make this a private member of Game or figure out a better
   // way to create it.
-  auto entity_factory = EntityFactory(game_state_, asset_manager_, window_width_, window_height_);
+  EntityFactory entity_factory = EntityFactory(game_state_, asset_manager_, window_width_, window_height_);
 
   initializeGame(entity_factory);
 

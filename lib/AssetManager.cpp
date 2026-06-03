@@ -6,8 +6,8 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <string>
 
-void AssetManager::loadTexture(GraphicsModule &graphics, GameState &game_state) {
-  auto *raw_texture = IMG_LoadTexture(graphics.getRenderer(), file_path_.c_str());
+void AssetManager::loadTexture(const GraphicsModule &graphics, GameState &game_state) {
+  SDL_Texture *raw_texture = IMG_LoadTexture(graphics.getRenderer(), file_path_.c_str());
   if (!raw_texture) {
     SDL_Log("Failed to load sprite sheet");
     return;
@@ -72,14 +72,14 @@ void AssetManager::loadFont() {
   if (font_) {
     TTF_CloseFont(font_);
   }
-  auto *font = TTF_OpenFont(font_path_.c_str(), GameConfig::FONT_SIZE_PT);
+  TTF_Font *font = TTF_OpenFont(font_path_.c_str(), GameConfig::FONT_SIZE_PT);
   if (!font) {
     SDL_Log("Failed to load font: %s", SDL_GetError());
   }
   font_ = font;
 }
 
-void AssetManager::createScoreText(GraphicsModule &graphics, GameState &game_state) {
+void AssetManager::createScoreText(const GraphicsModule &graphics, GameState &game_state) {
   SDL_Surface *surface = TTF_RenderText_Blended(font_, "SCORE", 0, SDL_Color{.r = 255, .g = 255, .b = 255, .a = 255});
 
   game_state.score_board_texture = SDL_CreateTextureFromSurface(graphics.getRenderer(), surface);
@@ -88,9 +88,9 @@ void AssetManager::createScoreText(GraphicsModule &graphics, GameState &game_sta
   SDL_DestroySurface(surface);
 }
 
-void AssetManager::createScoreNumber(GraphicsModule &graphics, GameState &game_state) {
+void AssetManager::createScoreNumber(const GraphicsModule &graphics, GameState &game_state) const {
   SDL_DestroyTexture(game_state.score_texture);
-  auto score_str = std::to_string(game_state.score);
+  const std::string score_str = std::to_string(game_state.score);
 
   SDL_Surface *surface = TTF_RenderText_Blended(font_, score_str.c_str(), 0, SDL_Color{0, 255, 0, 255});
 
@@ -102,9 +102,9 @@ void AssetManager::createScoreNumber(GraphicsModule &graphics, GameState &game_s
   game_state.score_update = false;
 }
 
-void AssetManager::createLiveText(GraphicsModule &graphics, GameState &game_state) {
+void AssetManager::createLiveText(const GraphicsModule &graphics, GameState &game_state) const {
   SDL_DestroyTexture(game_state.live_text_texture);
-  auto lives_str = "lives";
+  const char *lives_str = "lives";
 
   SDL_Surface *surface = TTF_RenderText_Blended(font_, lives_str, 0, SDL_Color{255, 255, 255, 255});
   game_state.live_text_texture = SDL_CreateTextureFromSurface(graphics.getRenderer(), surface);
@@ -113,12 +113,12 @@ void AssetManager::createLiveText(GraphicsModule &graphics, GameState &game_stat
   SDL_DestroySurface(surface);
 }
 
-void AssetManager::createLivesCounter(GraphicsModule &graphics, GameState &game_state) {
+void AssetManager::createLivesCounter(const GraphicsModule &graphics, GameState &game_state) const {
   SDL_DestroyTexture(game_state.lives_texture);
 
-  float width = GameConfig::LIVES_PANEL_WIDTH;
-  int number_of_rows = (game_state.number_of_lives / GameConfig::LIVES_PER_ROW) + 1;
-  float height = (float)number_of_rows * GameConfig::LIVES_PANEL_ROW_H;
+  const float width = GameConfig::LIVES_PANEL_WIDTH;
+  const int number_of_rows = (game_state.number_of_lives / GameConfig::LIVES_PER_ROW) + 1;
+  const float height = (float)number_of_rows * GameConfig::LIVES_PANEL_ROW_H;
 
   // create a texture that should fit all of the lives
   SDL_Texture *lives_texture =
@@ -135,13 +135,13 @@ void AssetManager::createLivesCounter(GraphicsModule &graphics, GameState &game_
   SDL_SetRenderTarget(graphics.getRenderer(), lives_texture);
 
   // logically places player_sprites according to how many there are
-  const auto &player_sprite = textures["canon"];
+  const SpriteData &player_sprite = textures.at("canon");
   for (int i = 0; i < game_state.number_of_lives; i++) {
-    auto column_offset = (i % GameConfig::LIVES_PER_ROW) * (player_sprite.frame1.w + GameConfig::LIVES_COL_GAP);
+    const float column_offset = (i % GameConfig::LIVES_PER_ROW) * (player_sprite.frame1.w + GameConfig::LIVES_COL_GAP);
 
-    auto row_offset = (i / GameConfig::LIVES_PER_ROW) * (player_sprite.frame1.h + GameConfig::LIVES_ROW_GAP);
+    const float row_offset = (i / GameConfig::LIVES_PER_ROW) * (player_sprite.frame1.h + GameConfig::LIVES_ROW_GAP);
 
-    auto dstRect =
+    const SDL_FRect dstRect =
       SDL_FRect{.x = column_offset, .y = row_offset, .w = player_sprite.frame1.w, .h = player_sprite.frame1.h};
     // const because I don't want any chance in altering the sprite data
 
@@ -157,7 +157,7 @@ void AssetManager::createLivesCounter(GraphicsModule &graphics, GameState &game_
   game_state.lives_update = false;
 }
 
-void AssetManager::createMenuTextures(GraphicsModule &graphics, GameState &game_state) {
+void AssetManager::createMenuTextures(const GraphicsModule &graphics, GameState &game_state) {
   SDL_Surface *title_surface =
     TTF_RenderText_Blended(font_, "(NOT) SPACE INVADERS", 0, SDL_Color{.r = 255, .g = 255, .b = 255, .a = 255});
   game_state.menu_title_texture = SDL_CreateTextureFromSurface(graphics.getRenderer(), title_surface);
@@ -171,14 +171,14 @@ void AssetManager::createMenuTextures(GraphicsModule &graphics, GameState &game_
   SDL_DestroySurface(prompt_surface);
 }
 
-void AssetManager::createGameOverTextures(GraphicsModule &graphics, GameState &game_state) {
+void AssetManager::createGameOverTextures(const GraphicsModule &graphics, GameState &game_state) {
   SDL_Surface *title_surface =
     TTF_RenderText_Blended(font_, "Game over", 0, SDL_Color{.r = 255, .g = 255, .b = 255, .a = 255});
   game_state.game_over_title_texture = SDL_CreateTextureFromSurface(graphics.getRenderer(), title_surface);
   SDL_SetTextureScaleMode(game_state.game_over_title_texture, SDL_SCALEMODE_PIXELART);
   SDL_DestroySurface(title_surface);
 
-  auto score = "score " + std::to_string(game_state.score);
+  const std::string score = "score " + std::to_string(game_state.score);
   SDL_Surface *prompt_surface =
     TTF_RenderText_Blended(font_, score.c_str(), 0, SDL_Color{.r = 255, .g = 255, .b = 255, .a = 255});
   game_state.game_over_prompt_texture = SDL_CreateTextureFromSurface(graphics.getRenderer(), prompt_surface);
@@ -186,7 +186,7 @@ void AssetManager::createGameOverTextures(GraphicsModule &graphics, GameState &g
   SDL_DestroySurface(prompt_surface);
 }
 
-void AssetManager::Initialize(GraphicsModule &graphics, GameState &game_state) {
+void AssetManager::Initialize(const GraphicsModule &graphics, GameState &game_state) {
   loadFont();
   loadTexture(graphics, game_state);
   createScoreText(graphics, game_state);

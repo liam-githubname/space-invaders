@@ -8,7 +8,7 @@ class AssetManager;
 
 class ShootingSystem {
 public:
-  void Update(GameState &game_state, AssetManager &asset_manager);
+  void Update(GameState &game_state, const AssetManager &asset_manager);
 
 private:
 };

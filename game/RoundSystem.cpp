@@ -12,7 +12,7 @@
 
 // FIX: Duplicate code need to remove testing refactor REMOVE REMOVE REMOVE
 // Taken from EventSystem.cpp
-bool is_formation_alien(Entity &entity) {
+bool is_formation_alien(const Entity &entity) {
   if (!entity.alien_info.has_value()) {
     return false;
   }
@@ -28,9 +28,9 @@ bool is_formation_alien(Entity &entity) {
   }
 }
 
-bool have_aliens_breached(GameState &game_state) {
-  auto has_breached = false;
-  for (Entity &entity : game_state.entities) {
+bool have_aliens_breached(const GameState &game_state) {
+  bool has_breached = false;
+  for (const Entity &entity : game_state.entities) {
     if (!entity.alien_info.has_value()) {
       continue;
     }
@@ -44,7 +44,7 @@ bool have_aliens_breached(GameState &game_state) {
   return has_breached;
 }
 
-auto health_is_zero = [](Entity &entity) {
+auto health_is_zero = [](const Entity &entity) {
   return (entity.is_active && entity.health.has_value() && entity.health->hp <= 0);
 };
 
@@ -64,7 +64,7 @@ void update_alien_for_death(Entity &alien) {
 }
 
 void update_zero_health_entities(GameState &game_state) {
-  for (auto &dead_entity : game_state.entities | std::views::filter(health_is_zero)) {
+  for (Entity &dead_entity : game_state.entities | std::views::filter(health_is_zero)) {
     // This feels jank but probably bullet proof (no pun intended)
     if (dead_entity.parent.has_value() && dead_entity.parent->was_player) {
       game_state.bullet_is_active = false;
@@ -87,7 +87,7 @@ void update_zero_health_entities(GameState &game_state) {
   };
 }
 
-void UpdateMysteryShipSpawner(GameState &game_state, AssetManager &asset_manager) {
+void UpdateMysteryShipSpawner(GameState &game_state, const AssetManager &asset_manager) {
   // Find the spawner
   auto spawner = std::find_if(game_state.entities.begin(), game_state.entities.end(),
                               [&](Entity &entity) { return entity.mystery_ticker.has_value(); });
@@ -113,7 +113,7 @@ void UpdateMysteryShipSpawner(GameState &game_state, AssetManager &asset_manager
     }
 
     // create the ufo
-    auto new_ufo = &game_state.CreateEntity();
+    Entity *new_ufo = &game_state.CreateEntity();
 
     new_ufo->is_active = true;
 
@@ -123,23 +123,23 @@ void UpdateMysteryShipSpawner(GameState &game_state, AssetManager &asset_manager
 
     new_ufo->bitmask.emplace(Bitmask{.layer = GameLayer::Enemy, .mask = GameLayer::Projectile});
 
-    new_ufo->sprite.emplace(Sprite{.frame_data = asset_manager.textures["spaceship"]});
+    new_ufo->sprite.emplace(Sprite{.frame_data = asset_manager.textures.at("spaceship")});
 
-    new_ufo->death_sprite.emplace(Sprite{.frame_data = asset_manager.textures["spaceship-death"]});
+    new_ufo->death_sprite.emplace(Sprite{.frame_data = asset_manager.textures.at("spaceship-death")});
 
-    auto sprite_width = new_ufo->sprite->frame_data.frame1.w;
+    const float sprite_width = new_ufo->sprite->frame_data.frame1.w;
 
-    auto sprite_height = new_ufo->sprite->frame_data.frame1.h;
+    const float sprite_height = new_ufo->sprite->frame_data.frame1.h;
 
     new_ufo->collider.emplace(Collider{.shape = ColliderShape::Rectangle, .rect{sprite_width, sprite_height}});
 
     // decide which side it spawns on.
-    auto side_multiplier = zero_or_one();
+    const int side_multiplier = zero_or_one();
 
     new_ufo->transform.emplace(Transform{
       .position = Vec2{.x = (float)GameConfig::WINDOW_WIDTH * side_multiplier, .y = GameConfig::MYSTERY_SHIP_Y}});
 
-    auto direction = (side_multiplier == 0) ? Right() : Left();
+    const Vec2 direction = (side_multiplier == 0) ? Right() : Left();
 
     new_ufo->velocity.emplace(Velocity{.speed = direction * GameConfig::MYSTERY_SHIP_SPEED});
 
@@ -162,14 +162,14 @@ void update_game_lives(GameState &game_state, int hp_bonus) {
   }
 }
 
-void is_player_alive(GameState &game_state, bool &is_running) {
+void is_player_alive(const GameState &game_state, bool &is_running) {
   if (game_state.number_of_lives <= 0) {
     is_running = false;
   }
 }
 
 void RoundSystem::Update(GameState &game_state, RenderSystem &render_system, EntityFactory &entity_factory,
-                         AssetManager &asset_manager, SDL_Renderer *renderer, bool &is_running) {
+                         const AssetManager &asset_manager, SDL_Renderer *renderer, bool &is_running) {
   // Begin new Round code
   if (new_round_flag_ == true) {
     int i = 0;
@@ -178,7 +178,7 @@ void RoundSystem::Update(GameState &game_state, RenderSystem &render_system, Ent
       i++;
     }
 
-    entity_factory.createAlienFormation(new_round_offset_position_);
+    entity_factory.createAlienFormation();
 
     update_game_lives(game_state, GameConfig::LIVES_BONUS_PER_ROUND);
 
