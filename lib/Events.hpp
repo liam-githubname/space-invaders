@@ -19,35 +19,25 @@
 #pragma once
 
 #include <cstdint>
-#include <variant>
 
+class GameState;
+struct Entity;
 // INFO: The reason I have class here is the enum must be accessed through the
 // name CollisionType.
+struct Event {
+  virtual ~Event() = default;
+  virtual void execute(GameState &game_state) const = 0;
+};
 
-struct CollisionPayload {
+struct CollisionEvent : public Event {
+public:
+  explicit CollisionEvent(uint32_t entity_a_id, uint32_t entity_b_id);
+  virtual void execute(GameState &game_state) const override final;
+  // CollisionEvent* make() {new CollisionEvent() };
+
+private:
   uint32_t entity_a_id;
   uint32_t entity_b_id;
+  void BulletCollisionHandler(Entity &entity_a, Entity &entity_b) const;
+  void WallCollisionHandler(Entity &entity_a, Entity &entity_b, GameState &game_state) const;
 };
-
-struct DeathPayload {
-  uint32_t entity_id;
-};
-
-struct ScorePayload {
-  int points;
-};
-
-struct HitPayload {
-  uint32_t entity_a_id;
-  uint32_t entity_b_id;
-};
-
-// TODO: Write doc for clangd to tell me how to add Event variants when I
-// inevitably forget.
-// NOTE: std::variant is a typesafe union. I was considering
-// using optional fields like how entities work, but after looking into it these
-// seem to be a good option. This type alias Event causes every event to be size
-// of the largest payload. I think there might be a more memory efficient way of
-// doing this with anonymous unions?
-using Event = std::variant<CollisionPayload, DeathPayload, ScorePayload, HitPayload>;
-//  ^ #of times I forgot about this: 1

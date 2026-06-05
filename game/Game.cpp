@@ -2,14 +2,12 @@
 #include "AssetManager.hpp"
 #include "CollisionSystem.hpp"
 #include "EntityFactory.hpp"
-#include "EventSystem.hpp"
 #include "GameConfig.hpp"
 #include "GameState.hpp"
 #include "GraphicsModule.hpp"
 #include "InputSystem.hpp"
 #include "MovementSystem.hpp"
 #include "Timestep.hpp"
-#include "Util.hpp"
 #include <expected>
 
 Game::Game(GraphicsModule &&graphics, const float window_width, const float window_height)
@@ -103,6 +101,7 @@ void Game::run_menu() {
       if (event_.type == SDL_EVENT_QUIT) {
         start_menu_running = false;
         is_running = false;
+        game_over_running = false;
       }
       if (event_.type == SDL_EVENT_KEY_DOWN) {
         if (event_.key.key == SDLK_SPACE) {
@@ -144,8 +143,6 @@ void Game::run_menu() {
 void Game::run() {
   run_menu();
 
-  // FIX: Either make this a private member of Game or figure out a better
-  // way to create it.
   EntityFactory entity_factory = EntityFactory(game_state_, asset_manager_, window_width_, window_height_);
 
   initializeGame(entity_factory);
@@ -174,7 +171,7 @@ void Game::run() {
     ui_system_.Update(graphics_, game_state_, asset_manager_);
     round_system_.Update(game_state_, render_system_, entity_factory, asset_manager_, graphics_.getRenderer(),
                          is_running);
-    event_system_.ProcessEvents(game_state_);
+    game_state_.event_queue.processEvents(game_state_);
     render_system_.Update(game_state_, graphics_.getRenderer());
   }
 

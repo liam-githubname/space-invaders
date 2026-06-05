@@ -18,7 +18,6 @@
 #include "GameState.hpp"
 #include "Raycast.hpp"
 #include "Util.hpp"
-#include <cstdint>
 #include <optional>
 
 void update_player_shooting(GameState &game_state, const AssetManager &asset_manager, const Entity &player) {
@@ -108,73 +107,6 @@ bool ray_cast_hits_alien(const GameState &game_state, const Entity &entity) {
     // TODO: #3 Check Circle colliders.
   }
   return is_shortest_hit_alien;
-}
-
-uint32_t raycast(GameState &game_state, const Entity &entity) {
-  uint32_t hit_entity_id = -1;
-  // The raycasting portion of the shooting system
-  if (!entity.gun.has_value() || !entity.gun->fire_flag)
-    return true;
-
-  float shortest_distance = INFINITY;
-
-  // Raycast
-  const Raycast::Ray ray{.origin = Vec2{entity.transform->position.x, entity.transform->position.y},
-                         .direction = Vec2{entity.transform->direction.x, entity.transform->direction.y}};
-
-  for (const Entity &other_entity : game_state.entities) {
-    // Skip if it's looking at itself
-    if (entity.id == other_entity.id) {
-      continue;
-    }
-    // skip if the caster isn't concerned with other entity's layer.
-    if ((entity.bitmask->mask & other_entity.bitmask->layer) == GameLayer::None) {
-      continue;
-    }
-
-    if (other_entity.collider->shape == ColliderShape::Rectangle) {
-      float min_x = other_entity.transform->position.x - other_entity.collider->rect.width / 2;
-      float max_x = other_entity.transform->position.x + other_entity.collider->rect.width / 2;
-      float min_y = other_entity.transform->position.y - other_entity.collider->rect.height / 2;
-      float max_y = other_entity.transform->position.y + other_entity.collider->rect.height / 2;
-
-      // NOTE: This is the first time I'm returning an optional like this.
-      std::optional<float> distance = Raycast::RayAgainstAABB(ray, min_x, min_y, max_x, max_y);
-
-      // I just learned that you don't need .has_value()
-      // the optional has a built-in operator bool().
-      // Which is a cool feature, but damn 2026-04-27.
-      //
-      if (!distance.has_value()) {
-        continue;
-      }
-      if (*distance >= entity.gun->distance) {
-        // SDL_Log("Distance value %f", *distance);
-        continue;
-      }
-
-      // After further research, I could remove the .value() here as well.
-      // With the addition of optionals pointer semantics was kept in
-      // mind. so *distance is the same as distance.value();
-      if (*distance < shortest_distance) {
-        shortest_distance = distance.value();
-        hit_entity_id = other_entity.id;
-        // SDL_Log("shortest distance %f", shortest_distance);
-      }
-    }
-    // TODO: #3 Check Circle colliders.
-  }
-
-  // If the raycast fits the component distance then emit a event otherwise just
-  // return the id of the other entity.
-  if (shortest_distance < entity.gun->distance) {
-    //  WARN: These might be moving away from SRP, I'll have to rethink this
-    game_state.event_queue.PushEvent(HitPayload{
-      .entity_a_id = entity.id,
-      .entity_b_id = hit_entity_id,
-    });
-  }
-  return hit_entity_id;
 }
 
 void update_alien_shooting(GameState &game_state, const Entity &entity, const AssetManager &asset_manager) {

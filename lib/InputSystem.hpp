@@ -4,7 +4,7 @@
 #include <SDL3/SDL.h>
 
 class GameState;
-// Do I want remove the copy constructor of this class as well?
+
 class InputSystem {
 public:
   // This is that public initializer

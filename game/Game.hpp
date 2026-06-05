@@ -5,7 +5,6 @@
 #include "AssetManager.hpp"
 #include "CollisionSystem.hpp"
 #include "EntityFactory.hpp"
-#include "EventSystem.hpp"
 #include "GameState.hpp"
 #include "GraphicsModule.hpp"
 #include "InputSystem.hpp"
@@ -20,9 +19,11 @@
 class Game {
 public:
   static std::expected<Game, std::string> create(std::string_view title, int width, int height);
-  void run();
+
   void run_menu();
+  void run();
   void run_game_over();
+
   // Copy semantic is being deleted
   Game(const Game &) = delete;
   Game &operator=(const Game &) = delete;
@@ -51,14 +52,11 @@ private:
   InputSystem input_system_;
   MovementSystem movement_system_;
   CollisionSystem collision_system_;
-  EventSystem event_system_;
   RenderSystem render_system_;
   ShootingSystem shooting_system_;
   AssetManager asset_manager_;
   UISystem ui_system_;
   RoundSystem round_system_;
-
-  void initializeLibrarySystems(std::string_view title);
 
   // Miscellaneous
   bool is_running = true;

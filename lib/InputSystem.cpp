@@ -13,6 +13,7 @@
 #include "Util.hpp"
 #include <SDL3/SDL.h>
 #include <algorithm>
+#include <ranges>
 
 class InputSystem;
 
@@ -25,7 +26,7 @@ InputSystem InputSystem::create() {
 };
 
 void update_player_input(const bool *keyboard_state, GameState &game_state) {
-  Vec2 move{0.0f, 0.0f};
+  Vec2 move = Zero();
   bool fire_input = false;
 
   if (keyboard_state[SDL_SCANCODE_W] || keyboard_state[SDL_SCANCODE_UP]) {
@@ -44,9 +45,12 @@ void update_player_input(const bool *keyboard_state, GameState &game_state) {
     fire_input = true;
   }
 
-  // This is another way to search through something.
   auto player_entity = std::find_if(game_state.entities.begin(), game_state.entities.end(),
                                     [](Entity &entity) { return entity.player_input.has_value(); });
+  if (player_entity == game_state.entities.end()) {
+    SDL_Log("No Player found!");
+    return;
+  }
   // This lambda expression is a good example for explanation.
   // 1. The [] capture clause - tells compiler that a lambda is beginning
   // It also passes outside variables that the lambda is allowed to see.
@@ -56,32 +60,25 @@ void update_player_input(const bool *keyboard_state, GameState &game_state) {
   // 3. The & creates a reference instead of a copy which is vital.
   // 4. The body of the lambda is what is ran on all the Entity &entity it
   // finds.
-
   player_entity->player_input->move = move;
-  // WARN: For space invaders this is something that I don't want to change.
-  // I know that that's not how I should do it if I want gameplay to be
-  // completely decoupled. I should do something like have a response and update
-  // component maybe? entity->transform->direction = move;
   player_entity->player_input->is_firing = fire_input;
   player_entity->gun->fire_flag = fire_input;
 }
 
-// TODO: implement
-void update_alien_input(Entity &entity) {
-  if (entity.gun.has_value()) {
-    entity.gun->fire_flag = (one_in_x(GameConfig::ALIEN_FIRE_CHANCE_1IN) == 1) ? true : false;
-  }
-}
+void update_alien_input(GameState &game_state) {
+  // filtering lambda
+  const auto is_alien = [](Entity &entity) { return entity.alien_info.has_value(); };
 
-// Private Constructor
-InputSystem::InputSystem(const bool *keyboard_state) : keyboard_state(keyboard_state) {}
-
-void InputSystem::Update(GameState &game_state) const {
-  update_player_input(keyboard_state, game_state);
-
-  for (Entity &entity : game_state.entities) {
-    if (entity.alien_info.has_value()) {
-      update_alien_input(entity);
+  for (Entity &alien : game_state.entities | std::views::filter(is_alien)) {
+    if (alien.gun.has_value()) {
+      alien.gun->fire_flag = (one_in_x(GameConfig::ALIEN_FIRE_CHANCE_1IN) == 1);
     }
   }
 }
+
+void InputSystem::Update(GameState &game_state) const {
+  update_player_input(keyboard_state, game_state);
+  update_alien_input(game_state);
+}
+// Private Constructor
+InputSystem::InputSystem(const bool *keyboard_state) : keyboard_state(keyboard_state) {}

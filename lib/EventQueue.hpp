@@ -12,16 +12,27 @@
 #pragma once
 
 #include "Events.hpp"
+#include <memory>
 #include <vector>
+
+class GameState;
+struct Event;
 
 class EventQueue {
 private:
-  std::vector<Event> event_queue;
+  std::vector<std::unique_ptr<Event>> event_queue;
 
 public:
   // The const on the return type means callers can read and iterate, but can't modify.
   // The trailing const on the method means this is callable on a const EventQueue.
-  const std::vector<Event> &GetEvents() const { return event_queue; };
-  void PushEvent(Event new_event) { event_queue.push_back(new_event); };
-  void ClearEventQueue() { event_queue.clear(); };
+  void processEvents(GameState &game_state) const;
+  const std::vector<std::unique_ptr<Event>> &GetEvents() const { return event_queue; };
+  // void PushEvent(Event *const new_event) { event_queue.push_back(new_event); };
+  template<typename T, typename... Args> //
+  void PushEvent(Args &&...args) {
+    event_queue.push_back(std::make_unique<T>(std::forward<Args>(args)...));
+  }
+
+  // This needs to call free on all of them.
+  void ClearEventQueue(GameState &game_state);
 };

@@ -42,10 +42,11 @@ add_library(game-engine
     MovementSystem.cpp
     RenderSystem.cpp
     CollisionSystem.cpp
-    EventSystem.cpp
+    Events.cpp        # Replaces EventSystem.cpp - event handlers now live on the Event subclasses themselves - 2026-06-03
+    EventQueue.cpp    # Pairs with Events.cpp to process the GameState's event queue each frame - 2026-06-03
     ShootingSystem.cpp
     AssetManager.cpp  # Added AssetManager to the game-engine library - 2026-05-26
-    UISystem.cpp # Added UISystem to the game-engine library - 2026-05-27
+    UISystem.cpp      # Added UISystem to the game-engine library - 2026-05-27
 )
 target_include_directories(game-engine PUBLIC ${CMAKE_SOURCE_DIR}/lib)
 target_link_libraries(game-engine PUBLIC SDL3::SDL3 SDL3_image::SDL3_image SDL3_ttf::SDL3_ttf)  # Added SDL3_ttf for text rendering support - 2026-05-27

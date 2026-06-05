@@ -5,7 +5,7 @@ class Entity;
 
 class CollisionSystem {
 public:
-  void Update(GameState &game_state);
+  void Update(GameState &game_state) const;
 
 private:
   bool IsRectToRectColliding(const Entity &entity_a, const Entity &entity_b) const;

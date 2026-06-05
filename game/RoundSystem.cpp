@@ -2,31 +2,12 @@
 #include "RoundSystem.hpp"
 #include "AssetManager.hpp"
 #include "EntityFactory.hpp"
-#include "EventSystem.hpp"
 #include "GameConfig.hpp"
 #include "GameState.hpp"
 #include "RenderSystem.hpp"
 #include "SDL3/SDL_render.h"
 #include <cstdlib>
 #include <ranges>
-
-// FIX: Duplicate code need to remove testing refactor REMOVE REMOVE REMOVE
-// Taken from EventSystem.cpp
-bool is_formation_alien(const Entity &entity) {
-  if (!entity.alien_info.has_value()) {
-    return false;
-  }
-  switch (entity.alien_info->type) {
-    case AlienType::Squid:
-      return true;
-    case AlienType::Crab:
-      return true;
-    case AlienType::Octopus:
-      return true;
-    default:
-      return false;
-  }
-}
 
 bool have_aliens_breached(const GameState &game_state) {
   bool has_breached = false;
@@ -75,13 +56,14 @@ void update_zero_health_entities(GameState &game_state) {
       game_state.DestroyEntity(dead_entity.id);
     };
 
-    if (dead_entity.alien_info.has_value()) {
+    std::optional<Alien> &alien_information = dead_entity.alien_info;
+    if (alien_information.has_value()) {
       update_alien_for_death(dead_entity);
       game_state.score += dead_entity.alien_info->score;
       game_state.score_update = true;
     }
 
-    if (is_formation_alien(dead_entity)) {
+    if (alien_information.has_value() && alien_information->is_formation_alien()) {
       game_state.number_of_aliens--;
     }
   };
