@@ -255,10 +255,6 @@ The list of things I am happy with is shorter than the list of things I am not, 
 
 A portfolio project is supposed to be the thing that shows what you can do. This shows that I can take a jump right into problem space full of unknown unknowns and start making some of those unknowns known!
 
-If you're reading this as a grad school admissions committee: I would like to learn how to be a good programmer, and I would love to do that by learning how to make good videogames!
-
-If you're reading this as a developer: the most useful thing in this article is the bitmask refactor. The most useful thing in the codebase is `lib/Raycast.hpp`. The most useful thing in the commit log is `d71ad8b`.
-
 Thanks for reading.
 
 ---
